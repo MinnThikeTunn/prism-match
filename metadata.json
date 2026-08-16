@@ -1,0 +1,7 @@
+{
+  "name": "Matchwise Prism",
+  "description": "Context-aware human matching platform featuring deterministic 3-tier algorithm scoring, Prism Spectrum visualization, and explainable AI synergy metrics.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
