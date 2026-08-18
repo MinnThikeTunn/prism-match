@@ -188,24 +188,24 @@ export const ConicRingVisual: React.FC<ConicRingVisualProps> = ({ size = 420 }) 
 
   return (
     <div
-      className="relative flex items-center justify-center cursor-pointer select-none"
+      className="relative flex items-center justify-center cursor-pointer select-none max-w-full aspect-square"
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
-      style={{ width: size, height: size }}
+      style={{ width: size, height: size, maxWidth: '100%', maxHeight: '100%' }}
       title="Matchwise Conic Prism Ring: Physical & OKLCH Raytraced Asset"
     >
       <canvas
         ref={canvasRef}
         width={size * 1.5}
         height={size * 1.5}
-        className="w-full h-full object-contain filter transition-transform duration-300 ease-out"
+        className="w-full h-full max-w-full max-h-full object-contain filter transition-transform duration-300 ease-out"
         style={{
           transform: isHovered ? 'scale(1.03)' : 'scale(1.0)'
         }}
       />
       {isHovered && (
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full shadow-sm text-[11px] font-mono tracking-wider text-[#935815] border border-amber-200 pointer-events-none">
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full shadow-sm text-[11px] font-mono tracking-wider text-[#935815] border border-amber-200 pointer-events-none whitespace-nowrap">
           OKLCH CHROMATIC INTERPOLATION ACTIVE
         </div>
       )}

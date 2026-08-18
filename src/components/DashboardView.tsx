@@ -24,14 +24,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const userColor = getColorIdentity(currentUser.id);
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8 animate-in fade-in duration-300">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 animate-in fade-in duration-300">
       {/* Header */}
-      <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="mb-6 sm:mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-stone-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-stone-900 tracking-tight">
             Your Prism Signature
           </h1>
-          <p className="mt-1 text-sm text-stone-500 max-w-2xl">
+          <p className="mt-1 text-xs sm:text-sm text-stone-500 max-w-2xl">
             A pure chromatic spectrum expressing your strategic velocity, cognitive architecture, and ethical resonance.
           </p>
         </div>
@@ -46,11 +46,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
         {/* Left Column (8 cols): Large Global Synergy Ring + 3 Metric Cards */}
         <div className="lg:col-span-8 space-y-6">
           {/* Main Visual Display Card with Pure Chromatic Aura */}
-          <div className="bg-gradient-to-b from-stone-100/90 to-stone-200/60 border border-stone-200/90 rounded-2xl p-10 flex flex-col items-center justify-center min-h-[380px] shadow-xs relative overflow-hidden">
+          <div className="bg-gradient-to-b from-stone-100/90 to-stone-200/60 border border-stone-200/90 rounded-2xl p-6 sm:p-10 flex flex-col items-center justify-center min-h-[340px] sm:min-h-[380px] shadow-xs relative overflow-hidden">
             {/* Ambient concentric background glow */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-50">
               <div className="w-96 h-96 rounded-full border border-amber-400/20 animate-pulse" />
@@ -60,8 +60,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             {/* Central Pure Chromatic Spectrum Orb */}
             <div className="relative z-10 flex flex-col items-center text-center">
-              <div className="w-52 h-52 rounded-full p-2 bg-gradient-to-tr from-[#D97706] via-[#0A6275] to-[#059669] shadow-xl flex items-center justify-center hover:scale-105 transition-transform duration-500">
-                <div className="w-full h-full rounded-full bg-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
+              <div className="w-44 h-44 sm:w-52 sm:h-52 rounded-full p-2 bg-gradient-to-tr from-[#D97706] via-[#0A6275] to-[#059669] shadow-xl flex items-center justify-center hover:scale-105 transition-transform duration-500">
+                <div className="w-full h-full rounded-full bg-white flex flex-col items-center justify-center p-3 sm:p-4 relative overflow-hidden">
                   {/* Subtle inner chromatic gradient fill */}
                   <div
                     className="absolute inset-0 opacity-15"
@@ -76,13 +76,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <span className="w-3 h-3 rounded-full bg-[#7C3AED] shadow-sm" />
                   </div>
 
-                  <span className="text-sm font-black text-stone-900 tracking-wide uppercase">
+                  <span className="text-xs sm:text-sm font-black text-stone-900 tracking-wide uppercase">
                     HARMONIC SPECTRUM
                   </span>
-                  <span className="mt-1 text-[11px] font-bold text-[#D97706] tracking-wider uppercase">
+                  <span className="mt-1 text-[10px] sm:text-[11px] font-bold text-[#D97706] tracking-wider uppercase">
                     Solar Gold × Deep Teal
                   </span>
-                  <span className="mt-0.5 text-[9px] font-semibold text-stone-400 uppercase tracking-widest">
+                  <span className="mt-0.5 text-[8px] sm:text-[9px] font-semibold text-stone-400 uppercase tracking-widest">
                     Pure Chromatic Alignment
                   </span>
                 </div>

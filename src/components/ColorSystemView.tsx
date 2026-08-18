@@ -347,9 +347,9 @@ export const ColorSystemView: React.FC<ColorSystemViewProps> = ({
   }, [simDrive, simLogic, simEmpathy, simVision, simStability]);
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8 animate-in fade-in duration-300">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 animate-in fade-in duration-300">
       {/* Hero Section */}
-      <div className="bg-white border border-stone-200 rounded-3xl p-8 sm:p-10 shadow-xs mb-8 relative overflow-hidden">
+      <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-10 shadow-xs mb-6 sm:mb-8 relative overflow-hidden">
         {/* Chromatic ambient glow */}
         <div 
           className="absolute -right-20 -top-20 w-96 h-96 rounded-full blur-3xl opacity-30 pointer-events-none"

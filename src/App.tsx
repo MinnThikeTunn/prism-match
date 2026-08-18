@@ -11,9 +11,17 @@ import { CustomAiMatchModal } from './components/CustomAiMatchModal';
 import { NetworkModal } from './components/NetworkModal';
 import { QuestionnaireModal } from './components/QuestionnaireModal';
 import { ChromaticTestModal } from './components/ChromaticTestModal';
+import { GoogleAuthModal } from './components/GoogleAuthModal';
+import { GoogleCredentialInspectorModal } from './components/GoogleCredentialInspectorModal';
 import { CURRENT_USER, MOCK_PROFILES } from './data/mockData';
 import { UserProfile, ViewMode } from './types';
 import { ChromaticAssessmentResult } from './lib/colorSystem';
+import { 
+  GoogleCredential, 
+  getStoredGoogleCredential, 
+  saveGoogleCredential, 
+  removeGoogleCredential 
+} from './lib/googleAuth';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
@@ -27,6 +35,11 @@ export default function App() {
       // fallback
     }
     return CURRENT_USER;
+  });
+
+  // Google Authentication State stored in localStorage
+  const [googleCredential, setGoogleCredential] = useState<GoogleCredential | null>(() => {
+    return getStoredGoogleCredential();
   });
 
   const [candidatePool] = useState<UserProfile[]>(MOCK_PROFILES);
@@ -58,6 +71,8 @@ export default function App() {
   const [isCustomMatchOpen, setIsCustomMatchOpen] = useState(false);
   const [isNetworkOpen, setIsNetworkOpen] = useState(false);
   const [isQuestionnaireOpen, setIsQuestionnaireOpen] = useState(false);
+  const [isGoogleSignInOpen, setIsGoogleSignInOpen] = useState(false);
+  const [isGoogleInspectorOpen, setIsGoogleInspectorOpen] = useState(false);
 
   const handleUpdateUser = (updated: UserProfile) => {
     setCurrentUser(updated);
@@ -78,6 +93,28 @@ export default function App() {
     setCurrentView('synergy');
   };
 
+  // Google Auth Handlers
+  const handleGoogleSuccess = (credential: GoogleCredential, syncProfile: boolean) => {
+    saveGoogleCredential(credential);
+    setGoogleCredential(credential);
+
+    if (syncProfile) {
+      const updatedProfile: UserProfile = {
+        ...currentUser,
+        name: credential.user.name,
+        avatar: credential.user.picture,
+        email: credential.user.email,
+        bio: `${currentUser.bio} (Authenticated via Google Account ${credential.user.email})`
+      };
+      handleUpdateUser(updatedProfile);
+    }
+  };
+
+  const handleGoogleSignOut = () => {
+    removeGoogleCredential();
+    setGoogleCredential(null);
+  };
+
   const quickMatches = candidatePool.slice(0, 4);
 
   return (
@@ -94,6 +131,10 @@ export default function App() {
         onOpenChromaticTest={() => setIsChromaticTestOpen(true)}
         currentUser={currentUser}
         highContrast={highContrast}
+        googleCredential={googleCredential}
+        onOpenGoogleSignIn={() => setIsGoogleSignInOpen(true)}
+        onOpenGoogleInspector={() => setIsGoogleInspectorOpen(true)}
+        onGoogleSignOut={handleGoogleSignOut}
       />
 
       {/* Main Screen Content */}
@@ -121,7 +162,12 @@ export default function App() {
         )}
 
         {currentView === 'verification' && (
-          <VerificationView currentUser={currentUser} />
+          <VerificationView 
+            currentUser={currentUser} 
+            googleCredential={googleCredential}
+            onOpenGoogleSignIn={() => setIsGoogleSignInOpen(true)}
+            onOpenGoogleInspector={() => setIsGoogleInspectorOpen(true)}
+          />
         )}
 
         {currentView === 'profile' && (
@@ -132,6 +178,9 @@ export default function App() {
             onSelectCandidateSynergy={handleSelectCandidate}
             onNavigateToColors={() => setCurrentView('colors')}
             onOpenChromaticTest={() => setIsChromaticTestOpen(true)}
+            googleCredential={googleCredential}
+            onOpenGoogleSignIn={() => setIsGoogleSignInOpen(true)}
+            onOpenGoogleInspector={() => setIsGoogleInspectorOpen(true)}
           />
         )}
 
@@ -185,6 +234,26 @@ export default function App() {
         onClose={() => setIsQuestionnaireOpen(false)}
         currentUser={currentUser}
         onUpdateProfile={handleUpdateUser}
+      />
+
+      {/* Google Authentication Modal */}
+      <GoogleAuthModal
+        isOpen={isGoogleSignInOpen}
+        onClose={() => setIsGoogleSignInOpen(false)}
+        onSuccess={handleGoogleSuccess}
+        currentCredential={googleCredential}
+      />
+
+      {/* Google Credential & JWT Claims Inspector Modal */}
+      <GoogleCredentialInspectorModal
+        isOpen={isGoogleInspectorOpen}
+        onClose={() => setIsGoogleInspectorOpen(false)}
+        credential={googleCredential}
+        onSignOut={handleGoogleSignOut}
+        onSwitchAccount={() => {
+          setIsGoogleInspectorOpen(false);
+          setIsGoogleSignInOpen(true);
+        }}
       />
     </div>
   );

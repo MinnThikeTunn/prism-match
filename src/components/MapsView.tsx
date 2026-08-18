@@ -251,7 +251,7 @@ export const MapsView: React.FC<MapsViewProps> = ({
   }, [candidates, activeMapTier]);
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8 animate-in fade-in duration-300 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 animate-in fade-in duration-300 space-y-6">
       
       {/* Header & 3 Maps Selector */}
       <div className="space-y-4">

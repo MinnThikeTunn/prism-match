@@ -1,7 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ViewMode, UserProfile } from '../types';
-import { Search, Sparkles, Bell, Palette } from 'lucide-react';
+import { 
+  Search, 
+  Sparkles, 
+  Bell, 
+  Palette, 
+  Menu, 
+  X, 
+  LayoutDashboard, 
+  Compass, 
+  ShieldCheck, 
+  User, 
+  Share2, 
+  ChevronRight, 
+  Check, 
+  KeyRound, 
+  LogOut, 
+  Users,
+  ExternalLink,
+  Layers,
+  Database
+} from 'lucide-react';
 import { getColorIdentity } from '../lib/colorSystem';
+import { GoogleUserMenu } from './GoogleUserMenu';
+import { GoogleCredential } from '../lib/googleAuth';
 
 interface HeaderProps {
   currentView: ViewMode;
@@ -12,6 +34,10 @@ interface HeaderProps {
   onOpenChromaticTest?: () => void;
   currentUser: UserProfile;
   highContrast: boolean;
+  googleCredential: GoogleCredential | null;
+  onOpenGoogleSignIn: () => void;
+  onOpenGoogleInspector: () => void;
+  onGoogleSignOut: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -21,212 +47,551 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenQuestionnaire,
   onOpenNetwork,
   onOpenChromaticTest,
-  currentUser
+  currentUser,
+  googleCredential,
+  onOpenGoogleSignIn,
+  onOpenGoogleInspector,
+  onGoogleSignOut
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const userColor = getColorIdentity(currentUser.id);
 
+  // Close mobile drawer on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+        setShowNotifications(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
+
+  const handleNavClick = (view: ViewMode) => {
+    onViewChange(view);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      onOpenNetwork();
+      setIsMobileMenuOpen(false);
+    }
+  };
+
+  const navItems = [
+    {
+      id: 'dashboard' as ViewMode,
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      description: 'Your chromatic signature & global synergy'
+    },
+    {
+      id: 'maps' as ViewMode,
+      label: 'Maps',
+      icon: Compass,
+      description: 'Cartography & multi-tier resonance exploration'
+    },
+    {
+      id: 'verification' as ViewMode,
+      label: 'Verification',
+      icon: ShieldCheck,
+      description: 'Zero-leakage proof of chromatic spectrum'
+    },
+    {
+      id: 'colors' as ViewMode,
+      label: 'Color System',
+      icon: Palette,
+      description: '5 Core channels & harmonic archetype matrix'
+    },
+    {
+      id: 'profile' as ViewMode,
+      label: 'Profile',
+      icon: User,
+      description: 'Big Five psychometrics & vector parameters'
+    }
+  ];
+
   return (
-    <header className="bg-white border-b border-stone-200 sticky top-0 z-40 px-6 py-3 transition-colors">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-6">
-        {/* Left: Brand & Navigation */}
-        <div className="flex items-center gap-10">
-          {/* Logo / Brand Name */}
-          <button
-            onClick={() => onViewChange('dashboard')}
-            className="flex items-center gap-2 text-left group"
-            id="brand-logo-btn"
-          >
-            <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-[#D97706] via-[#0A6275] to-[#059669] shadow-xs" />
-            <span className="text-xl font-bold tracking-tight text-stone-900 group-hover:text-[#D97706] transition-colors">
-              Matchwise Prism
-            </span>
-          </button>
-
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8">
+    <>
+      <header className="bg-white border-b border-stone-200 sticky top-0 z-40 px-4 sm:px-6 py-3 transition-colors shadow-2xs">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-6">
+          
+          {/* Left: Brand & Desktop Navigation */}
+          <div className="flex items-center gap-6 lg:gap-10">
+            {/* Logo / Brand Name */}
             <button
-              onClick={() => onViewChange('dashboard')}
-              className={`text-sm font-semibold transition-all relative py-1 ${
-                currentView === 'dashboard'
-                  ? 'text-[#D97706]'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-              id="nav-dashboard-btn"
+              onClick={() => handleNavClick('dashboard')}
+              className="flex items-center gap-2.5 text-left group min-h-[40px] focus:outline-none"
+              id="brand-logo-btn"
+              aria-label="Matchwise Prism Home"
             >
-              Dashboard
-              {currentView === 'dashboard' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D97706] rounded-full" />
-              )}
+              <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-[#D97706] via-[#0A6275] to-[#059669] shadow-xs shrink-0 group-hover:scale-105 transition-transform" />
+              <span className="text-lg sm:text-xl font-bold tracking-tight text-stone-900 group-hover:text-[#D97706] transition-colors whitespace-nowrap">
+                Matchwise Prism
+              </span>
             </button>
 
-            <button
-              onClick={() => onViewChange('maps')}
-              className={`text-sm font-semibold transition-all relative py-1 ${
-                currentView === 'maps'
-                  ? 'text-[#D97706]'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-              id="nav-maps-btn"
-            >
-              Maps
-              {currentView === 'maps' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D97706] rounded-full" />
-              )}
-            </button>
-
-            <button
-              onClick={() => onViewChange('verification')}
-              className={`text-sm font-semibold transition-all relative py-1 ${
-                currentView === 'verification'
-                  ? 'text-[#D97706]'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-              id="nav-verification-btn"
-            >
-              Verification
-              {currentView === 'verification' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D97706] rounded-full" />
-              )}
-            </button>
-
-            <button
-              onClick={() => onViewChange('colors')}
-              className={`text-sm font-semibold transition-all relative py-1 ${
-                currentView === 'colors'
-                  ? 'text-[#D97706]'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-              id="nav-colors-btn"
-            >
-              Color System
-              {currentView === 'colors' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D97706] rounded-full" />
-              )}
-            </button>
-
-            <button
-              onClick={() => onViewChange('profile')}
-              className={`text-sm font-semibold transition-all relative py-1 ${
-                currentView === 'profile'
-                  ? 'text-[#D97706]'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-              id="nav-profile-btn"
-            >
-              Profile
-              {currentView === 'profile' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D97706] rounded-full" />
-              )}
-            </button>
-          </nav>
-        </div>
-
-        {/* Right: Search, Custom Match Button, Notification, Avatar */}
-        <div className="flex items-center gap-4">
-          {/* Search Input */}
-          <div className="relative hidden sm:block w-48 lg:w-64">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search spectrum..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') onOpenNetwork();
-              }}
-              className="w-full pl-9 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#D97706]/30 focus:border-[#D97706] transition-all"
-              id="header-search-input"
-            />
+            {/* Desktop Navigation Links (hidden on mobile/tablet < md) */}
+            <nav className="hidden md:flex items-center gap-6 lg:gap-8" aria-label="Main Navigation">
+              {navItems.map((item) => {
+                const isActive = currentView === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => onViewChange(item.id)}
+                    className={`text-sm font-semibold transition-all relative py-1 focus:outline-none ${
+                      isActive
+                        ? 'text-[#D97706]'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                    id={`nav-${item.id}-btn`}
+                  >
+                    {item.label}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D97706] rounded-full" />
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
           </div>
 
-          {/* Calibrate / Retake Color Test Button */}
-          {onOpenChromaticTest && (
+          {/* Right: Actions, Search, Notifications, User Menu, & Mobile Hamburger */}
+          <div className="flex items-center gap-2 sm:gap-4">
+            
+            {/* Desktop Search Input */}
+            <div className="relative hidden lg:block w-48 xl:w-60">
+              <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search spectrum..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') onOpenNetwork();
+                }}
+                className="w-full pl-9 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#D97706]/30 focus:border-[#D97706] transition-all"
+                id="header-search-input"
+              />
+            </div>
+
+            {/* Calibrate / Retake Color Test Button (Desktop & Tablet) */}
+            {onOpenChromaticTest && (
+              <button
+                onClick={onOpenChromaticTest}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-full shadow-xs transition-all active:scale-95"
+                id="header-calibrate-color-btn"
+                title="Calibrate or Retake Chromatic Assessment"
+              >
+                <Palette className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span className="hidden xl:inline">Calibrate Color</span>
+              </button>
+            )}
+
+            {/* Custom AI Match Action Button (Desktop & Tablet) */}
             <button
-              onClick={onOpenChromaticTest}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-full shadow-xs transition-all"
-              id="header-calibrate-color-btn"
-              title="Calibrate or Retake Chromatic Assessment"
+              onClick={onOpenCustomMatch}
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 bg-[#D97706]/10 text-[#D97706] hover:bg-[#D97706]/20 text-xs font-semibold rounded-full border border-[#D97706]/30 transition-all shadow-xs active:scale-95"
+              id="header-custom-ai-match-btn"
             >
-              <Palette className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden lg:inline">Calibrate Color</span>
-            </button>
-          )}
-
-          {/* Custom AI Match Action Button */}
-          <button
-            onClick={onOpenCustomMatch}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#D97706]/10 text-[#D97706] hover:bg-[#D97706]/20 text-xs font-semibold rounded-full border border-[#D97706]/30 transition-all shadow-xs"
-            id="header-custom-ai-match-btn"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#D97706]" />
-            <span className="hidden md:inline">Custom AI Match</span>
-          </button>
-
-          {/* Notifications Icon with Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2 text-stone-500 hover:text-stone-800 hover:bg-stone-100 rounded-full transition-colors relative"
-              id="header-notifications-btn"
-              aria-label="Notifications"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#D97706] rounded-full ring-2 ring-white" />
+              <Sparkles className="w-3.5 h-3.5 text-[#D97706] shrink-0" />
+              <span className="hidden md:inline">Custom AI Match</span>
             </button>
 
-            {showNotifications && (
-              <div className="absolute right-0 mt-2 w-72 bg-white border border-stone-200 rounded-xl shadow-xl p-4 z-50 animate-in fade-in zoom-in-95">
-                <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-                  <span className="text-xs font-bold text-stone-800">Chromatic Feed</span>
-                  <span className="text-[10px] text-[#D97706] font-semibold">2 New</span>
+            {/* Google Authentication Menu / Sign In Button (Desktop) */}
+            <div className="hidden sm:block">
+              <GoogleUserMenu
+                credential={googleCredential}
+                onOpenSignIn={onOpenGoogleSignIn}
+                onOpenInspector={onOpenGoogleInspector}
+                onSignOut={onGoogleSignOut}
+              />
+            </div>
+
+            {/* Notifications Icon with Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="p-2 text-stone-500 hover:text-stone-800 hover:bg-stone-100 rounded-full transition-colors relative min-w-[40px] min-h-[40px] flex items-center justify-center focus:outline-none"
+                id="header-notifications-btn"
+                aria-label="Notifications"
+                aria-expanded={showNotifications}
+              >
+                <Bell className="w-4 h-4" />
+                <span className="absolute top-2 right-2 w-2 h-2 bg-[#D97706] rounded-full ring-2 ring-white" />
+              </button>
+
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white border border-stone-200 rounded-2xl shadow-xl p-4 z-50 animate-in fade-in zoom-in-95">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-stone-100">
+                    <span className="text-xs font-bold text-stone-900">Chromatic Feed</span>
+                    <span className="text-[10px] text-[#D97706] font-bold px-2 py-0.5 bg-amber-50 rounded-full border border-amber-200">
+                      2 New
+                    </span>
+                  </div>
+                  <div className="mt-3 space-y-2.5">
+                    <div className="text-xs p-2.5 bg-stone-50 rounded-xl border border-stone-100">
+                      <p className="font-semibold text-stone-800 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#D97706]" />
+                        <span>Solar & Cobalt Resonance</span>
+                      </p>
+                      <p className="text-stone-500 text-[11px] mt-1 leading-snug">
+                        Elias Thorne matches your System Architecture spectrum.
+                      </p>
+                    </div>
+                    <div className="text-xs p-2.5 bg-stone-50 rounded-xl border border-stone-100">
+                      <p className="font-semibold text-stone-800 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#059669]" />
+                        <span>Chromatic Signature Verified</span>
+                      </p>
+                      <p className="text-stone-500 text-[11px] mt-1 leading-snug">
+                        Your Conic Ring spectrum has been officially authenticated.
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-3 space-y-2.5">
-                  <div className="text-xs p-2 bg-stone-50 rounded-lg border border-stone-100">
-                    <p className="font-semibold text-stone-800 flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-[#D97706]" />
-                      <span>Solar & Cobalt Resonance</span>
-                    </p>
-                    <p className="text-stone-500 text-[11px] mt-0.5">Elias Thorne matches your System Architecture spectrum.</p>
-                  </div>
-                  <div className="text-xs p-2 bg-stone-50 rounded-lg border border-stone-100">
-                    <p className="font-semibold text-stone-800 flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-[#059669]" />
-                      <span>Chromatic Signature Verified</span>
-                    </p>
-                    <p className="text-stone-500 text-[11px] mt-0.5">Your Conic Ring spectrum has been officially authenticated.</p>
-                  </div>
+              )}
+            </div>
+
+            {/* Profile Avatar (Desktop/Tablet) */}
+            <button
+              onClick={() => handleNavClick('profile')}
+              className={`hidden sm:flex items-center gap-2 pl-2 border-l border-stone-200 hover:opacity-80 transition-all focus:outline-none ${
+                currentView === 'profile' ? 'opacity-100' : ''
+              }`}
+              id="header-profile-avatar-btn"
+              title="View Dedicated Profile"
+              aria-label="View Profile"
+            >
+              <div
+                className={`w-8 h-8 rounded-full ring-2 overflow-hidden transition-all ${
+                  currentView === 'profile' ? 'ring-3 ring-[#D97706]' : 'ring-stone-200'
+                }`}
+              >
+                <img
+                  src={currentUser.avatar}
+                  alt={currentUser.name}
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+            </button>
+
+            {/* Mobile Hamburger Menu Toggle Button (Visible on mobile < md) */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl text-stone-700 hover:text-stone-950 hover:bg-stone-100 active:bg-stone-200 transition-colors focus:outline-none focus:ring-2 focus:ring-[#D97706]/40"
+              id="mobile-hamburger-menu-btn"
+              aria-label={isMobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-navigation-drawer"
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-6 h-6 text-stone-900" />
+              ) : (
+                <Menu className="w-6 h-6 text-stone-900" />
+              )}
+            </button>
+
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Drawer Overlay Backdrop */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs md:hidden animate-in fade-in duration-200"
+          onClick={() => setIsMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Mobile Slide-Over Navigation Drawer */}
+      <div
+        id="mobile-navigation-drawer"
+        className={`fixed top-0 right-0 bottom-0 w-[85%] max-w-sm bg-white z-50 shadow-2xl flex flex-col md:hidden transition-transform duration-300 ease-out border-l border-stone-200 ${
+          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile Navigation"
+      >
+        {/* Drawer Header */}
+        <div className="p-4 border-b border-stone-100 flex items-center justify-between bg-stone-50/70">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-[#D97706] via-[#0A6275] to-[#059669] shadow-xs" />
+            <span className="font-bold text-stone-900 text-base">Matchwise Prism</span>
+          </div>
+          
+          <button
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="w-9 h-9 rounded-full flex items-center justify-center text-stone-500 hover:text-stone-900 hover:bg-stone-200 transition-colors focus:outline-none"
+            aria-label="Close menu"
+            id="mobile-drawer-close-btn"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Drawer Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-5">
+          
+          {/* User Profile Card in Mobile Menu */}
+          <div className="p-3.5 bg-gradient-to-br from-stone-50 to-stone-100 rounded-2xl border border-stone-200/80 shadow-2xs">
+            <div className="flex items-center gap-3">
+              <div 
+                className="w-12 h-12 rounded-2xl p-0.5 bg-white shadow-xs overflow-hidden ring-2"
+                style={{ ringColor: userColor.primaryColor }}
+              >
+                <img
+                  src={currentUser.avatar}
+                  alt={currentUser.name}
+                  className="w-full h-full rounded-xl object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <h3 className="text-sm font-bold text-stone-900 truncate">
+                    {currentUser.name}
+                  </h3>
+                </div>
+                <p className="text-[11px] font-medium text-stone-500 truncate">
+                  {currentUser.title}
+                </p>
+                <div className="mt-1 flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-[#D97706]" />
+                  <span className="text-[10px] font-bold text-[#D97706] truncate">
+                    {userColor.harmonicTitle}
+                  </span>
                 </div>
               </div>
+            </div>
+
+            <button
+              onClick={() => handleNavClick('profile')}
+              className="mt-3 w-full py-1.5 px-3 bg-white hover:bg-stone-100 border border-stone-200 text-stone-800 text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5"
+              id="mobile-view-profile-btn"
+            >
+              <User className="w-3.5 h-3.5 text-stone-600" />
+              <span>View Chromatic Dossier</span>
+            </button>
+          </div>
+
+          {/* Google Auth Status Section for Mobile */}
+          <div className="p-3 bg-blue-50/60 rounded-2xl border border-blue-100 text-xs space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-stone-800 text-[11px] flex items-center gap-1.5">
+                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0">
+                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                  <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.29 21.43 7.37 24 12 24z"/>
+                  <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"/>
+                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.29 2.57 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                </svg>
+                Google Integration
+              </span>
+              {googleCredential ? (
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <Check className="w-3 h-3" /> Linked
+                </span>
+              ) : (
+                <span className="text-[10px] font-medium text-stone-500">
+                  Not Linked
+                </span>
+              )}
+            </div>
+
+            {googleCredential ? (
+              <div className="space-y-1.5 pt-1">
+                <p className="text-[11px] text-stone-600 truncate">
+                  {googleCredential.user.email}
+                </p>
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      onOpenGoogleInspector();
+                    }}
+                    className="flex-1 py-1.5 px-2 bg-white hover:bg-stone-50 border border-blue-200 text-blue-800 text-[11px] font-semibold rounded-lg text-center flex items-center justify-center gap-1"
+                    id="mobile-google-inspect-btn"
+                  >
+                    <KeyRound className="w-3 h-3" />
+                    <span>Inspect Token</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      onGoogleSignOut();
+                    }}
+                    className="py-1.5 px-2.5 bg-white hover:bg-rose-50 border border-rose-200 text-rose-600 text-[11px] font-semibold rounded-lg flex items-center justify-center"
+                    id="mobile-google-signout-btn"
+                    title="Sign Out"
+                  >
+                    <LogOut className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  onOpenGoogleSignIn();
+                }}
+                className="w-full py-1.5 px-3 bg-white hover:bg-stone-50 border border-stone-300 text-stone-800 text-xs font-semibold rounded-xl shadow-2xs transition-colors flex items-center justify-center gap-2"
+                id="mobile-google-signin-btn"
+              >
+                <span>Sign in with Google</span>
+              </button>
             )}
           </div>
 
-          {/* Profile Avatar */}
-          <button
-            onClick={() => onViewChange('profile')}
-            className={`flex items-center gap-2 pl-2 border-l border-stone-200 hover:opacity-80 transition-all ${
-              currentView === 'profile' ? 'opacity-100' : ''
-            }`}
-            id="header-profile-avatar-btn"
-            title="View Dedicated Profile"
-          >
-            <div
-              className={`w-8 h-8 rounded-full ring-2 overflow-hidden transition-all ${
-                currentView === 'profile' ? 'ring-4 ring-[#D97706]' : ''
-              }`}
-              style={{ ringColor: currentView === 'profile' ? '#D97706' : userColor.primaryColor }}
-            >
-              <img
-                src={currentUser.avatar}
-                alt={currentUser.name}
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-              />
+          {/* Search Input for Mobile */}
+          <form onSubmit={handleSearchSubmit} className="relative">
+            <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search spectrum or candidates..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-3 py-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D97706]/30 focus:border-[#D97706] transition-all"
+              id="mobile-drawer-search-input"
+            />
+          </form>
+
+          {/* Main Navigation List */}
+          <div className="space-y-1">
+            <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider px-2 mb-1.5">
+              Navigation
             </div>
-          </button>
+            {navItems.map((item) => {
+              const isActive = currentView === item.id;
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={`w-full flex items-center justify-between p-3 rounded-xl transition-all text-left min-h-[48px] ${
+                    isActive
+                      ? 'bg-amber-500/15 text-[#D97706] font-bold border border-amber-500/30'
+                      : 'text-stone-700 hover:bg-stone-100 font-semibold'
+                  }`}
+                  id={`mobile-nav-${item.id}-btn`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      isActive ? 'bg-[#D97706] text-white shadow-xs' : 'bg-stone-100 text-stone-600'
+                    }`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="text-sm block">{item.label}</span>
+                      <span className="text-[10px] text-stone-500 font-normal block">
+                        {item.description}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight className={`w-4 h-4 ${isActive ? 'text-[#D97706]' : 'text-stone-400'}`} />
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Quick Action Tools */}
+          <div className="pt-2 border-t border-stone-100 space-y-2">
+            <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider px-2 mb-1">
+              Prism Actions
+            </div>
+
+            {/* Custom AI Match Button */}
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                onOpenCustomMatch();
+              }}
+              className="w-full flex items-center gap-3 p-3 bg-amber-500/10 hover:bg-amber-500/20 text-[#D97706] border border-amber-500/30 rounded-xl text-xs font-bold transition-all text-left min-h-[48px]"
+              id="mobile-custom-match-btn"
+            >
+              <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-[#D97706]">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div className="flex-1">
+                <span>Custom AI Match Prompt</span>
+                <span className="block text-[10px] font-normal text-amber-700/80">
+                  Find candidates via natural language
+                </span>
+              </div>
+            </button>
+
+            {/* Calibrate Chromatic Assessment Button */}
+            {onOpenChromaticTest && (
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  onOpenChromaticTest();
+                }}
+                className="w-full flex items-center gap-3 p-3 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold transition-all text-left min-h-[48px]"
+                id="mobile-calibrate-color-btn"
+              >
+                <div className="w-8 h-8 rounded-lg bg-stone-800 flex items-center justify-center text-amber-400">
+                  <Palette className="w-4 h-4" />
+                </div>
+                <div className="flex-1">
+                  <span>Calibrate Color Spectrum</span>
+                  <span className="block text-[10px] font-normal text-stone-400">
+                    Retake 5-question chromatic test
+                  </span>
+                </div>
+              </button>
+            )}
+
+            {/* Explore Network Graph Modal Button */}
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                onOpenNetwork();
+              }}
+              className="w-full flex items-center gap-3 p-3 bg-stone-50 hover:bg-stone-100 text-stone-800 border border-stone-200 rounded-xl text-xs font-bold transition-all text-left min-h-[48px]"
+              id="mobile-network-graph-btn"
+            >
+              <div className="w-8 h-8 rounded-lg bg-stone-200/80 flex items-center justify-center text-stone-700">
+                <Users className="w-4 h-4" />
+              </div>
+              <div className="flex-1">
+                <span>Network Graph Explorer</span>
+                <span className="block text-[10px] font-normal text-stone-500">
+                  Interactive multi-node topology
+                </span>
+              </div>
+            </button>
+          </div>
+
         </div>
+
+        {/* Drawer Footer */}
+        <div className="p-4 border-t border-stone-100 bg-stone-50 text-[11px] text-stone-400 flex items-center justify-between">
+          <span>Prism v2.4 Standard</span>
+          <span className="font-mono text-[10px] text-stone-500">OKLCH Deterministic</span>
+        </div>
+
       </div>
-    </header>
+    </>
   );
 };
+
