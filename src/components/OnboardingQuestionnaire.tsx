@@ -61,10 +61,11 @@ const OCEAN_ITEMS: { key: keyof MatchFeatures['ocean']; label: string; hint: str
 ];
 
 type StepId =
-  | 'goals' | 'interests' | 'values' | 'communication' | 'personality'
+  | 'identity' | 'goals' | 'interests' | 'values' | 'communication' | 'personality'
   | 'complementarity' | 'lifestyle' | 'availability' | 'constraints' | 'review';
 
 const STEPS: { id: StepId; title: string; subtitle: string; skippable: boolean }[] = [
+  { id: 'identity', title: 'Tell us who you are', subtitle: 'This is the identity shown on your Prism dossier and match cards.', skippable: false },
   { id: 'goals', title: 'What are you looking for?', subtitle: 'Each connection type uses different scoring weights.', skippable: false },
   { id: 'interests', title: 'What are you into?', subtitle: 'Pick up to 10 interests. Scored with Jaccard similarity (30%).', skippable: true },
   { id: 'values', title: 'What matters most to you?', subtitle: 'Shared values and goals carry 15% of the similarity score.', skippable: true },
@@ -91,6 +92,9 @@ const Pill: React.FC<{ active: boolean; onClick: () => void; children: React.Rea
   </button>
 );
 
+const inputClass =
+  'w-full px-4 py-3 rounded-xl bg-stone-100 border border-transparent text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:bg-white focus:border-[#D97706] transition-colors';
+
 const SectionLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <h3 className="text-sm font-bold text-stone-800 mb-2.5">{children}</h3>
 );
@@ -100,9 +104,27 @@ export const OnboardingQuestionnaire: React.FC<Props> = ({ isOpen, onClose, curr
   const [f, setF] = useState<MatchFeatures>(() => {
     try {
       const saved = localStorage.getItem(MATCH_FEATURES_STORAGE_KEY);
-      if (saved) return { ...DEFAULT_FEATURES, ...JSON.parse(saved) };
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          ...DEFAULT_FEATURES,
+          ...parsed,
+          identity: { ...DEFAULT_FEATURES.identity, ...(parsed.identity ?? {}) },
+        };
+      }
     } catch { /* ignore */ }
-    return { ...DEFAULT_FEATURES, ocean: { ...currentUser.ocean } };
+    return {
+      ...DEFAULT_FEATURES,
+      ocean: { ...currentUser.ocean },
+      identity: {
+        ...DEFAULT_FEATURES.identity,
+        name: currentUser.name ?? '',
+        title: currentUser.title ?? '',
+        location: currentUser.location ?? '',
+        bio: currentUser.bio ?? '',
+        avatar: currentUser.avatar ?? '',
+      },
+    };
   });
 
   const step = STEPS[stepIndex];
@@ -116,9 +138,10 @@ export const OnboardingQuestionnaire: React.FC<Props> = ({ isOpen, onClose, curr
         : [...list, value];
 
   const canContinue = useMemo(() => {
+    if (step.id === 'identity') return f.identity.name.trim().length > 1;
     if (step.id === 'goals') return f.connectionGoals.length > 0;
     return true;
-  }, [step.id, f.connectionGoals]);
+  }, [step.id, f.connectionGoals, f.identity.name]);
 
   if (!isOpen) return null;
 
@@ -133,8 +156,14 @@ export const OnboardingQuestionnaire: React.FC<Props> = ({ isOpen, onClose, curr
     const capability = Math.round(features.ocean.openness * 0.6 + features.ocean.conscientiousness * 0.4);
     const resonance = Math.round(features.ocean.agreeableness * 0.7 + (100 - features.ocean.neuroticism) * 0.3);
 
+    const identity = features.identity;
     const updated: UserProfile = {
       ...currentUser,
+      name: identity.name.trim() || currentUser.name,
+      title: identity.title.trim() || currentUser.title,
+      location: identity.location.trim() || currentUser.location,
+      bio: identity.bio.trim() || currentUser.bio,
+      avatar: identity.avatar.trim() || currentUser.avatar,
       ocean: features.ocean,
       subMode: primaryGoal ? GOAL_TO_SUBMODE[primaryGoal] : currentUser.subMode,
       availabilityHoursPerWeek: features.availability.hoursPerWeek,
@@ -171,8 +200,90 @@ export const OnboardingQuestionnaire: React.FC<Props> = ({ isOpen, onClose, curr
   const next = () => (stepIndex === STEPS.length - 1 ? finish() : setStepIndex(i => i + 1));
   const back = () => (stepIndex === 0 ? onClose() : setStepIndex(i => i - 1));
 
+  const setIdentity = (patch: Partial<MatchFeatures['identity']>) =>
+    setF({ ...f, identity: { ...f.identity, ...patch } });
+
   const renderStep = () => {
     switch (step.id) {
+      case 'identity':
+        return (
+          <div className="space-y-5">
+            <div>
+              <SectionLabel>Full name *</SectionLabel>
+              <input
+                type="text"
+                value={f.identity.name}
+                onChange={e => setIdentity({ name: e.target.value })}
+                placeholder="Alex Mercer"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <SectionLabel>Headline / role</SectionLabel>
+              <input
+                type="text"
+                value={f.identity.title}
+                onChange={e => setIdentity({ title: e.target.value })}
+                placeholder="Design Technologist"
+                className={inputClass}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <SectionLabel>Location</SectionLabel>
+                <input
+                  type="text"
+                  value={f.identity.location}
+                  onChange={e => setIdentity({ location: e.target.value })}
+                  placeholder="San Francisco, CA"
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <SectionLabel>Age</SectionLabel>
+                <input
+                  type="number"
+                  min={13}
+                  max={100}
+                  value={f.identity.age ?? ''}
+                  onChange={e => setIdentity({ age: e.target.value ? parseInt(e.target.value) : null })}
+                  placeholder="28"
+                  className={inputClass}
+                />
+              </div>
+            </div>
+            <div>
+              <SectionLabel>Short bio</SectionLabel>
+              <textarea
+                rows={4}
+                value={f.identity.bio}
+                onChange={e => setIdentity({ bio: e.target.value })}
+                placeholder="What you build, what you're looking for, and how you like to collaborate."
+                className={`${inputClass} resize-none`}
+              />
+            </div>
+            <div>
+              <SectionLabel>Avatar image URL</SectionLabel>
+              <div className="flex items-center gap-3">
+                {f.identity.avatar ? (
+                  <img src={f.identity.avatar} alt="Avatar preview" className="w-12 h-12 rounded-full object-cover border border-stone-200" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-sm font-bold text-stone-400">
+                    {f.identity.name.trim().charAt(0).toUpperCase() || '?'}
+                  </div>
+                )}
+                <input
+                  type="url"
+                  value={f.identity.avatar}
+                  onChange={e => setIdentity({ avatar: e.target.value })}
+                  placeholder="https://…"
+                  className={`${inputClass} flex-1`}
+                />
+              </div>
+            </div>
+          </div>
+        );
+
       case 'goals':
         return (
           <div className="grid grid-cols-2 gap-3">
@@ -450,6 +561,7 @@ export const OnboardingQuestionnaire: React.FC<Props> = ({ isOpen, onClose, curr
 
       case 'review': {
         const rows: [string, string][] = [
+          ['Identity', [f.identity.name, f.identity.title, f.identity.location, f.identity.age ? `${f.identity.age}` : ''].filter(Boolean).join(' · ') || '—'],
           ['Connection goals', f.connectionGoals.map(g => GOALS.find(x => x.id === g)?.label).join(', ') || '—'],
           ['Interests (30%)', f.interests.join(', ') || '—'],
           ['Values (15%)', f.values.join(', ') || '—'],
