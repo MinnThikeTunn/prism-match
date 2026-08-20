@@ -185,7 +185,7 @@ export default function App() {
         onViewChange={setCurrentView}
         onOpenCustomMatch={() => setIsCustomMatchOpen(true)}
         onOpenQuestionnaire={() => setIsQuestionnaireOpen(true)}
-        onOpenNetwork={() => setIsNetworkOpen(true)}
+        onOpenNetwork={openNetwork}
         onOpenChromaticTest={() => setIsChromaticTestOpen(true)}
         currentUser={currentUser}
         highContrast={highContrast}
@@ -200,7 +200,7 @@ export default function App() {
             currentUser={currentUser}
             quickMatches={quickMatches}
             onSelectCandidate={handleSelectCandidate}
-            onOpenNetworkModal={() => setIsNetworkOpen(true)}
+            onOpenNetworkModal={() => openNetwork()}
             onOpenCustomMatch={() => setIsCustomMatchOpen(true)}
             onNavigateToColors={() => setCurrentView('colors')}
             onNavigateToMaps={(_tier) => {
@@ -283,6 +283,7 @@ export default function App() {
 
       <NetworkModal
         isOpen={isNetworkOpen}
+        initialSearch={networkSearch}
         onClose={() => setIsNetworkOpen(false)}
         currentUser={currentUser}
         candidates={candidatePool}
