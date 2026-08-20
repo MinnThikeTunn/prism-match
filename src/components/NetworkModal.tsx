@@ -24,11 +24,14 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
   if (!isOpen) return null;
 
   const filtered = candidates.filter((c) => {
+    const term = searchTerm.toLowerCase();
     const matchesSearch =
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.needsOffers.offers.some(o => o.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      c.needsOffers.needs.some(n => n.toLowerCase().includes(searchTerm.toLowerCase()));
+      c.name.toLowerCase().includes(term) ||
+      c.title.toLowerCase().includes(term) ||
+      c.prismId.toLowerCase().includes(term) ||
+      c.id.toLowerCase().includes(term) ||
+      c.needsOffers.offers.some(o => o.toLowerCase().includes(term)) ||
+      c.needsOffers.needs.some(n => n.toLowerCase().includes(term));
 
     const matchesTier = tierFilter === 'ALL' || c.tier === tierFilter;
     return matchesSearch && matchesTier;
