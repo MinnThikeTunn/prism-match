@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start';
+import type { Json } from '../integrations/supabase/types';
 
 /**
  * Cloud storage for anonymous (no sign-in) onboarding profiles.
@@ -18,7 +19,7 @@ export type PublicProfileRow = {
   location: string | null;
   bio: string | null;
   avatar: string | null;
-  public_data: unknown;
+  public_data: Json;
   updated_at: string;
 };
 
@@ -51,8 +52,10 @@ function validateToken(token: unknown): string {
   return token;
 }
 
-function validateJson(value: unknown, label: string): Record<string, unknown> {
-  const obj = value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+function validateJson(value: unknown, label: string): Json {
+  const obj = (value && typeof value === 'object' && !Array.isArray(value)
+    ? JSON.parse(JSON.stringify(value))
+    : {}) as Json;
   const size = JSON.stringify(obj).length;
   if (size > MAX_PAYLOAD_BYTES) throw new Error(`${label} payload too large`);
   return obj;
