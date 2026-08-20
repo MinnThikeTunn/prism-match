@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { UserProfile, OCEANProfile, EngineTier, IntentSubMode } from '../types';
 import { getColorIdentity } from '../lib/colorSystem';
 import { ProfileSummaryCard } from './ProfileSummaryCard';
-import { GoogleCredential, STORAGE_KEY_GOOGLE_AUTH } from '../lib/googleAuth';
 import { 
   User, 
   ShieldCheck, 
@@ -42,9 +41,6 @@ interface ProfileViewProps {
   onSelectCandidateSynergy?: (candidate: UserProfile) => void;
   onNavigateToColors?: () => void;
   onOpenChromaticTest?: () => void;
-  googleCredential?: GoogleCredential | null;
-  onOpenGoogleSignIn?: () => void;
-  onOpenGoogleInspector?: () => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
@@ -54,9 +50,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onSelectCandidateSynergy,
   onNavigateToColors,
   onOpenChromaticTest,
-  googleCredential,
-  onOpenGoogleSignIn,
-  onOpenGoogleInspector
 }) => {
   // Selected profile to inspect (defaults to currentUser, can inspect candidates)
   const [inspectedUserId, setInspectedUserId] = useState<string>(currentUser.id);

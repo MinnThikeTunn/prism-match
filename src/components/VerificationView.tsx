@@ -1,23 +1,14 @@
 import React from 'react';
 import { ConicRingVisual } from './ConicRingVisual';
 import { UserProfile } from '../types';
-import { Fingerprint, Palette, ShieldCheck, Sparkles, Database, KeyRound, CheckCircle2, UserCheck, ExternalLink } from 'lucide-react';
+import { Fingerprint, Palette, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
 import { getColorIdentity } from '../lib/colorSystem';
-import { GoogleCredential, STORAGE_KEY_GOOGLE_AUTH } from '../lib/googleAuth';
 
 interface VerificationViewProps {
   currentUser: UserProfile;
-  googleCredential?: GoogleCredential | null;
-  onOpenGoogleSignIn?: () => void;
-  onOpenGoogleInspector?: () => void;
 }
 
-export const VerificationView: React.FC<VerificationViewProps> = ({ 
-  currentUser,
-  googleCredential,
-  onOpenGoogleSignIn,
-  onOpenGoogleInspector
-}) => {
+export const VerificationView: React.FC<VerificationViewProps> = ({ currentUser }) => {
   const userColor = getColorIdentity(currentUser.id);
 
   return (
