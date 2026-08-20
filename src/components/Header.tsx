@@ -537,6 +537,26 @@ export const Header: React.FC<HeaderProps> = ({
               Prism Actions
             </div>
 
+            {/* Onboarding Questionnaire Button */}
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                onOpenQuestionnaire();
+              }}
+              className="w-full flex items-center gap-3 p-3 bg-stone-50 hover:bg-stone-100 text-stone-800 border border-stone-200 rounded-xl text-xs font-bold transition-all text-left min-h-[48px]"
+              id="mobile-onboarding-btn"
+            >
+              <div className="w-8 h-8 rounded-lg bg-stone-200/80 flex items-center justify-center text-stone-700">
+                <ClipboardList className="w-4 h-4" />
+              </div>
+              <div className="flex-1">
+                <span>Onboarding Questionnaire</span>
+                <span className="block text-[10px] font-normal text-stone-500">
+                  Retake the 10-step matching setup
+                </span>
+              </div>
+            </button>
+
             {/* Custom AI Match Button */}
             <button
               onClick={() => {
