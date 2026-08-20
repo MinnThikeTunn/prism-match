@@ -61,13 +61,7 @@ export default function App() {
   });
 
   // Open assessment modal automatically if first-timer
-  const [isChromaticTestOpen, setIsChromaticTestOpen] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('matchwise_chromatic_test_completed') !== 'true';
-    } catch {
-      return false;
-    }
-  });
+  const [isChromaticTestOpen, setIsChromaticTestOpen] = useState<boolean>(false);
 
   // Modals state
   const [isCustomMatchOpen, setIsCustomMatchOpen] = useState(false);
