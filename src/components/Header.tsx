@@ -83,12 +83,14 @@ export const Header: React.FC<HeaderProps> = ({
     setIsMobileMenuOpen(false);
   };
 
+  const openDirectory = () => {
+    onOpenNetwork(searchQuery);
+    setIsMobileMenuOpen(false);
+  };
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      onOpenNetwork();
-      setIsMobileMenuOpen(false);
-    }
+    openDirectory();
   };
 
   const navItems = [
