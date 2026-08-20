@@ -24,11 +24,14 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
   if (!isOpen) return null;
 
   const filtered = candidates.filter((c) => {
+    const term = searchTerm.toLowerCase();
     const matchesSearch =
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.needsOffers.offers.some(o => o.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      c.needsOffers.needs.some(n => n.toLowerCase().includes(searchTerm.toLowerCase()));
+      c.name.toLowerCase().includes(term) ||
+      c.title.toLowerCase().includes(term) ||
+      c.prismId.toLowerCase().includes(term) ||
+      c.id.toLowerCase().includes(term) ||
+      c.needsOffers.offers.some(o => o.toLowerCase().includes(term)) ||
+      c.needsOffers.needs.some(n => n.toLowerCase().includes(term));
 
     const matchesTier = tierFilter === 'ALL' || c.tier === tierFilter;
     return matchesSearch && matchesTier;
@@ -64,7 +67,7 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
             <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by name, chromatic frequency, or skills..."
+              placeholder="Search by name, ID, chromatic frequency, or skills..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-9 pr-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D97706]/30 focus:border-[#D97706] text-stone-800"
