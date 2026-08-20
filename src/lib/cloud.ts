@@ -27,7 +27,7 @@ export async function saveCloudProfile(userId: string, profile: UserProfile) {
       title: profile.title ?? null,
       bio: profile.bio ?? null,
       location: profile.location ?? null,
-      profile_data: profile as unknown as Record<string, unknown>,
+      profile_data: profile as unknown as never,
       updated_at: new Date().toISOString(),
     },
     { onConflict: 'id' },
@@ -53,7 +53,7 @@ export async function saveCloudFeatures(userId: string, features: unknown, compl
   const { error } = await supabase.from('match_features').upsert(
     {
       user_id: userId,
-      features: features as Record<string, unknown>,
+      features: features as never,
       completed,
       updated_at: new Date().toISOString(),
     },
