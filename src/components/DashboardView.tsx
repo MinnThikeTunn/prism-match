@@ -21,11 +21,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigateToColors,
   onNavigateToMaps
 }) => {
-  // Derived from the signed-in user's own profile scores, not a static id lookup
-  const userColor = React.useMemo(
-    () => deriveColorIdentityFromProfile(currentUser),
-    [currentUser.executionScore, currentUser.capabilityScore, currentUser.resonanceScore, currentUser.ocean]
-  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 animate-in fade-in duration-300">
