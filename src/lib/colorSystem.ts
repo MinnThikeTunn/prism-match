@@ -513,3 +513,99 @@ export function deriveColorIdentityFromProfile(profile: {
     })),
   };
 }
+
+export interface ColorMatchResult {
+  score: number; // 0 - 100
+  harmonicTitle: string;
+  subLabel: string;
+  colorA: ColorIdentity;
+  colorB: ColorIdentity;
+  gradient: string;
+  reasons: string[];
+  resonanceTier: 'Transcendent' | 'Harmonic' | 'Complementary' | 'Balanced';
+}
+
+/**
+ * Calculates pure Chromatic Resonance & Color Match between two profiles.
+ */
+export function calculateColorMatchScore(
+  profileA: {
+    id?: string;
+    executionScore?: number;
+    capabilityScore?: number;
+    resonanceScore?: number;
+    ocean?: { openness?: number; conscientiousness?: number; extraversion?: number; agreeableness?: number; neuroticism?: number };
+  },
+  profileB: {
+    id?: string;
+    executionScore?: number;
+    capabilityScore?: number;
+    resonanceScore?: number;
+    ocean?: { openness?: number; conscientiousness?: number; extraversion?: number; agreeableness?: number; neuroticism?: number };
+  }
+): ColorMatchResult {
+  const colA = deriveColorIdentityFromProfile(profileA);
+  const colB = deriveColorIdentityFromProfile(profileB);
+
+  const execA = profileA.executionScore ?? 50;
+  const capA = profileA.capabilityScore ?? 50;
+  const resA = profileA.resonanceScore ?? 50;
+  const openA = profileA.ocean?.openness ?? 50;
+
+  const execB = profileB.executionScore ?? 50;
+  const capB = profileB.capabilityScore ?? 50;
+  const resB = profileB.resonanceScore ?? 50;
+  const openB = profileB.ocean?.openness ?? 50;
+
+  // Vector dot product & magnitude
+  const dot = execA * execB + capA * capB + resA * resB + openA * openB;
+  const magA = Math.sqrt(execA * execA + capA * capA + resA * resA + openA * openA) || 1;
+  const magB = Math.sqrt(execB * execB + capB * capB + resB * resB + openB * openB) || 1;
+  const cosine = dot / (magA * magB);
+
+  // Complementary pair synergy (e.g. Executor + Architect, Synthesizer + Visionary)
+  const execCapSynergy = (execA * capB + execB * capA) / 20000;
+  const resOpenSynergy = (resA * openB + resB * openA) / 20000;
+  const compBonus = (execCapSynergy + resOpenSynergy) * 15;
+
+  const rawScore = cosine * 75 + compBonus + 12;
+  const score = Math.round(Math.min(99, Math.max(68, rawScore)));
+
+  const reasons: string[] = [];
+  if (colA.primaryName === colB.primaryName) {
+    reasons.push(`Aligned ${colA.primaryName} frequency fosters natural workflow sync and rapid mutual understanding.`);
+  } else {
+    reasons.push(`${colA.primaryName} pairs with ${colB.primaryName} to create a dynamic ${colA.primaryName} × ${colB.primaryName} harmonic balance.`);
+  }
+
+  if (Math.min(resA, resB) >= 65) {
+    reasons.push('Shared Verdant Emerald resonance brings high cooperation, psychological safety, and open communication.');
+  }
+
+  if ((execA >= 70 && capB >= 70) || (execB >= 70 && capA >= 70)) {
+    reasons.push('High execution drive harmonizes with deep technical capability for rapid idea-to-delivery momentum.');
+  }
+
+  if (Math.max(openA, openB) >= 75) {
+    reasons.push('Elevated Royal Amethyst intuition sparks lateral thinking and cross-domain creative exploration.');
+  }
+
+  if (reasons.length < 2) {
+    reasons.push('Stable cross-channel spectral distribution ensures balanced collaboration without cognitive friction.');
+  }
+
+  const resonanceTier: ColorMatchResult['resonanceTier'] =
+    score >= 93 ? 'Transcendent' : score >= 85 ? 'Harmonic' : score >= 78 ? 'Complementary' : 'Balanced';
+
+  return {
+    score,
+    harmonicTitle: `${colA.primaryName} × ${colB.primaryName}`,
+    subLabel: `${resonanceTier} Chromatic Resonance (${score}% Match)`,
+    colorA: colA,
+    colorB: colB,
+    gradient: `linear-gradient(135deg, ${colA.primaryColor}, ${colB.primaryColor})`,
+    reasons: reasons.slice(0, 3),
+    resonanceTier,
+  };
+}
+

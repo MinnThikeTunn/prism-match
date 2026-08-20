@@ -3,7 +3,6 @@ import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { DashboardView } from './components/DashboardView';
 import { MapsView } from './components/MapsView';
-import { DiscoveryView } from './components/DiscoveryView';
 import { VerificationView } from './components/VerificationView';
 import { SynergyMatchView } from './components/SynergyMatchView';
 import { ProfileView } from './components/ProfileView';
@@ -160,14 +159,6 @@ export default function App() {
           />
         )}
 
-        {currentView === 'discovery' && (
-          <DiscoveryView
-            currentUser={currentUser}
-            candidatePool={candidatePool}
-            onSelectCandidate={handleSelectCandidate}
-          />
-        )}
-
         {currentView === 'maps' && (
           <MapsView
             candidates={candidatePool}
@@ -240,12 +231,14 @@ export default function App() {
         isOpen={isQuestionnaireOpen}
         onClose={() => setIsQuestionnaireOpen(false)}
         currentUser={currentUser}
+        candidatePool={candidatePool}
         onComplete={(updated, features) => {
           setCurrentUser(updated);
           cacheProfileLocally(updated, features);
           markOnboardingComplete();
           void saveProfileToCloud(updated, features, true);
         }}
-      />    </div>
+      />
+    </div>
   );
 }

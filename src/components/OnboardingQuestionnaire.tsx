@@ -1,6 +1,32 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowLeft, Check } from 'lucide-react';
+import { motion, useMotionValue, useTransform, AnimatePresence } from 'motion/react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Heart,
+  X,
+  RotateCcw,
+  Sparkles,
+  MapPin,
+  Clock,
+  Palette,
+  Users,
+} from 'lucide-react';
 import { UserProfile } from '../types';
+import { MOCK_PROFILES } from '../data/mockData';
+import { deriveColorIdentityFromProfile, ColorIdentity } from '../lib/colorSystem';
+import {
+  RankedColorMatchCandidate,
+  rankCandidatesByColorMatch,
+  loadSwipes,
+  saveSwipes,
+  saveConnection,
+  getStoredConnections,
+  MATCH_VERSION,
+  candidateTags,
+  SwipeRecord,
+} from '../lib/discovery';
 import {
   ConnectionGoal,
   DEFAULT_FEATURES,
@@ -13,6 +39,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   currentUser: UserProfile;
+  candidatePool?: UserProfile[];
   onComplete: (updated: UserProfile, features: MatchFeatures) => void;
 }
 
@@ -61,8 +88,18 @@ const OCEAN_ITEMS: { key: keyof MatchFeatures['ocean']; label: string; hint: str
 ];
 
 type StepId =
-  | 'identity' | 'goals' | 'interests' | 'values' | 'communication' | 'personality'
-  | 'complementarity' | 'lifestyle' | 'availability' | 'constraints' | 'review';
+  | 'identity'
+  | 'goals'
+  | 'interests'
+  | 'values'
+  | 'communication'
+  | 'personality'
+  | 'complementarity'
+  | 'lifestyle'
+  | 'availability'
+  | 'constraints'
+  | 'review'
+  | 'discovery';
 
 const STEPS: { id: StepId; title: string; subtitle: string; skippable: boolean }[] = [
   { id: 'identity', title: 'Tell us who you are', subtitle: 'This is the identity shown on your Prism dossier and match cards.', skippable: false },
@@ -75,7 +112,8 @@ const STEPS: { id: StepId; title: string; subtitle: string; skippable: boolean }
   { id: 'lifestyle', title: "Let's talk lifestyle habits", subtitle: 'Rhythm and energy compatibility — 10%.', skippable: true },
   { id: 'availability', title: 'When are you free?', subtitle: 'Overlapping schedules — 5%.', skippable: true },
   { id: 'constraints', title: 'Your matching boundaries', subtitle: 'Hard rules that filter or penalise matches.', skippable: true },
-  { id: 'review', title: 'Your matching profile', subtitle: 'This feeds directly into the compatibility pipeline.', skippable: false },
+  { id: 'review', title: 'Your matching profile', subtitle: 'This feeds directly into your chromatic spectrum & resonance matrix.', skippable: false },
+  { id: 'discovery', title: 'Discover & Connect', subtitle: 'Your top recommendations ranked strictly by pure Chromatic Color Match.', skippable: true },
 ];
 
 const Pill: React.FC<{ active: boolean; onClick: () => void; children: React.ReactNode }> = ({ active, onClick, children }) => (
@@ -99,7 +137,13 @@ const SectionLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   <h3 className="text-sm font-bold text-stone-800 mb-2.5">{children}</h3>
 );
 
-export const OnboardingQuestionnaire: React.FC<Props> = ({ isOpen, onClose, currentUser, onComplete }) => {
+export const OnboardingQuestionnaire: React.FC<Props> = ({
+  isOpen,
+  onClose,
+  currentUser,
+  candidatePool = MOCK_PROFILES,
+  onComplete,
+}) => {
   const [stepIndex, setStepIndex] = useState(0);
   const [f, setF] = useState<MatchFeatures>(() => {
     try {
@@ -127,6 +171,10 @@ export const OnboardingQuestionnaire: React.FC<Props> = ({ isOpen, onClose, curr
     };
   });
 
+  // Discovery swipes and connection state
+  const [swipes, setSwipes] = useState<SwipeRecord[]>(() => loadSwipes());
+  const [connections, setConnections] = useState<string[]>(() => getStoredConnections());
+
   const step = STEPS[stepIndex];
   const progress = ((stepIndex + 1) / STEPS.length) * 100;
 
@@ -142,6 +190,91 @@ export const OnboardingQuestionnaire: React.FC<Props> = ({ isOpen, onClose, curr
     if (step.id === 'goals') return f.connectionGoals.length > 0;
     return true;
   }, [step.id, f.connectionGoals, f.identity.name]);
+
+  // Dynamically compute the updated profile from current questionnaire state
+  const computedUser = useMemo<UserProfile>(() => {
+    const primaryGoal = f.connectionGoals[0];
+    const execution = Math.round(f.ocean.conscientiousness * 0.7 + f.ocean.openness * 0.3);
+    const capability = Math.round(f.ocean.openness * 0.6 + f.ocean.conscientiousness * 0.4);
+    const resonance = Math.round(f.ocean.agreeableness * 0.7 + (100 - f.ocean.neuroticism) * 0.3);
+
+    const identity = f.identity;
+    return {
+      ...currentUser,
+      name: identity.name.trim() || currentUser.name,
+      title: identity.title.trim() || currentUser.title,
+      location: identity.location.trim() || currentUser.location,
+      bio: identity.bio.trim() || currentUser.bio,
+      avatar: identity.avatar.trim() || currentUser.avatar,
+      ocean: f.ocean,
+      subMode: primaryGoal ? GOAL_TO_SUBMODE[primaryGoal] : currentUser.subMode,
+      availabilityHoursPerWeek: f.availability.hoursPerWeek,
+      communicationLatency: f.communication.replySpeed || currentUser.communicationLatency,
+      needsOffers: {
+        ...currentUser.needsOffers,
+        offers: f.complementarity.skills.length ? f.complementarity.skills : currentUser.needsOffers.offers,
+        domains: f.interests.length ? f.interests : currentUser.needsOffers.domains,
+      },
+      constraints: {
+        ...currentUser.constraints,
+        languages: f.constraints.languages,
+        minAge: f.constraints.minAge,
+        maxAge: f.constraints.maxAge,
+        maxDistanceKm: f.constraints.maxDistanceKm,
+        connectionGoals: f.connectionGoals,
+      },
+      executionScore: execution,
+      capabilityScore: capability,
+      resonanceScore: resonance,
+      spectrum: {
+        ...currentUser.spectrum,
+        solarResonance: execution,
+        deepTealAnchor: capability,
+        verdantSpark: resonance,
+        globalSynergyScore: Math.round((execution + capability + resonance) / 3),
+      },
+    };
+  }, [f, currentUser]);
+
+  const userColorIdentity = useMemo(() => deriveColorIdentityFromProfile(computedUser), [computedUser]);
+
+  // Candidate queue ranked strictly by Color Match
+  const colorMatchQueue = useMemo(
+    () => rankCandidatesByColorMatch(computedUser, candidatePool, swipes),
+    [computedUser, candidatePool, swipes]
+  );
+
+  const topCandidate = colorMatchQueue[0];
+  const upcomingCandidates = colorMatchQueue.slice(1, 3);
+
+  const handleSwipeAction = (candidate: UserProfile, action: 'like' | 'pass') => {
+    const nextSwipes: SwipeRecord[] = [
+      ...swipes,
+      {
+        candidateId: candidate.id,
+        action,
+        context: 'COLLABORATE',
+        at: new Date().toISOString(),
+        matchVersion: MATCH_VERSION,
+        tags: candidateTags(candidate),
+      },
+    ];
+    setSwipes(nextSwipes);
+    saveSwipes(nextSwipes);
+
+    if (action === 'like') {
+      const updatedConnections = saveConnection(candidate.id);
+      setConnections(updatedConnections);
+    }
+  };
+
+  const handleUndoSwipe = () => {
+    if (!swipes.length) return;
+    const next = swipes.slice(0, -1);
+    setSwipes(next);
+    saveSwipes(next);
+    setConnections(getStoredConnections());
+  };
 
   if (!isOpen) return null;
 
@@ -573,16 +706,134 @@ export const OnboardingQuestionnaire: React.FC<Props> = ({ isOpen, onClose, curr
           ['Constraints', `${f.constraints.languages.join(', ') || '—'} · ${f.constraints.minAge}–${f.constraints.maxAge} · ${f.constraints.maxDistanceKm} km`],
         ];
         return (
-          <div className="space-y-3">
-            {rows.map(([k, v]) => (
-              <div key={k} className="p-3 rounded-xl bg-stone-50 border border-stone-200">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-stone-500">{k}</div>
-                <div className="text-sm text-stone-800 mt-0.5 break-words">{v}</div>
+          <div className="space-y-4">
+            {/* Chromatic calculated banner */}
+            <div
+              className="p-4 rounded-2xl text-white shadow-xs"
+              style={{ background: userColorIdentity.bgGradient || 'linear-gradient(135deg, #D97706, #0A6275)' }}
+            >
+              <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-white/80">
+                <Palette className="w-3.5 h-3.5" />
+                <span>Your Generated Spectrum</span>
               </div>
-            ))}
+              <h3 className="text-lg font-black mt-1 text-stone-900">
+                {userColorIdentity.harmonicTitle}
+              </h3>
+              <p className="text-xs text-stone-700 mt-1">
+                {userColorIdentity.toneDescription}
+              </p>
+            </div>
+
+            <div className="space-y-2.5">
+              {rows.map(([k, v]) => (
+                <div key={k} className="p-3 rounded-xl bg-stone-50 border border-stone-200">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-stone-500">{k}</div>
+                  <div className="text-sm text-stone-800 mt-0.5 break-words">{v}</div>
+                </div>
+              ))}
+            </div>
             <p className="text-xs text-stone-500 pt-1">
-              Compatibility = Similarity × Complementarity − Constraint penalties. Weights are configurable per connection type.
+              Next: Experience real-time discovery recommendations ordered by your pure chromatic color resonance.
             </p>
+          </div>
+        );
+      }
+
+      case 'discovery': {
+        return (
+          <div className="space-y-4">
+            {/* Connection badge summary */}
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-2 text-xs font-bold text-stone-700">
+                <span
+                  className="w-2.5 h-2.5 rounded-full shadow-xs"
+                  style={{ backgroundColor: userColorIdentity.primaryColor }}
+                />
+                <span>Your Signature: {userColorIdentity.primaryName}</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200/60 text-xs font-bold text-[#92400E]">
+                <Users className="w-3.5 h-3.5 text-[#D97706]" />
+                <span>{connections.length} Connected</span>
+              </div>
+            </div>
+
+            {/* Stacked Card Container */}
+            <div className="relative h-[480px] sm:h-[510px]">
+              {upcomingCandidates
+                .slice()
+                .reverse()
+                .map((r, i) => (
+                  <div
+                    key={r.candidate.id}
+                    className="absolute inset-x-0 top-0 h-full rounded-3xl border border-stone-200 bg-white shadow-sm"
+                    style={{
+                      transform: `translateY(${(upcomingCandidates.length - i) * 8}px) scale(${
+                        1 - (upcomingCandidates.length - i) * 0.025
+                      })`,
+                      zIndex: i,
+                    }}
+                  />
+                ))}
+
+              <AnimatePresence mode="popLayout">
+                {topCandidate ? (
+                  <OnboardingSwipeCard
+                    key={topCandidate.candidate.id}
+                    ranked={topCandidate}
+                    userColor={userColorIdentity}
+                    onConnect={() => handleSwipeAction(topCandidate.candidate, 'like')}
+                    onPass={() => handleSwipeAction(topCandidate.candidate, 'pass')}
+                  />
+                ) : (
+                  <div className="absolute inset-0 rounded-3xl border border-dashed border-stone-300 bg-stone-50/70 flex flex-col items-center justify-center text-center p-6 space-y-3">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-100/70 text-[#D97706] flex items-center justify-center">
+                      <Sparkles className="w-6 h-6" />
+                    </div>
+                    <h3 className="font-bold text-stone-900 text-base">You've explored all top matches!</h3>
+                    <p className="text-xs text-stone-500 max-w-xs">
+                      You've made {connections.length} connection{connections.length === 1 ? '' : 's'}. You can always connect with more candidates anytime from your Dashboard and Maps.
+                    </p>
+                    <button
+                      onClick={finish}
+                      className="mt-2 px-5 py-2.5 bg-stone-900 text-white rounded-full text-xs font-bold hover:bg-stone-800 transition-colors flex items-center gap-2"
+                    >
+                      <span>Proceed to Dashboard</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Swipe Controls */}
+            {topCandidate && (
+              <div className="flex items-center justify-center gap-4 pt-1">
+                <button
+                  onClick={() => handleSwipeAction(topCandidate.candidate, 'pass')}
+                  aria-label="Pass"
+                  className="w-13 h-13 rounded-full border border-stone-200 bg-white flex items-center justify-center text-stone-500 hover:text-stone-900 hover:border-stone-400 transition-all shadow-xs active:scale-95 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                <button
+                  onClick={handleUndoSwipe}
+                  disabled={!swipes.length}
+                  aria-label="Undo last swipe"
+                  className="w-10 h-10 rounded-full border border-stone-200 bg-white flex items-center justify-center text-stone-400 hover:text-stone-800 disabled:opacity-40 transition-colors active:scale-95 cursor-pointer"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+
+                <button
+                  onClick={() => handleSwipeAction(topCandidate.candidate, 'like')}
+                  aria-label="Connect"
+                  className="w-13 h-13 rounded-full bg-[#D97706] hover:bg-[#B45309] text-white flex items-center justify-center shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer"
+                >
+                  <Heart className="w-5 h-5 fill-white" />
+                </button>
+              </div>
+            )}
           </div>
         );
       }
@@ -591,42 +842,231 @@ export const OnboardingQuestionnaire: React.FC<Props> = ({ isOpen, onClose, curr
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center sm:p-4">
-      <div className="bg-white w-full h-full sm:h-auto sm:max-h-[92vh] sm:max-w-lg sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+      <div className="bg-white w-full h-full sm:h-auto sm:max-h-[92vh] sm:max-w-xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
         {/* Top bar */}
-        <div className="px-5 pt-5 pb-3 flex items-center gap-3">
-          <button onClick={back} className="text-stone-700 p-1 -ml-1" aria-label="Back">
+        <div className="px-5 pt-5 pb-3 flex items-center gap-3 shrink-0">
+          <button onClick={back} className="text-stone-700 p-1 -ml-1 hover:text-stone-900" aria-label="Back">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1 h-1 rounded-full bg-stone-200 overflow-hidden">
             <div className="h-full bg-[#D97706] transition-all duration-300" style={{ width: `${progress}%` }} />
           </div>
           {step.skippable ? (
-            <button onClick={next} className="text-sm font-semibold text-stone-500 hover:text-stone-800">Skip</button>
+            <button onClick={next} className="text-sm font-semibold text-stone-500 hover:text-stone-800">
+              Skip
+            </button>
           ) : (
-            <button onClick={onClose} className="text-sm font-semibold text-stone-400 hover:text-stone-700">Close</button>
+            <button onClick={onClose} className="text-sm font-semibold text-stone-400 hover:text-stone-700">
+              Close
+            </button>
           )}
         </div>
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-6 pb-6">
-          <h2 className="text-3xl font-bold text-stone-900 leading-tight tracking-tight">{step.title}</h2>
-          <p className="text-sm text-stone-500 mt-1.5 mb-6">{step.subtitle}</p>
+          <h2 className="text-2xl sm:text-3xl font-black text-stone-900 leading-tight tracking-tight">
+            {step.title}
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-500 mt-1 mb-5">
+            {step.subtitle}
+          </p>
           {renderStep()}
         </div>
 
         {/* Footer */}
-        <div className="px-6 pb-6 pt-3 bg-white border-t border-stone-100">
-          <button
-            onClick={next}
-            disabled={!canContinue}
-            className={`w-full py-4 rounded-full text-sm font-bold flex items-center justify-center gap-2 transition-colors ${
-              canContinue ? 'bg-stone-900 text-white hover:bg-stone-800' : 'bg-stone-200 text-stone-400 cursor-not-allowed'
-            }`}
-          >
-            {stepIndex === STEPS.length - 1 ? (<><Check className="w-4 h-4" /> Finish & score my matches</>) : 'Next'}
-          </button>
+        <div className="px-6 pb-6 pt-3 bg-white border-t border-stone-100 shrink-0">
+          {step.id === 'discovery' ? (
+            <button
+              onClick={finish}
+              className="w-full py-4 rounded-full text-sm font-bold flex items-center justify-center gap-2 bg-stone-900 text-white hover:bg-stone-800 transition-colors shadow-xs cursor-pointer"
+            >
+              <Check className="w-4 h-4" />
+              <span>Complete Onboarding & Enter Dashboard</span>
+            </button>
+          ) : step.id === 'review' ? (
+            <button
+              onClick={next}
+              disabled={!canContinue}
+              className={`w-full py-4 rounded-full text-sm font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                canContinue ? 'bg-[#D97706] text-white hover:bg-[#B45309]' : 'bg-stone-200 text-stone-400 cursor-not-allowed'
+              }`}
+            >
+              <span>Proceed to Chromatic Discovery</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              onClick={next}
+              disabled={!canContinue}
+              className={`w-full py-4 rounded-full text-sm font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                canContinue ? 'bg-stone-900 text-white hover:bg-stone-800' : 'bg-stone-200 text-stone-400 cursor-not-allowed'
+              }`}
+            >
+              <span>Next</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 };
+
+function OnboardingSwipeCard({
+  ranked,
+  userColor,
+  onConnect,
+  onPass,
+}: {
+  ranked: RankedColorMatchCandidate;
+  userColor: ColorIdentity;
+  onConnect: () => void;
+  onPass: () => void;
+}) {
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-200, 200], [-10, 10]);
+  const connectOpacity = useTransform(x, [30, 110], [0, 1]);
+  const passOpacity = useTransform(x, [-110, -30], [1, 0]);
+  const c = ranked.candidate;
+  const match = ranked.colorMatch;
+
+  return (
+    <motion.article
+      className="absolute inset-0 z-10 rounded-3xl border border-stone-200 bg-white overflow-hidden shadow-md cursor-grab active:cursor-grabbing flex flex-col select-none"
+      style={{ x, rotate }}
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.65}
+      onDragEnd={(_, info) => {
+        if (info.offset.x > 110) onConnect();
+        else if (info.offset.x < -110) onPass();
+      }}
+      initial={{ scale: 0.96, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ x: 0, opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.22 }}
+    >
+      {/* Visual Stamps for gestures */}
+      <motion.div
+        style={{ opacity: connectOpacity }}
+        className="absolute top-4 left-4 z-30 rounded-xl border-2 border-[#D97706] bg-white/95 backdrop-blur-xs px-3 py-1 text-xs font-black tracking-widest text-[#D97706] rotate-[-10deg] shadow-sm"
+      >
+        CONNECT
+      </motion.div>
+      <motion.div
+        style={{ opacity: passOpacity }}
+        className="absolute top-4 right-4 z-30 rounded-xl border-2 border-stone-600 bg-white/95 backdrop-blur-xs px-3 py-1 text-xs font-black tracking-widest text-stone-700 rotate-[10deg] shadow-sm"
+      >
+        PASS
+      </motion.div>
+
+      {/* Top Banner with Chromatic Gradient */}
+      <div
+        className="px-5 py-3.5 text-white shrink-0 shadow-inner"
+        style={{ background: match.gradient }}
+      >
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-mono font-bold tracking-wider uppercase bg-black/25 backdrop-blur-xs px-2.5 py-0.5 rounded-full">
+            {match.harmonicTitle}
+          </span>
+          <span className="text-xs font-black bg-white/25 backdrop-blur-xs px-2.5 py-0.5 rounded-full">
+            {match.score}% Color Match
+          </span>
+        </div>
+      </div>
+
+      {/* Candidate Profile Header */}
+      <div className="p-4 border-b border-stone-100 flex items-center gap-3.5 bg-stone-50/60 shrink-0">
+        <div className="relative shrink-0">
+          <img
+            src={c.avatar}
+            alt={c.name}
+            className="w-13 h-13 rounded-2xl object-cover ring-2 ring-white shadow-xs"
+            referrerPolicy="no-referrer"
+          />
+          <span
+            className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white shadow-xs"
+            style={{ backgroundColor: match.colorB.primaryColor }}
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h4 className="text-base font-bold text-stone-900 truncate">{c.name}</h4>
+            <span
+              className="px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 border"
+              style={{
+                backgroundColor: `${match.colorB.primaryColor}15`,
+                color: match.colorB.primaryColor,
+                borderColor: `${match.colorB.primaryColor}30`,
+              }}
+            >
+              {match.colorB.primaryName}
+            </span>
+          </div>
+          <p className="text-xs text-stone-600 truncate">{c.title}</p>
+          <div className="flex items-center gap-3 text-[11px] text-stone-400 mt-0.5">
+            <span className="inline-flex items-center gap-1">
+              <MapPin className="w-3 h-3 text-stone-400" /> {c.location}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Clock className="w-3 h-3 text-stone-400" /> {c.availabilityHoursPerWeek}h/wk
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Scrollable details */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 text-left">
+        {/* Spectrum Comparison */}
+        <div className="rounded-2xl bg-stone-50 p-3 border border-stone-100">
+          <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-stone-400 mb-1.5 flex items-center justify-between">
+            <span>Spectral Synthesis</span>
+            <span className="text-stone-700 font-semibold">{match.resonanceTier}</span>
+          </div>
+          <div className="space-y-1 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-stone-500 font-medium">Your Color</span>
+              <span className="font-bold text-stone-800">{userColor.primaryName} × {userColor.secondaryName}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-stone-500 font-medium">{c.name.split(' ')[0]}'s Color</span>
+              <span className="font-bold text-stone-800">{match.colorB.primaryName} × {match.colorB.secondaryName}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Why this color match */}
+        <div className="rounded-2xl bg-amber-500/5 p-3 border border-amber-500/15">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[#92400E] mb-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-[#D97706]" />
+            <span>Why this color resonance?</span>
+          </div>
+          <ul className="space-y-1 text-xs text-stone-700">
+            {match.reasons.map((r, i) => (
+              <li key={i} className="flex items-start gap-1.5">
+                <span className="text-[#D97706] font-bold shrink-0">•</span>
+                <span>{r}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Key capabilities */}
+        {c.needsOffers.offers.length > 0 && (
+          <div>
+            <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-stone-400 mb-1.5">
+              Key Capabilities
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {c.needsOffers.offers.slice(0, 4).map(o => (
+                <span key={o} className="px-2.5 py-0.5 rounded-lg bg-stone-100 text-stone-700 text-xs font-medium">
+                  {o}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </motion.article>
+  );
+}

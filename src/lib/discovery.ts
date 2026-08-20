@@ -1,7 +1,80 @@
 import { UserProfile, IntentSubMode } from '../types';
 import { evaluatePairwiseMatch } from './algorithm';
+import { calculateColorMatchScore, ColorMatchResult } from './colorSystem';
 
 export const MATCH_VERSION = 'MATCHWISE_MATCH_V1_0';
+
+/** Connection storage helpers */
+export const CONNECTIONS_STORAGE_KEY = 'matchwise_connections';
+
+export function getStoredConnections(): string[] {
+  try {
+    const raw = localStorage.getItem(CONNECTIONS_STORAGE_KEY);
+    if (raw) return JSON.parse(raw) as string[];
+    const swipes = loadSwipes();
+    return Array.from(new Set(swipes.filter(s => s.action === 'like').map(s => s.candidateId)));
+  } catch {
+    return [];
+  }
+}
+
+export function saveConnection(candidateId: string): string[] {
+  try {
+    const current = getStoredConnections();
+    if (!current.includes(candidateId)) {
+      const next = [...current, candidateId];
+      localStorage.setItem(CONNECTIONS_STORAGE_KEY, JSON.stringify(next));
+      return next;
+    }
+    return current;
+  } catch {
+    return [];
+  }
+}
+
+export function removeConnection(candidateId: string): string[] {
+  try {
+    const current = getStoredConnections();
+    const next = current.filter(id => id !== candidateId);
+    localStorage.setItem(CONNECTIONS_STORAGE_KEY, JSON.stringify(next));
+    return next;
+  } catch {
+    return [];
+  }
+}
+
+export function isConnected(candidateId: string): boolean {
+  return getStoredConnections().includes(candidateId);
+}
+
+export interface RankedColorMatchCandidate {
+  candidate: UserProfile;
+  colorMatch: ColorMatchResult;
+  score: number;
+}
+
+/**
+ * Ranks candidate pool strictly based on Chromatic Resonance (Color Match).
+ */
+export function rankCandidatesByColorMatch(
+  requester: UserProfile,
+  pool: UserProfile[],
+  swipes: SwipeRecord[] = []
+): RankedColorMatchCandidate[] {
+  const seen = new Set(swipes.map(s => s.candidateId));
+
+  return pool
+    .filter(c => c.id !== requester.id && !seen.has(c.id))
+    .map(candidate => {
+      const colorMatch = calculateColorMatchScore(requester, candidate);
+      return {
+        candidate,
+        colorMatch,
+        score: colorMatch.score,
+      };
+    })
+    .sort((a, b) => b.score - a.score);
+}
 
 /** Non-romantic discovery contexts. */
 export type DiscoveryContext = 'COLLABORATE' | 'STUDY' | 'FRIENDS' | 'TEAMS';
@@ -52,6 +125,7 @@ export function saveSwipes(records: SwipeRecord[]) {
 export function clearSwipes() {
   try {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(CONNECTIONS_STORAGE_KEY);
   } catch {
     /* ignore */
   }

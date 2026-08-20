@@ -8,6 +8,7 @@ import {
   Check, 
   Info 
 } from 'lucide-react';
+import { SynergyFrictionGraphWeb, HarmonicPair } from './SynergyFrictionGraphWeb';
 
 interface Archetype {
   id: string;
@@ -202,7 +203,7 @@ const CHROMATIC_ARCHETYPES: Archetype[] = [
   }
 ];
 
-const HARMONIC_PAIRS = [
+const HARMONIC_PAIRS: HarmonicPair[] = [
   {
     archetypeA: 'The Solar Catalyst',
     colorA: '#D97706',
@@ -211,7 +212,8 @@ const HARMONIC_PAIRS = [
     synergyScore: 96,
     synergyTitle: 'Solar-Oceanic Velocity Engine',
     description: 'The definitive founder combination. Solar drive forces rapid market validation while Oceanic rigor guarantees zero technical debt. Friction is practically non-existent when roles are clearly segmented.',
-    frictionRisk: 'Low (Occasional timeline debate over prototype vs perfection)'
+    frictionRisk: 'Low (Occasional timeline debate over prototype vs perfection; resolved with sandbox vs production milestones).',
+    cadenceBalance: 'Fast synchronous syncs for daily sprints; deep async RFCs for architectural schemas.'
   },
   {
     archetypeA: 'The Violet Visionary',
@@ -221,7 +223,8 @@ const HARMONIC_PAIRS = [
     synergyScore: 92,
     synergyTitle: 'Vision-To-Infrastructure Bridge',
     description: 'Bridges radical creative breakthrough with rock-solid execution. Visionary generates breakthrough concepts, while Anchor filters, stabilizes, and scales them into enterprise-ready reality.',
-    frictionRisk: 'Medium (Requires mutual respect: Visionary must not view Anchor as rigid; Anchor must not dismiss Visionary as chaotic)'
+    frictionRisk: 'Medium (Requires mutual respect: Visionary must not view Anchor as rigid; Anchor must not dismiss Visionary as chaotic).',
+    cadenceBalance: 'Conceptual exploratory whiteboards paired with deterministic milestone gating.'
   },
   {
     archetypeA: 'The Solar Catalyst',
@@ -231,7 +234,140 @@ const HARMONIC_PAIRS = [
     synergyScore: 90,
     synergyTitle: 'Harmonic Execution & Culture',
     description: 'Prevents founder burnout and team turnover during intense crunch cycles. Solar provides execution velocity while Verdant safeguards empathy, psychological safety, and collective morale.',
-    frictionRisk: 'Low (High mutual appreciation of complementary values)'
+    frictionRisk: 'Low (High mutual appreciation of complementary values; minor friction if tough feedback is softened).',
+    cadenceBalance: 'Punchy task-oriented standups softened with regular 1:1 empathy check-ins.'
+  },
+  {
+    archetypeA: 'The Oceanic Architect',
+    colorA: '#0A6275',
+    archetypeB: 'The Cobalt Anchor',
+    colorB: '#1D4ED8',
+    synergyScore: 94,
+    synergyTitle: 'Deterministic Systems Fortress',
+    description: 'Unmatched operational resilience and zero-defect architecture. Oceanic provides elegant distributed models while Cobalt enforces strict telemetry, compliance, CI/CD reliability, and high uptime.',
+    frictionRisk: 'Low-Medium (Can risk over-planning before customer feedback; benefits from velocity pressure).',
+    cadenceBalance: 'Deep async memos, comprehensive PR reviews, and deterministic release cycles.'
+  },
+  {
+    archetypeA: 'The Violet Visionary',
+    colorA: '#7C3AED',
+    archetypeB: 'The Solar Catalyst',
+    colorB: '#D97706',
+    synergyScore: 89,
+    synergyTitle: '0-to-1 Innovation Rocket',
+    description: 'Rapid frontier innovation and blitzscaling. Violet opens radical new paradigm spaces while Solar immediately turns speculative ideas into living code and working MVPs in record time.',
+    frictionRisk: 'Medium (Risk of pivoting too quickly before completing existing initiatives without anchor stability).',
+    cadenceBalance: 'Dynamic visual brainstorming coupled with immediate sprint commitments.'
+  },
+  {
+    archetypeA: 'The Oceanic Architect',
+    colorA: '#0A6275',
+    archetypeB: 'The Verdant Mediator',
+    colorB: '#059669',
+    synergyScore: 91,
+    synergyTitle: 'Empathetic Systems Architecture',
+    description: 'Combines high intellectual bandwidth with human-centered product development. Oceanic builds clear, fault-tolerant mental models while Verdant ensures team collaboration remains healthy, inclusive, and aligned.',
+    frictionRisk: 'Low (Gentle, thoughtful communication cadence; decisions are measured and carefully reasoned).',
+    cadenceBalance: 'Async-first structured memos paired with bilateral consensus building.'
+  },
+  {
+    archetypeA: 'The Amber-Teal Polymath',
+    colorA: '#D97706',
+    archetypeB: 'The Verdant Mediator',
+    colorB: '#059669',
+    synergyScore: 93,
+    synergyTitle: 'Full-Stack Scalability & Culture',
+    description: 'The Polymath bridges high-speed code with systems design, while Verdant ensures the broader organization scales harmoniously without knowledge silos or single-person bottlenecks.',
+    frictionRisk: 'Low (Verdant naturally helps the Polymath delegate and mentor team members).',
+    cadenceBalance: 'Adaptive pairing sessions mixed with team-wide retrospectives.'
+  },
+  {
+    archetypeA: 'The Amber-Teal Polymath',
+    colorA: '#D97706',
+    archetypeB: 'The Violet Visionary',
+    colorB: '#7C3AED',
+    synergyScore: 91,
+    synergyTitle: 'Frontier Product Laboratory',
+    description: 'Visionary generates paradigm-shifting concepts, and the Polymath possesses the exact cross-stack bandwidth to prototype and architect them simultaneously in real time.',
+    frictionRisk: 'Medium (Tendency to generate too many concurrent experiments; requires disciplined focus).',
+    cadenceBalance: 'Rapid interactive sandbox cycles with continuous concept filtering.'
+  },
+  {
+    archetypeA: 'The Amber-Teal Polymath',
+    colorA: '#D97706',
+    archetypeB: 'The Cobalt Anchor',
+    colorB: '#1D4ED8',
+    synergyScore: 93,
+    synergyTitle: 'Agile Production Pipeline',
+    description: 'Combines full-stack agile velocity with rigorous infrastructure discipline. The Polymath writes clean, versatile feature code while Cobalt secures high availability, automated testing, and release integrity.',
+    frictionRisk: 'Low (Mutual appreciation for high-quality, maintainable codebases).',
+    cadenceBalance: 'Structured PR workflows with automated test verification.'
+  },
+  {
+    archetypeA: 'The Solar Catalyst',
+    colorA: '#D97706',
+    archetypeB: 'The Amber-Teal Polymath',
+    colorB: '#0A6275',
+    synergyScore: 88,
+    synergyTitle: 'Hyper-Velocity Builder Duo',
+    description: 'Extremely high shipping cadence and execution power. Both archetypes possess tremendous agency and bias for action, unblocking complex challenges in hours.',
+    frictionRisk: 'Medium (Requires clear boundary ownership so both builders do not edit the same modules concurrently).',
+    cadenceBalance: 'Lightweight synchronous syncs and split-domain ownership.'
+  },
+  {
+    archetypeA: 'The Oceanic Architect',
+    colorA: '#0A6275',
+    archetypeB: 'The Amber-Teal Polymath',
+    colorB: '#D97706',
+    synergyScore: 90,
+    synergyTitle: 'Cognitive Architecture Exchange',
+    description: 'Harmonious technical co-piloting. The Oceanic Architect formalizes long-term schema boundaries while the Polymath rapidly validates the APIs through living client applications.',
+    frictionRisk: 'Low (Shared technical vocabulary and mutual respect for system elegance).',
+    cadenceBalance: 'Async architectural memos with instant pairing sessions for complex edge cases.'
+  },
+  {
+    archetypeA: 'The Oceanic Architect',
+    colorA: '#0A6275',
+    archetypeB: 'The Violet Visionary',
+    colorB: '#7C3AED',
+    synergyScore: 87,
+    synergyTitle: 'Deep Cognitive Theorist Guild',
+    description: 'A powerhouse of first-principles thinking and lateral discovery. Connects abstract macro-horizons with mathematical schemas and formal data models.',
+    frictionRisk: 'Medium (Can get stuck in theoretical exploration without an execution driver to force concrete shipping).',
+    cadenceBalance: 'Formal technical whitepapers and regular prototype milestone checks.'
+  },
+  {
+    archetypeA: 'The Verdant Mediator',
+    colorA: '#059669',
+    archetypeB: 'The Cobalt Anchor',
+    colorB: '#1D4ED8',
+    synergyScore: 89,
+    synergyTitle: 'Organizational Safety Net',
+    description: 'Provides the highest degree of organizational stability and psychological trust. Cobalt ensures zero operational failures while Verdant ensures zero interpersonal burnout.',
+    frictionRisk: 'Low (Steady, predictable, and supportive operating environment).',
+    cadenceBalance: 'Methodical, transparent communication with reliable cadence.'
+  },
+  {
+    archetypeA: 'The Verdant Mediator',
+    colorA: '#059669',
+    archetypeB: 'The Violet Visionary',
+    colorB: '#7C3AED',
+    synergyScore: 88,
+    synergyTitle: 'Human-Centric Future Design',
+    description: 'Creates empathetic, transformative user experiences. Violet conceives novel interaction paradigms while Verdant ensures the technology serves genuine human emotional and ethical needs.',
+    frictionRisk: 'Low-Medium (Visionary rapid cognitive pivots must be paced for team comprehension).',
+    cadenceBalance: 'Empathetic feedback sessions on futuristic prototypes.'
+  },
+  {
+    archetypeA: 'The Solar Catalyst',
+    colorA: '#D97706',
+    archetypeB: 'The Cobalt Anchor',
+    colorB: '#1D4ED8',
+    synergyScore: 86,
+    synergyTitle: 'Velocity vs Precision Balance',
+    description: 'Forces the classic high-speed builder and high-reliability guardian to collaborate. Solar drives time-to-market while Cobalt prevents production regressions.',
+    frictionRisk: 'Medium-High (Pacing tension: Solar wants to ship now; Cobalt requires verification suite passes).',
+    cadenceBalance: 'Explicit SLA agreements: fast staging iteration with strict production gates.'
   },
   {
     archetypeA: 'The Solar Catalyst',
@@ -241,7 +377,8 @@ const HARMONIC_PAIRS = [
     synergyScore: 78,
     synergyTitle: 'Dual Solar Pulse (High Voltage)',
     description: 'Unmatched raw speed, but high potential for overlapping authority. Thrives only when divided strictly across separate sub-domains (e.g. Founder A = Product, Founder B = Go-To-Market).',
-    frictionRisk: 'High (Risk of ego collisions and duplicate effort without explicit ownership boundaries)'
+    frictionRisk: 'High (Risk of ego collisions and duplicate effort without explicit ownership boundaries).',
+    cadenceBalance: 'Daily domain segmentation and independent autonomy.'
   }
 ];
 
@@ -750,51 +887,14 @@ export const ColorSystemView: React.FC<ColorSystemViewProps> = ({
         </div>
       )}
 
-      {/* Tab 5: Synergy & Friction Matrix */}
+      {/* Tab 5: Synergy & Friction Matrix (Obsidian Web & Matrix Grid) */}
       {activeTab === 'harmonics' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
-          <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
-            <h2 className="text-xl font-bold text-stone-900 tracking-tight">
-              Pairwise Color Harmonics & Friction Mechanics
-            </h2>
-            <p className="text-xs text-stone-600 leading-relaxed max-w-3xl">
-              Just like musical intervals or complementary color wheels, certain personality frequencies create natural resonance while others can produce harmonic dissonance unless managed with conscious role boundaries.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {HARMONIC_PAIRS.map((pair, idx) => (
-              <div
-                key={idx}
-                className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs flex flex-col justify-between space-y-4"
-              >
-                <div>
-                  {/* Top Row */}
-                  <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-                    <div className="flex items-center gap-2">
-                      <div className="flex -space-x-2">
-                        <span className="w-6 h-6 rounded-full ring-2 ring-white shadow-xs" style={{ backgroundColor: pair.colorA }} />
-                        <span className="w-6 h-6 rounded-full ring-2 ring-white shadow-xs" style={{ backgroundColor: pair.colorB }} />
-                      </div>
-                      <h4 className="text-xs font-bold text-stone-900">{pair.synergyTitle}</h4>
-                    </div>
-                    <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                      {pair.synergyScore}% Synergy
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-stone-600 mt-3 leading-relaxed">
-                    {pair.description}
-                  </p>
-                </div>
-
-                <div className="p-3 bg-stone-50 rounded-xl border border-stone-100 text-[11px]">
-                  <span className="font-bold text-stone-700 block mb-0.5">Potential Friction Point:</span>
-                  <span className="text-stone-500">{pair.frictionRisk}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="animate-in fade-in duration-200">
+          <SynergyFrictionGraphWeb
+            archetypes={CHROMATIC_ARCHETYPES}
+            harmonicPairs={HARMONIC_PAIRS}
+            onOpenChromaticTest={onOpenChromaticTest}
+          />
         </div>
       )}
     </div>

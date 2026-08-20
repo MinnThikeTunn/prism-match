@@ -93,12 +93,6 @@ export const Header: React.FC<HeaderProps> = ({
       description: 'Your chromatic signature & global synergy'
     },
     {
-      id: 'discovery' as ViewMode,
-      label: 'Discovery',
-      icon: Sparkles,
-      description: 'Card-by-card connect / pass with explainable evidence'
-    },
-    {
       id: 'maps' as ViewMode,
       label: 'Maps',
       icon: Compass,

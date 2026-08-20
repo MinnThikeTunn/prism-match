@@ -2,6 +2,7 @@ import React from 'react';
 import { Zap, Infinity as InfinityIcon, Scale, SlidersHorizontal, Sparkles, Palette, ArrowRight, Brain, Globe, Heart, Briefcase } from 'lucide-react';
 import { UserProfile, EngineTier } from '../types';
 import { getColorIdentity } from '../lib/colorSystem';
+import { getStoredConnections } from '../lib/discovery';
 import { ProfileHeroCard } from './ProfileHeroCard';
 
 interface DashboardViewProps {
@@ -180,6 +181,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="mt-3 divide-y divide-stone-100">
                 {quickMatches.map((profile) => {
                   const profColor = getColorIdentity(profile.id);
+                  const isUserConnected = getStoredConnections().includes(profile.id);
 
                   return (
                     <div
@@ -203,9 +205,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           />
                         </div>
                         <div>
-                          <h4 className="text-xs font-bold text-stone-900 group-hover:text-[#D97706] transition-colors">
-                            {profile.name}
-                          </h4>
+                          <div className="flex items-center gap-1.5">
+                            <h4 className="text-xs font-bold text-stone-900 group-hover:text-[#D97706] transition-colors">
+                              {profile.name}
+                            </h4>
+                            {isUserConnected && (
+                              <span title="Connected Profile">
+                                <Heart className="w-3 h-3 fill-[#D97706] text-[#D97706]" />
+                              </span>
+                            )}
+                          </div>
                           <p className="text-[11px] text-stone-400">
                             {profile.title}
                           </p>

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../types';
-import { Search, ArrowRight, Palette } from 'lucide-react';
+import { Search, ArrowRight, Palette, Users, Heart } from 'lucide-react';
 import { getColorIdentity, getPairwiseColorHarmonics } from '../lib/colorSystem';
+import { isConnected, getStoredConnections } from '../lib/discovery';
 
 interface NetworkModalProps {
   isOpen: boolean;
@@ -23,6 +24,8 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
 
   if (!isOpen) return null;
 
+  const connectedIds = new Set(getStoredConnections());
+
   const filtered = candidates.filter((c) => {
     const term = searchTerm.toLowerCase();
     const matchesSearch =
@@ -33,7 +36,13 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
       c.needsOffers.offers.some(o => o.toLowerCase().includes(term)) ||
       c.needsOffers.needs.some(n => n.toLowerCase().includes(term));
 
-    const matchesTier = tierFilter === 'ALL' || c.tier === tierFilter;
+    const matchesTier =
+      tierFilter === 'ALL'
+        ? true
+        : tierFilter === 'CONNECTED'
+          ? connectedIds.has(c.id)
+          : c.tier === tierFilter;
+
     return matchesSearch && matchesTier;
   });
 
@@ -74,18 +83,18 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
             />
           </div>
 
-          <div className="flex items-center gap-1.5 self-start sm:self-auto">
-            {['ALL', 'PROFESSIONAL', 'COLLABORATIVE', 'PERSONAL'].map((tier) => (
+          <div className="flex items-center gap-1.5 self-start sm:self-auto overflow-x-auto pb-1 sm:pb-0">
+            {['ALL', 'CONNECTED', 'PROFESSIONAL', 'COLLABORATIVE', 'PERSONAL'].map((tier) => (
               <button
                 key={tier}
                 onClick={() => setTierFilter(tier)}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-full transition-colors ${
+                className={`px-3 py-1.5 text-xs font-semibold rounded-full transition-colors shrink-0 ${
                   tierFilter === tier
                     ? 'bg-stone-900 text-white shadow-xs'
                     : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                 }`}
               >
-                {tier}
+                {tier === 'CONNECTED' ? `CONNECTED (${connectedIds.size})` : tier}
               </button>
             ))}
           </div>
@@ -101,6 +110,7 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
             filtered.map((candidate) => {
               const candColor = getColorIdentity(candidate.id);
               const harmonic = getPairwiseColorHarmonics(currentUser.id, candidate.id);
+              const isUserConnected = connectedIds.has(candidate.id);
 
               return (
                 <div
@@ -126,6 +136,12 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
                         <h4 className="text-sm font-bold text-stone-900">
                           {candidate.name}
                         </h4>
+                        {isUserConnected && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 bg-amber-50 text-[#92400E] border border-amber-200/80 rounded-full">
+                            <Heart className="w-2.5 h-2.5 fill-[#D97706] text-[#D97706]" />
+                            Connected
+                          </span>
+                        )}
                         <span className="text-[10px] font-mono px-2 py-0.5 bg-stone-100 text-stone-600 rounded-md">
                           {candidate.prismId}
                         </span>

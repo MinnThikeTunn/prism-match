@@ -89,7 +89,7 @@ export async function loadProfileFromCloud(): Promise<LoadedCloudProfile> {
 
     return {
       profile,
-      features: (res.features as MatchFeatures | null) ?? null,
+      features: ((res.features as unknown) as MatchFeatures | null) ?? null,
       completed: Boolean(res.completed),
     };
   } catch (err) {
