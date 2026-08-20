@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { UserProfile } from '../types';
 import { Search, ArrowRight, Palette } from 'lucide-react';
 import { getColorIdentity, getPairwiseColorHarmonics } from '../lib/colorSystem';
