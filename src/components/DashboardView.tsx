@@ -53,83 +53,108 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
         {/* Left Column (8 cols): Large Global Synergy Ring + 3 Metric Cards */}
         <div className="lg:col-span-8 space-y-6">
-          {/* Main Visual Display Card with User's Chromatic Aura */}
-          <div className="bg-gradient-to-b from-stone-100/90 to-stone-200/60 border border-stone-200/90 rounded-2xl p-6 sm:p-10 flex flex-col items-center justify-center min-h-[340px] sm:min-h-[380px] shadow-xs relative overflow-hidden">
-            {/* Ambient concentric background glow using user's colors */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-50">
-              <div
-                className="w-96 h-96 rounded-full border animate-pulse"
-                style={{ borderColor: `${userColor.primaryColor}20` }}
+          {/* Profile Summary Card */}
+          <div className="bg-white border border-stone-200/90 rounded-2xl p-6 sm:p-8 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-start gap-5">
+              <img
+                src={currentUser.avatar}
+                alt={`${currentUser.name}'s profile photo`}
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border border-stone-200 shadow-xs"
               />
-              <div
-                className="w-80 h-80 rounded-full border absolute"
-                style={{ borderColor: `${userColor.secondaryColor}20` }}
-              />
-              <div
-                className="w-64 h-64 rounded-full border absolute"
-                style={{ borderColor: `${userColor.spectrumBars[2]?.color ?? '#059669'}20` }}
-              />
-            </div>
-
-            {/* Central User Chromatic Spectrum Orb */}
-            <div className="relative z-10 flex flex-col items-center text-center">
-              <div
-                className="w-44 h-44 sm:w-52 sm:h-52 rounded-full p-2 shadow-xl flex items-center justify-center hover:scale-105 transition-transform duration-500"
-                style={{
-                  background: `linear-gradient(to top right, ${userColor.primaryColor}, ${userColor.secondaryColor}, ${userColor.spectrumBars[2]?.color ?? '#059669'})`
-                }}
-              >
-                <div className="w-full h-full rounded-full bg-white flex flex-col items-center justify-center p-3 sm:p-4 relative overflow-hidden">
-                  {/* Subtle inner chromatic gradient fill */}
-                  <div
-                    className="absolute inset-0 opacity-15"
-                    style={{ background: userColor.bgGradient }}
-                  />
-
-                  {/* Multi-color orb visual from user's spectrum */}
-                  <div className="flex items-center gap-1.5 mb-2">
-                    {userColor.spectrumBars.slice(0, 4).map((bar, i) => (
-                      <span
-                        key={bar.name}
-                        className={`rounded-full shadow-sm ${i === 1 ? 'w-4 h-4 animate-pulse' : 'w-3.5 h-3.5'} ${i === 0 ? 'animate-bounce' : ''}`}
-                        style={{ backgroundColor: bar.color, animationDuration: i === 0 ? '1.5s' : undefined }}
-                      />
-                    ))}
-                  </div>
-
-                  <span className="text-xs sm:text-sm font-black text-stone-900 tracking-wide uppercase">
-                    {userColor.primaryName}
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+                    {currentUser.name}
+                  </h2>
+                  <span className="px-2.5 py-1 rounded-full bg-stone-100 border border-stone-200 text-[11px] font-bold text-stone-600 tracking-wide">
+                    {currentUser.tier}
                   </span>
-                  <span
-                    className="mt-1 text-[10px] sm:text-[11px] font-bold tracking-wider uppercase"
-                    style={{ color: userColor.primaryColor }}
-                  >
-                    {userColor.harmonicTitle}
-                  </span>
-                  <span className="mt-0.5 text-[8px] sm:text-[9px] font-semibold text-stone-400 uppercase tracking-widest">
-                    {userColor.toneDescription}
+                  <span className="px-2.5 py-1 rounded-full bg-stone-100 border border-stone-200 text-[11px] font-bold text-stone-600 tracking-wide">
+                    {currentUser.subMode.replace(/_/g, ' ')}
                   </span>
                 </div>
-              </div>
+                <p className="mt-1 text-sm font-semibold text-stone-700">{currentUser.title}</p>
+                <p className="text-xs text-stone-500">{currentUser.location}</p>
+                <p className="mt-3 text-sm text-stone-600 leading-relaxed">{currentUser.bio}</p>
 
-              {/* User's Spectrum Color Channels */}
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs font-semibold text-stone-700">
-                {userColor.spectrumBars.map((bar) => (
-                  <div
-                    key={bar.name}
-                    className="flex items-center gap-2 bg-white/80 px-3 py-1 rounded-full border border-stone-200 shadow-xs"
-                  >
-                    <span
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: bar.color }}
-                    />
-                    <span>{bar.name}</span>
-                    <span className="text-[10px] text-stone-400">({bar.intensity})</span>
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { label: 'Availability', value: `${currentUser.availabilityHoursPerWeek} hrs/wk` },
+                    { label: 'Response', value: currentUser.communicationLatency },
+                    { label: 'Risk Appetite', value: currentUser.riskTolerance },
+                    { label: 'Verified', value: new Date(currentUser.verifiedAt).toLocaleDateString() }
+                  ].map((item) => (
+                    <div key={item.label} className="rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                        {item.label}
+                      </div>
+                      <div className="mt-0.5 text-xs font-semibold text-stone-800 truncate">
+                        {item.value}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-5">
+              {[
+                { label: 'Offers', items: currentUser.needsOffers.offers },
+                { label: 'Needs', items: currentUser.needsOffers.needs },
+                { label: 'Domains', items: currentUser.needsOffers.domains }
+              ].map((group) => (
+                <div key={group.label}>
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
+                    {group.label}
+                  </h3>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {group.items.length === 0 ? (
+                      <span className="text-xs text-stone-400">Not set yet</span>
+                    ) : (
+                      group.items.map((item) => (
+                        <span
+                          key={item}
+                          className="px-2.5 py-1 rounded-full bg-stone-100 border border-stone-200 text-[11px] font-semibold text-stone-700"
+                        >
+                          {item}
+                        </span>
+                      ))
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
+                Personality Profile
+              </h3>
+              <div className="mt-3 space-y-2.5">
+                {[
+                  { name: 'Openness', value: currentUser.ocean.openness, note: 'Curiosity for new ideas and approaches' },
+                  { name: 'Conscientiousness', value: currentUser.ocean.conscientiousness, note: 'Follow-through and structure' },
+                  { name: 'Extraversion', value: currentUser.ocean.extraversion, note: 'Energy drawn from people and momentum' },
+                  { name: 'Agreeableness', value: currentUser.ocean.agreeableness, note: 'Cooperation and trust in teams' },
+                  { name: 'Emotional Stability', value: 100 - currentUser.ocean.neuroticism, note: 'Steadiness under pressure' }
+                ].map((trait) => (
+                  <div key={trait.name}>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-stone-800">{trait.name}</span>
+                      <span className="font-bold text-stone-500">{Math.round(trait.value)}</span>
+                    </div>
+                    <div className="mt-1 h-1.5 rounded-full bg-stone-100 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-stone-800"
+                        style={{ width: `${Math.max(0, Math.min(100, trait.value))}%` }}
+                      />
+                    </div>
+                    <p className="mt-1 text-[11px] text-stone-400">{trait.note}</p>
                   </div>
                 ))}
               </div>
             </div>
           </div>
+
 
           {/* 3 Metric Cards in a Row - Expressed PURELY in Rich Color Channels */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
