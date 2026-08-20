@@ -358,7 +358,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center gap-3">
               <div 
                 className="w-12 h-12 rounded-2xl p-0.5 bg-white shadow-xs overflow-hidden ring-2"
-                style={{ ringColor: userColor.primaryColor }}
+                style={{ ['--tw-ring-color' as any]: userColor.primaryColor }}
               >
                 <img
                   src={currentUser.avatar}

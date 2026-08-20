@@ -354,7 +354,7 @@ export const MapsView: React.FC<MapsViewProps> = ({
                     : `bg-stone-50/70 hover:bg-white border-stone-200/80 hover:border-stone-300 shadow-2xs`
                 }`}
                 style={{
-                  ringColor: isSelected ? tier.themeColor : 'transparent'
+                  ['--tw-ring-color' as any]: isSelected ? tier.themeColor : 'transparent'
                 }}
                 id={`map-tier-btn-${tier.id.toLowerCase()}`}
               >

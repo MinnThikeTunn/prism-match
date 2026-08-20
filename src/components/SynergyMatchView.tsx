@@ -123,7 +123,7 @@ export const SynergyMatchView: React.FC<SynergyMatchViewProps> = ({
           <div className="flex flex-col items-center">
             <div
               className="w-20 h-20 rounded-full p-1 mb-3 ring-4 shadow-sm"
-              style={{ ringColor: reqColor.primaryColor }}
+              style={{ ['--tw-ring-color' as any]: reqColor.primaryColor }}
             >
               <img
                 src={requester.avatar}
@@ -181,7 +181,7 @@ export const SynergyMatchView: React.FC<SynergyMatchViewProps> = ({
           <div className="flex flex-col items-center">
             <div
               className="w-20 h-20 rounded-full p-1 mb-3 ring-4 shadow-sm"
-              style={{ ringColor: candColor.primaryColor }}
+              style={{ ['--tw-ring-color' as any]: candColor.primaryColor }}
             >
               <img
                 src={candidate.avatar}

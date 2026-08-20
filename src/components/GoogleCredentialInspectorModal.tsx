@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { GoogleCredential, STORAGE_KEY_GOOGLE_AUTH } from '../lib/googleAuth';
-import { X, Copy, Check, ShieldCheck, Database, Key, Clock, User, Code } from 'lucide-react';
+import { X, Copy, Check, ShieldCheck, Database, Key, Clock, User, Code, Lock } from 'lucide-react';
 
 interface GoogleCredentialInspectorModalProps {
   isOpen: boolean;
   onClose: () => void;
   credential: GoogleCredential | null;
   onSignOut: () => void;
+  onSwitchAccount?: () => void;
 }
 
 export const GoogleCredentialInspectorModal: React.FC<GoogleCredentialInspectorModalProps> = ({
