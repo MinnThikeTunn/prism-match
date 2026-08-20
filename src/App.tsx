@@ -125,27 +125,6 @@ export default function App() {
     setCurrentView('synergy');
   };
 
-  // Google Auth Handlers
-  const handleGoogleSuccess = (credential: GoogleCredential, syncProfile: boolean) => {
-    saveGoogleCredential(credential);
-    setGoogleCredential(credential);
-
-    if (syncProfile) {
-      const updatedProfile: UserProfile = {
-        ...currentUser,
-        name: credential.user.name,
-        avatar: credential.user.picture,
-        email: credential.user.email,
-        bio: `${currentUser.bio} (Authenticated via Google Account ${credential.user.email})`
-      };
-      handleUpdateUser(updatedProfile);
-    }
-  };
-
-  const handleGoogleSignOut = () => {
-    removeGoogleCredential();
-    setGoogleCredential(null);
-  };
 
   const quickMatches = candidatePool.slice(0, 4);
 
