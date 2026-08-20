@@ -19,6 +19,7 @@ import {
   Users,
   ExternalLink,
   Layers,
+  ClipboardList,
   Database
 } from 'lucide-react';
 import { getColorIdentity } from '../lib/colorSystem';
@@ -210,6 +211,17 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="hidden xl:inline">Calibrate Color</span>
               </button>
             )}
+
+            {/* Onboarding Questionnaire Button (Desktop & Tablet) */}
+            <button
+              onClick={onOpenQuestionnaire}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold rounded-full border border-stone-200 transition-all active:scale-95"
+              id="header-onboarding-btn"
+              title="Open the onboarding questionnaire"
+            >
+              <ClipboardList className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden xl:inline">Onboarding</span>
+            </button>
 
             {/* Custom AI Match Action Button (Desktop & Tablet) */}
             <button
@@ -524,6 +536,26 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider px-2 mb-1">
               Prism Actions
             </div>
+
+            {/* Onboarding Questionnaire Button */}
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                onOpenQuestionnaire();
+              }}
+              className="w-full flex items-center gap-3 p-3 bg-stone-50 hover:bg-stone-100 text-stone-800 border border-stone-200 rounded-xl text-xs font-bold transition-all text-left min-h-[48px]"
+              id="mobile-onboarding-btn"
+            >
+              <div className="w-8 h-8 rounded-lg bg-stone-200/80 flex items-center justify-center text-stone-700">
+                <ClipboardList className="w-4 h-4" />
+              </div>
+              <div className="flex-1">
+                <span>Onboarding Questionnaire</span>
+                <span className="block text-[10px] font-normal text-stone-500">
+                  Retake the 10-step matching setup
+                </span>
+              </div>
+            </button>
 
             {/* Custom AI Match Button */}
             <button
