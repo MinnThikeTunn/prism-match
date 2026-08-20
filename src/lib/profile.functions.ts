@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
-import { requireSupabaseAuth } from '../integrations/supabase/auth-middleware';
 import type { Json } from '../integrations/supabase/types';
+import { requireCloudAuth } from './cloudAuthMiddleware';
 
 type ProfileInput = {
   name?: string;
@@ -12,7 +12,7 @@ type ProfileInput = {
 };
 
 export const getMyProfile = createServerFn({ method: 'GET' })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireCloudAuth])
   .handler(async ({ context }) => {
     const { supabase, userId, claims } = context;
 
@@ -38,7 +38,7 @@ export const getMyProfile = createServerFn({ method: 'GET' })
   });
 
 export const saveMyProfile = createServerFn({ method: 'POST' })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireCloudAuth])
   .inputValidator((input: ProfileInput) => input)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -62,7 +62,7 @@ export const saveMyProfile = createServerFn({ method: 'POST' })
   });
 
 export const completeOnboarding = createServerFn({ method: 'POST' })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireCloudAuth])
   .inputValidator(
     (input: ProfileInput & { features: Record<string, unknown> }) => input,
   )
