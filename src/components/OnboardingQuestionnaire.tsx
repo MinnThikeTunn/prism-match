@@ -5,7 +5,6 @@ import {
   ConnectionGoal,
   DEFAULT_FEATURES,
   GOAL_TO_SUBMODE,
-  MATCH_FEATURES_STORAGE_KEY,
   MatchFeatures,
 } from '../lib/onboardingStorage';
 
