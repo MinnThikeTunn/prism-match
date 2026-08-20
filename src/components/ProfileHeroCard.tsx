@@ -15,7 +15,7 @@ interface ProfileHeroCardProps {
  * harmonic resonance badge and bio. Shared by the home dashboard and profile page.
  */
 export const ProfileHeroCard: React.FC<ProfileHeroCardProps> = ({ profile, bioSlot, className }) => {
-  const activeColor = getColorIdentity(profile.colorIdentityId);
+  const activeColor = getColorIdentity(profile.id);
 
   return (
     <div className={`bg-white border border-stone-200 rounded-3xl overflow-hidden shadow-xs ${className ?? ''}`}>
