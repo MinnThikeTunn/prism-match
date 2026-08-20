@@ -22,6 +22,36 @@ export function AuthScreen() {
     if (!loading && session) navigate({ to: '/', replace: true });
   }, [loading, session, navigate]);
 
+  /** Auth API restarts / flaky iframe networking surface as "Failed to fetch" — retry those. */
+  const withRetry = async <T,>(fn: () => Promise<T>, attempts = 3): Promise<T> => {
+    let lastError: unknown;
+    for (let i = 0; i < attempts; i++) {
+      try {
+        return await fn();
+      } catch (err) {
+        lastError = err;
+        const message = err instanceof Error ? err.message : '';
+        const transient = /failed to fetch|load failed|network/i.test(message);
+        if (!transient || i === attempts - 1) throw err;
+        await new Promise((r) => setTimeout(r, 600 * (i + 1)));
+      }
+    }
+    throw lastError;
+  };
+
+  const friendly = (err: unknown) => {
+    const raw = err instanceof Error ? err.message : 'Something went wrong';
+    if (/failed to fetch|load failed|network/i.test(raw))
+      return 'Could not reach the auth service. Check your connection and try again in a moment.';
+    if (/invalid login credentials/i.test(raw))
+      return 'That email and password combination does not match an account. Sign up first if you are new.';
+    if (/weak|pwned|known to be weak/i.test(raw))
+      return 'That password appears in known breach lists. Pick a longer, less common password.';
+    if (/already registered|user already/i.test(raw))
+      return 'An account with that email already exists — sign in instead.';
+    return raw;
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
@@ -30,28 +60,34 @@ export function AuthScreen() {
 
     try {
       if (mode === 'signup') {
-        const { data, error: err } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.origin,
-            data: { full_name: name },
-          },
-        });
+        if (password.length < 8) throw new Error('Password must be at least 8 characters.');
+        const { data, error: err } = await withRetry(() =>
+          supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: window.location.origin,
+              data: { full_name: name },
+            },
+          }),
+        );
         if (err) throw err;
         if (!data.session) {
           setNotice('Check your inbox and confirm your email to finish creating your account.');
         }
       } else {
-        const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+        const { error: err } = await withRetry(() =>
+          supabase.auth.signInWithPassword({ email, password }),
+        );
         if (err) throw err;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setError(friendly(err));
     } finally {
       setBusy(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-[#FAFBFD] flex items-center justify-center px-4 py-12">
