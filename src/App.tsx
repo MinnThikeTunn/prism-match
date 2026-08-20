@@ -3,6 +3,7 @@ import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { DashboardView } from './components/DashboardView';
 import { MapsView } from './components/MapsView';
+import { DiscoveryView } from './components/DiscoveryView';
 import { VerificationView } from './components/VerificationView';
 import { SynergyMatchView } from './components/SynergyMatchView';
 import { ProfileView } from './components/ProfileView';
