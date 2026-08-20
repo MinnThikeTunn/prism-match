@@ -3,21 +3,20 @@ import { ConicRingVisual } from './ConicRingVisual';
 import { UserProfile } from '../types';
 import { Fingerprint, Palette, ShieldCheck, Sparkles, Database, KeyRound, CheckCircle2, UserCheck, ExternalLink } from 'lucide-react';
 import { getColorIdentity } from '../lib/colorSystem';
-import { GoogleCredential, STORAGE_KEY_GOOGLE_AUTH } from '../lib/googleAuth';
+import { AccountIdentity } from '../lib/account';
 
 interface VerificationViewProps {
   currentUser: UserProfile;
-  googleCredential?: GoogleCredential | null;
-  onOpenGoogleSignIn?: () => void;
-  onOpenGoogleInspector?: () => void;
+  account?: AccountIdentity | null;
 }
 
 export const VerificationView: React.FC<VerificationViewProps> = ({ 
   currentUser,
-  googleCredential,
-  onOpenGoogleSignIn,
-  onOpenGoogleInspector
+  account
 }) => {
+  const identity = account
+    ? { user: { email: account.email, name: account.name }, idToken: account.id }
+    : null;
   const userColor = getColorIdentity(currentUser.id);
 
   return (
@@ -254,28 +253,28 @@ export const VerificationView: React.FC<VerificationViewProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base font-bold text-stone-900">
-                  Google OAuth 2.0 / OpenID Connect Identity
+                  Account Identity (Email & Password)
                 </h3>
-                {googleCredential ? (
+                {identity ? (
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                    AUTHENTICATED & PERSISTED
+                    AUTHENTICATED
                   </span>
                 ) : (
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300">
-                    DEMO GUEST MODE
+                    NOT SIGNED IN
                   </span>
                 )}
               </div>
               <p className="text-xs text-stone-500 mt-0.5">
-                Local storage key: <code className="text-[#D97706] font-mono font-semibold">{STORAGE_KEY_GOOGLE_AUTH}</code>
+                Stored securely in your cloud account record
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2.5">
-            {googleCredential ? (
+            {identity ? (
               <>
-                {onOpenGoogleInspector && (
+                {false && (
                   <button
                     onClick={onOpenGoogleInspector}
                     className="flex items-center gap-1.5 px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition-all"
@@ -285,7 +284,7 @@ export const VerificationView: React.FC<VerificationViewProps> = ({
                     <span>Inspect Token & Claims</span>
                   </button>
                 )}
-                {onOpenGoogleSignIn && (
+                {false && (
                   <button
                     onClick={onOpenGoogleSignIn}
                     className="flex items-center gap-1.5 px-4 py-2 bg-[#4285F4] hover:bg-[#3367D6] text-white text-xs font-bold rounded-xl shadow-xs transition-all"
@@ -335,10 +334,10 @@ export const VerificationView: React.FC<VerificationViewProps> = ({
               Google Account
             </span>
             <span className="text-xs font-bold text-stone-900 mt-1 block truncate">
-              {googleCredential ? googleCredential.user.email : 'Not connected'}
+              {identity ? identity.user.email : 'Not connected'}
             </span>
             <span className="text-[11px] text-stone-500 mt-0.5 block">
-              {googleCredential ? `Name: ${googleCredential.user.name}` : 'Click sign in to authenticate'}
+              {identity ? `Name: ${identity.user.name}` : 'Click sign in to authenticate'}
             </span>
           </div>
 
@@ -347,10 +346,10 @@ export const VerificationView: React.FC<VerificationViewProps> = ({
               OIDC Token Hash
             </span>
             <span className="text-xs font-mono font-bold text-stone-900 mt-1 block truncate">
-              {googleCredential ? `${googleCredential.idToken.substring(0, 16)}...` : 'None'}
+              {identity ? `${identity.idToken.substring(0, 16)}...` : 'None'}
             </span>
             <span className="text-[11px] text-emerald-700 font-semibold mt-0.5 block">
-              {googleCredential ? 'Verified signature' : 'Awaiting token generation'}
+              {identity ? 'Verified signature' : 'Awaiting token generation'}
             </span>
           </div>
 
