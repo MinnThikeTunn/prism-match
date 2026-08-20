@@ -61,6 +61,7 @@ export interface UserProfile {
   name: string;
   title: string;
   avatar: string;
+  email?: string;
   bio: string;
   location: string;
   coordinates: { x: number; y: number; lat?: number; lng?: number };

@@ -340,7 +340,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <div className="relative">
                 <div 
                   className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl p-1.5 bg-white shadow-xl ring-4 transition-all"
-                  style={{ ringColor: activeColor.primaryColor }}
+                  style={{ ['--tw-ring-color' as any]: activeColor.primaryColor }}
                 >
                   <img
                     src={activeProfile.avatar}

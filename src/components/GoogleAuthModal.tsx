@@ -24,6 +24,7 @@ interface GoogleAuthModalProps {
   onClose: () => void;
   onSuccess: (credential: GoogleCredential, syncProfile: boolean) => void;
   currentEmail?: string;
+  currentCredential?: GoogleCredential | null;
 }
 
 export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
