@@ -226,35 +226,16 @@ export const VerificationView: React.FC<VerificationViewProps> = ({
         </div>
       </div>
 
-      {/* Google Authentication & Local Storage Cryptographic Identity Card */}
+      {/* Account Identity Card */}
       <div className="mt-8 bg-white border border-stone-200/90 rounded-2xl p-6 sm:p-8 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-stone-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-200/80 flex items-center justify-center p-2 shrink-0">
-              <svg viewBox="0 0 24 24" className="w-full h-full">
-                <path
-                  fill="#4285F4"
-                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.29 21.43 7.37 24 12 24z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.29 2.57 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                />
-              </svg>
+            <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center shrink-0">
+              <KeyRound className="w-5 h-5 text-[#D97706]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-stone-900">
-                  Account Identity (Email & Password)
-                </h3>
+                <h3 className="text-base font-bold text-stone-900">Account Identity</h3>
                 {identity ? (
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
                     AUTHENTICATED
@@ -266,38 +247,34 @@ export const VerificationView: React.FC<VerificationViewProps> = ({
                 )}
               </div>
               <p className="text-xs text-stone-500 mt-0.5">
-                Stored securely in your cloud account record
+                Email &amp; password account, stored securely in your cloud account record.
               </p>
             </div>
           </div>
-
-          <div className="flex items-center gap-2.5" />
-          </div>
         </div>
 
-        {/* Status Fields */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
           <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-100">
             <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
-              Google Account
+              Account Email
             </span>
             <span className="text-xs font-bold text-stone-900 mt-1 block truncate">
-              {identity ? identity.user.email : 'Not connected'}
+              {identity ? identity.user.email : 'Not signed in'}
             </span>
             <span className="text-[11px] text-stone-500 mt-0.5 block">
-              {identity ? `Name: ${identity.user.name}` : 'Click sign in to authenticate'}
+              {identity ? `Name: ${identity.user.name}` : 'Sign in to authenticate'}
             </span>
           </div>
 
           <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-100">
             <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
-              OIDC Token Hash
+              Account ID
             </span>
             <span className="text-xs font-mono font-bold text-stone-900 mt-1 block truncate">
               {identity ? `${identity.idToken.substring(0, 16)}...` : 'None'}
             </span>
             <span className="text-[11px] text-emerald-700 font-semibold mt-0.5 block">
-              {identity ? 'Verified signature' : 'Awaiting token generation'}
+              {identity ? 'Verified session' : 'Awaiting sign in'}
             </span>
           </div>
 
@@ -305,24 +282,12 @@ export const VerificationView: React.FC<VerificationViewProps> = ({
             <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
               Storage Mechanism
             </span>
-            <span className="text-xs font-bold text-stone-900 mt-1 block flex items-center gap-1.5">
-              <Database className="w-3.5 h-3.5 text-[#4285F4]" />
-              <span>Browser LocalStorage</span>
+            <span className="text-xs font-bold text-stone-900 mt-1 flex items-center gap-1.5">
+              <Database className="w-3.5 h-3.5 text-[#D97706]" />
+              <span>Cloud Postgres</span>
             </span>
             <span className="text-[11px] text-stone-500 mt-0.5 block">
-              Persists across reloads & sessions
-            </span>
-          </div>
-
-          <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-100">
-            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
-              OIDC Provider
-            </span>
-            <span className="text-xs font-bold text-stone-900 mt-1 block">
-              accounts.google.com
-            </span>
-            <span className="text-[11px] text-stone-500 mt-0.5 block">
-              OAuth 2.0 / OpenID Connect
+              Synced across every device you sign in on
             </span>
           </div>
         </div>
