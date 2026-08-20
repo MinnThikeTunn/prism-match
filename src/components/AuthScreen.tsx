@@ -23,7 +23,7 @@ export function AuthScreen() {
   }, [loading, session, navigate]);
 
   /** Auth API restarts / flaky iframe networking surface as "Failed to fetch" — retry those. */
-  const withRetry = async <T,>(fn: () => Promise<T>, attempts = 3): Promise<T> => {
+  const withRetry = async <T,>(fn: () => Promise<T>, attempts = 4): Promise<T> => {
     let lastError: unknown;
     for (let i = 0; i < attempts; i++) {
       try {
@@ -33,7 +33,7 @@ export function AuthScreen() {
         const message = err instanceof Error ? err.message : '';
         const transient = /failed to fetch|load failed|network/i.test(message);
         if (!transient || i === attempts - 1) throw err;
-        await new Promise((r) => setTimeout(r, 600 * (i + 1)));
+        await new Promise((r) => setTimeout(r, 800 * (i + 1)));
       }
     }
     throw lastError;
@@ -42,7 +42,7 @@ export function AuthScreen() {
   const friendly = (err: unknown) => {
     const raw = err instanceof Error ? err.message : 'Something went wrong';
     if (/failed to fetch|load failed|network/i.test(raw))
-      return 'Could not reach the auth service. Check your connection and try again in a moment.';
+      return 'Could not reach the auth service. Your network or browser may be blocking it — try another network (mobile data / Wi-Fi), disable ad-blockers or a VPN, then retry.';
     if (/invalid login credentials/i.test(raw))
       return 'That email and password combination does not match an account. Sign up first if you are new.';
     if (/weak|pwned|known to be weak/i.test(raw))
