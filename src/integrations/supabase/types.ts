@@ -154,6 +154,7 @@ export type Database = {
           id: string
           location: string | null
           name: string
+          onboarding_completed: boolean
           profile_data: Json
           title: string | null
           updated_at: string
@@ -166,6 +167,7 @@ export type Database = {
           id: string
           location?: string | null
           name?: string
+          onboarding_completed?: boolean
           profile_data?: Json
           title?: string | null
           updated_at?: string
@@ -178,6 +180,7 @@ export type Database = {
           id?: string
           location?: string | null
           name?: string
+          onboarding_completed?: boolean
           profile_data?: Json
           title?: string | null
           updated_at?: string

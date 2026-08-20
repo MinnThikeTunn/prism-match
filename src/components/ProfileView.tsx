@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { UserProfile, OCEANProfile, EngineTier, IntentSubMode } from '../types';
 import { getColorIdentity } from '../lib/colorSystem';
 import { ProfileSummaryCard } from './ProfileSummaryCard';
-import { GoogleCredential, STORAGE_KEY_GOOGLE_AUTH } from '../lib/googleAuth';
 import { 
   User, 
   ShieldCheck, 
@@ -42,9 +41,6 @@ interface ProfileViewProps {
   onSelectCandidateSynergy?: (candidate: UserProfile) => void;
   onNavigateToColors?: () => void;
   onOpenChromaticTest?: () => void;
-  googleCredential?: GoogleCredential | null;
-  onOpenGoogleSignIn?: () => void;
-  onOpenGoogleInspector?: () => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
@@ -54,9 +50,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onSelectCandidateSynergy,
   onNavigateToColors,
   onOpenChromaticTest,
-  googleCredential,
-  onOpenGoogleSignIn,
-  onOpenGoogleInspector
 }) => {
   // Selected profile to inspect (defaults to currentUser, can inspect candidates)
   const [inspectedUserId, setInspectedUserId] = useState<string>(currentUser.id);
@@ -1070,76 +1063,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855{activeProfile.id.replace(/[^a-z0-9]/g, '')}
               </p>
             </div>
-
-            {/* Google Authentication Status in Profile Verification */}
-            {isSelf && (
-              <div className="md:col-span-2 p-5 bg-blue-50/60 rounded-xl border border-blue-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-white p-1.5 shadow-xs border border-blue-200 shrink-0">
-                    <svg viewBox="0 0 24 24" className="w-full h-full">
-                      <path
-                        fill="#4285F4"
-                        d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
-                      />
-                      <path
-                        fill="#34A853"
-                        d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.29 21.43 7.37 24 12 24z"
-                      />
-                      <path
-                        fill="#FBBC05"
-                        d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"
-                      />
-                      <path
-                        fill="#EA4335"
-                        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.29 2.57 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-stone-900">Google OAuth 2.0 Identity</span>
-                      {googleCredential ? (
-                        <span className="px-2 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
-                          Connected & Saved
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.2 rounded text-[9px] font-bold bg-stone-200 text-stone-700">
-                          Guest / Not Linked
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-stone-600 mt-0.5">
-                      {googleCredential 
-                        ? `Linked to ${googleCredential.user.email} (persisted in localStorage)`
-                        : 'Connect your Google demo account to link OIDC tokens.'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {googleCredential ? (
-                    onOpenGoogleInspector && (
-                      <button
-                        onClick={onOpenGoogleInspector}
-                        className="px-3 py-1.5 bg-white hover:bg-stone-50 border border-stone-200 text-stone-800 text-xs font-bold rounded-xl shadow-2xs transition-all flex items-center gap-1.5"
-                      >
-                        <KeyRound className="w-3.5 h-3.5 text-[#D97706]" />
-                        <span>Inspect Credentials</span>
-                      </button>
-                    )
-                  ) : (
-                    onOpenGoogleSignIn && (
-                      <button
-                        onClick={onOpenGoogleSignIn}
-                        className="px-3.5 py-1.5 bg-[#4285F4] hover:bg-[#3367D6] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5"
-                      >
-                        <span>Sign in with Google</span>
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}

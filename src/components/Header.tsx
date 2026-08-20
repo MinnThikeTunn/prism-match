@@ -22,8 +22,6 @@ import {
   Database
 } from 'lucide-react';
 import { getColorIdentity } from '../lib/colorSystem';
-import { GoogleUserMenu } from './GoogleUserMenu';
-import { GoogleCredential } from '../lib/googleAuth';
 
 interface HeaderProps {
   currentView: ViewMode;
@@ -34,10 +32,6 @@ interface HeaderProps {
   onOpenChromaticTest?: () => void;
   currentUser: UserProfile;
   highContrast: boolean;
-  googleCredential: GoogleCredential | null;
-  onOpenGoogleSignIn: () => void;
-  onOpenGoogleInspector: () => void;
-  onGoogleSignOut: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -48,10 +42,6 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenNetwork,
   onOpenChromaticTest,
   currentUser,
-  googleCredential,
-  onOpenGoogleSignIn,
-  onOpenGoogleInspector,
-  onGoogleSignOut
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
@@ -221,16 +211,6 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="hidden md:inline">Custom AI Match</span>
             </button>
 
-            {/* Google Authentication Menu / Sign In Button (Desktop) */}
-            <div className="hidden sm:block">
-              <GoogleUserMenu
-                credential={googleCredential}
-                onOpenSignIn={onOpenGoogleSignIn}
-                onOpenInspector={onOpenGoogleInspector}
-                onSignOut={onGoogleSignOut}
-              />
-            </div>
-
             {/* Notifications Icon with Dropdown */}
             <div className="relative">
               <button
@@ -399,73 +379,6 @@ export const Header: React.FC<HeaderProps> = ({
               <User className="w-3.5 h-3.5 text-stone-600" />
               <span>View Chromatic Dossier</span>
             </button>
-          </div>
-
-          {/* Google Auth Status Section for Mobile */}
-          <div className="p-3 bg-blue-50/60 rounded-2xl border border-blue-100 text-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-stone-800 text-[11px] flex items-center gap-1.5">
-                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0">
-                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
-                  <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.29 21.43 7.37 24 12 24z"/>
-                  <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"/>
-                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.29 2.57 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-                </svg>
-                Google Integration
-              </span>
-              {googleCredential ? (
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <Check className="w-3 h-3" /> Linked
-                </span>
-              ) : (
-                <span className="text-[10px] font-medium text-stone-500">
-                  Not Linked
-                </span>
-              )}
-            </div>
-
-            {googleCredential ? (
-              <div className="space-y-1.5 pt-1">
-                <p className="text-[11px] text-stone-600 truncate">
-                  {googleCredential.user.email}
-                </p>
-                <div className="flex gap-2 pt-1">
-                  <button
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      onOpenGoogleInspector();
-                    }}
-                    className="flex-1 py-1.5 px-2 bg-white hover:bg-stone-50 border border-blue-200 text-blue-800 text-[11px] font-semibold rounded-lg text-center flex items-center justify-center gap-1"
-                    id="mobile-google-inspect-btn"
-                  >
-                    <KeyRound className="w-3 h-3" />
-                    <span>Inspect Token</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      onGoogleSignOut();
-                    }}
-                    className="py-1.5 px-2.5 bg-white hover:bg-rose-50 border border-rose-200 text-rose-600 text-[11px] font-semibold rounded-lg flex items-center justify-center"
-                    id="mobile-google-signout-btn"
-                    title="Sign Out"
-                  >
-                    <LogOut className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  onOpenGoogleSignIn();
-                }}
-                className="w-full py-1.5 px-3 bg-white hover:bg-stone-50 border border-stone-300 text-stone-800 text-xs font-semibold rounded-xl shadow-2xs transition-colors flex items-center justify-center gap-2"
-                id="mobile-google-signin-btn"
-              >
-                <span>Sign in with Google</span>
-              </button>
-            )}
           </div>
 
           {/* Search Input for Mobile */}
