@@ -73,6 +73,12 @@ export default function App() {
   // Modals state
   const [isCustomMatchOpen, setIsCustomMatchOpen] = useState(false);
   const [isNetworkOpen, setIsNetworkOpen] = useState(false);
+  const [networkSearch, setNetworkSearch] = useState('');
+
+  const openNetwork = useCallback((query = '') => {
+    setNetworkSearch(query);
+    setIsNetworkOpen(true);
+  }, []);
   const [isQuestionnaireOpen, setIsQuestionnaireOpen] = useState(false);
 
   // Onboarding is per-account and lives in the cloud database.
@@ -179,7 +185,7 @@ export default function App() {
         onViewChange={setCurrentView}
         onOpenCustomMatch={() => setIsCustomMatchOpen(true)}
         onOpenQuestionnaire={() => setIsQuestionnaireOpen(true)}
-        onOpenNetwork={() => setIsNetworkOpen(true)}
+        onOpenNetwork={openNetwork}
         onOpenChromaticTest={() => setIsChromaticTestOpen(true)}
         currentUser={currentUser}
         highContrast={highContrast}
@@ -194,7 +200,7 @@ export default function App() {
             currentUser={currentUser}
             quickMatches={quickMatches}
             onSelectCandidate={handleSelectCandidate}
-            onOpenNetworkModal={() => setIsNetworkOpen(true)}
+            onOpenNetworkModal={() => openNetwork()}
             onOpenCustomMatch={() => setIsCustomMatchOpen(true)}
             onNavigateToColors={() => setCurrentView('colors')}
             onNavigateToMaps={(_tier) => {
@@ -277,6 +283,7 @@ export default function App() {
 
       <NetworkModal
         isOpen={isNetworkOpen}
+        initialSearch={networkSearch}
         onClose={() => setIsNetworkOpen(false)}
         currentUser={currentUser}
         candidates={candidatePool}
