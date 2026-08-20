@@ -1,7 +1,7 @@
 import React from 'react';
 import { Zap, Infinity as InfinityIcon, Scale, SlidersHorizontal, Sparkles, Palette, ArrowRight, Brain, Globe, Heart, Briefcase } from 'lucide-react';
 import { UserProfile, EngineTier } from '../types';
-import { getColorIdentity, deriveColorIdentityFromProfile } from '../lib/colorSystem';
+import { getColorIdentity } from '../lib/colorSystem';
 
 interface DashboardViewProps {
   currentUser: UserProfile;
