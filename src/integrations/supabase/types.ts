@@ -14,7 +14,129 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      connections: {
+        Row: {
+          context: string | null
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          target_id: string
+          updated_at: string
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          target_id: string
+          updated_at?: string
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+          target_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      match_features: {
+        Row: {
+          completed: boolean
+          created_at: string
+          features: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          features?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          features?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar: string | null
+          bio: string | null
+          created_at: string
+          email: string | null
+          id: string
+          location: string | null
+          name: string
+          profile_data: Json
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          id: string
+          location?: string | null
+          name?: string
+          profile_data?: Json
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          location?: string | null
+          name?: string
+          profile_data?: Json
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      swipes: {
+        Row: {
+          candidate_id: string
+          context: string | null
+          created_at: string
+          decision: string
+          id: string
+          score: number | null
+          user_id: string
+        }
+        Insert: {
+          candidate_id: string
+          context?: string | null
+          created_at?: string
+          decision: string
+          id?: string
+          score?: number | null
+          user_id: string
+        }
+        Update: {
+          candidate_id?: string
+          context?: string | null
+          created_at?: string
+          decision?: string
+          id?: string
+          score?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
