@@ -112,3 +112,16 @@ export async function clearCloudSwipes(userId: string) {
   await supabase.from('swipes').delete().eq('user_id', userId);
   await supabase.from('connections').delete().eq('requester_id', userId);
 }
+
+/** Convenience wrappers that resolve the signed-in user themselves. */
+export async function syncSwipe(record: SwipeRecord) {
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) return;
+  await pushCloudSwipe(data.user.id, record);
+}
+
+export async function resetCloudSwipes() {
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) return;
+  await clearCloudSwipes(data.user.id);
+}
