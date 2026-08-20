@@ -11,6 +11,17 @@ import { createServerFn } from '@tanstack/react-start';
  *   stores its SHA-256 hash.
  */
 
+export type PublicProfileRow = {
+  id: string;
+  name: string;
+  title: string | null;
+  location: string | null;
+  bio: string | null;
+  avatar: string | null;
+  public_data: unknown;
+  updated_at: string;
+};
+
 const MAX_PAYLOAD_BYTES = 96 * 1024;
 
 type SaveInput = {
@@ -59,7 +70,7 @@ export const saveOnboardingProfile = createServerFn({ method: 'POST' })
     return input;
   })
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+    const { supabaseAdmin } = await import('../integrations/supabase/client.server');
     const tokenHash = await hashToken(data.token);
 
     const publicData = validateJson(data.publicData, 'Profile');
@@ -106,7 +117,7 @@ export const getOnboardingProfile = createServerFn({ method: 'POST' })
     return input;
   })
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+    const { supabaseAdmin } = await import('../integrations/supabase/client.server');
     const tokenHash = await hashToken(data.token);
 
     const { data: profile } = await supabaseAdmin
@@ -156,6 +167,6 @@ export const listPublicProfiles = createServerFn({ method: 'GET' }).handler(asyn
     .order('updated_at', { ascending: false })
     .limit(50);
 
-  if (error) return { profiles: [] as Array<Record<string, unknown>>, error: error.message };
-  return { profiles: (data ?? []) as Array<Record<string, unknown>>, error: null };
+  if (error) return { profiles: [] as PublicProfileRow[], error: error.message as string | null };
+  return { profiles: (data ?? []) as unknown as PublicProfileRow[], error: null as string | null };
 });
