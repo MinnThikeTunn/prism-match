@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../integrations/supabase/client';
 import type { UserProfile } from '../types';
 import type { SwipeRecord } from './discovery';
 
