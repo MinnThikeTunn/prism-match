@@ -118,6 +118,7 @@ export default function App() {
         setIsFirstTimer(!res.onboardingCompleted);
         if (!res.onboardingCompleted) setIsQuestionnaireOpen(true);
       } catch (err) {
+        (window as unknown as Record<string, unknown>).__profileErr = String(err);
         console.warn('Could not load your account profile:', err);
         setOnboardingDone(true);
       }
