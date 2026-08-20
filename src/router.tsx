@@ -6,6 +6,13 @@ export function getRouter() {
     routeTree,
     scrollRestoration: true,
     defaultPreload: 'intent',
+    defaultNotFoundComponent: () => (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background p-8 text-center">
+        <h1 className="text-2xl font-semibold text-foreground">Page not found</h1>
+        <p className="text-sm text-muted-foreground">This route doesn’t exist in Matchwise Prism.</p>
+        <a href="/app" className="text-sm font-medium text-primary underline">Back to dashboard</a>
+      </div>
+    ),
   });
 }
 
