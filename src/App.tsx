@@ -113,6 +113,7 @@ export default function App() {
           setAccount({ id: res.userId, email: res.email ?? '', name: CURRENT_USER.name });
         }
 
+        console.log('PROFILE_DEBUG', JSON.stringify({ done: res.onboardingCompleted, id: res.userId, hasProfile: Boolean(res.profile) }));
         setOnboardingDone(res.onboardingCompleted);
         setIsFirstTimer(!res.onboardingCompleted);
         if (!res.onboardingCompleted) setIsQuestionnaireOpen(true);
