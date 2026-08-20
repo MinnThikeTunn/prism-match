@@ -9,6 +9,7 @@ interface NetworkModalProps {
   currentUser: UserProfile;
   candidates: UserProfile[];
   onSelectCandidate: (candidate: UserProfile) => void;
+  initialSearch?: string;
 }
 
 export const NetworkModal: React.FC<NetworkModalProps> = ({
@@ -16,19 +17,28 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
   onClose,
   currentUser,
   candidates,
-  onSelectCandidate
+  onSelectCandidate,
+  initialSearch = ''
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [tierFilter, setTierFilter] = useState<string>('ALL');
+
+  // Seed the directory search with whatever was typed in the nav bar.
+  useEffect(() => {
+    if (isOpen) setSearchTerm(initialSearch);
+  }, [isOpen, initialSearch]);
 
   if (!isOpen) return null;
 
+  const term = searchTerm.trim().toLowerCase();
   const filtered = candidates.filter((c) => {
     const matchesSearch =
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.needsOffers.offers.some(o => o.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      c.needsOffers.needs.some(n => n.toLowerCase().includes(searchTerm.toLowerCase()));
+      term === '' ||
+      c.name.toLowerCase().includes(term) ||
+      c.title.toLowerCase().includes(term) ||
+      (c.prismId ?? '').toLowerCase().includes(term) ||
+      c.needsOffers.offers.some(o => o.toLowerCase().includes(term)) ||
+      c.needsOffers.needs.some(n => n.toLowerCase().includes(term));
 
     const matchesTier = tierFilter === 'ALL' || c.tier === tierFilter;
     return matchesSearch && matchesTier;
