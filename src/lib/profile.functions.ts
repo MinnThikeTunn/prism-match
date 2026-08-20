@@ -16,11 +16,12 @@ export const getMyProfile = createServerFn({ method: 'GET' })
   .handler(async ({ context }) => {
     const { supabase, userId, claims } = context;
 
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id, name, email, avatar, title, bio, location, profile_data, onboarding_completed')
       .eq('id', userId)
       .maybeSingle();
+    if (profileError) console.error('getMyProfile profile error:', profileError.message);
 
     const { data: featureRow } = await supabase
       .from('match_features')
