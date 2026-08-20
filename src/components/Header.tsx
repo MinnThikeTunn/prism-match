@@ -130,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-6">
           
           {/* Left: Brand & Desktop Navigation */}
-          <div className="flex items-center gap-6 lg:gap-10">
+          <div className="flex items-center gap-4 lg:gap-8 shrink-0">
             {/* Logo / Brand Name */}
             <button
               onClick={() => handleNavClick('dashboard')}
@@ -145,7 +145,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {/* Desktop Navigation Links (hidden on mobile/tablet < md) */}
-            <nav className="hidden md:flex items-center gap-6 lg:gap-8" aria-label="Main Navigation">
+            <nav className="hidden lg:flex items-center gap-5 xl:gap-8" aria-label="Main Navigation">
               {navItems.map((item) => {
                 const isActive = currentView === item.id;
                 return (
@@ -169,25 +169,30 @@ export const Header: React.FC<HeaderProps> = ({
             </nav>
           </div>
 
-          {/* Right: Actions, Search, Notifications, User Menu, & Mobile Hamburger */}
-          <div className="flex items-center gap-2 sm:gap-4">
-            
-            {/* Desktop Search Input */}
-            <div className="relative hidden lg:block w-48 xl:w-60">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          {/* Center: Prominent Search Bar */}
+          <form
+            onSubmit={handleSearchSubmit}
+            className="hidden md:flex flex-1 max-w-xl mx-4 lg:mx-8"
+          >
+            <div className="relative w-full group">
+              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:text-[#D97706] transition-colors" />
               <input
                 type="text"
-                placeholder="Search spectrum..."
+                placeholder="Search by name, ID, chromatic frequency, or skills..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') onOpenNetwork();
                 }}
-                className="w-full pl-9 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#D97706]/30 focus:border-[#D97706] transition-all"
+                className="w-full pl-10 pr-4 py-2 text-xs bg-stone-50 border border-stone-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#D97706]/30 focus:border-[#D97706] focus:bg-white transition-all"
                 id="header-search-input"
               />
             </div>
+          </form>
 
+          {/* Right: Actions, Notifications, User Menu, & Mobile Hamburger */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            
             {/* Calibrate / Retake Color Test Button (Desktop & Tablet) */}
             {onOpenChromaticTest && (
               <button
