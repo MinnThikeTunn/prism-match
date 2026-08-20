@@ -212,6 +212,17 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
 
+            {/* Onboarding Questionnaire Button (Desktop & Tablet) */}
+            <button
+              onClick={onOpenQuestionnaire}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold rounded-full border border-stone-200 transition-all active:scale-95"
+              id="header-onboarding-btn"
+              title="Open the onboarding questionnaire"
+            >
+              <ClipboardList className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden xl:inline">Onboarding</span>
+            </button>
+
             {/* Custom AI Match Action Button (Desktop & Tablet) */}
             <button
               onClick={onOpenCustomMatch}
