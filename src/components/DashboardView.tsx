@@ -49,18 +49,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
         {/* Left Column (8 cols): Large Global Synergy Ring + 3 Metric Cards */}
         <div className="lg:col-span-8 space-y-6">
-          {/* Main Visual Display Card with Pure Chromatic Aura */}
+          {/* Main Visual Display Card with User's Chromatic Aura */}
           <div className="bg-gradient-to-b from-stone-100/90 to-stone-200/60 border border-stone-200/90 rounded-2xl p-6 sm:p-10 flex flex-col items-center justify-center min-h-[340px] sm:min-h-[380px] shadow-xs relative overflow-hidden">
-            {/* Ambient concentric background glow */}
+            {/* Ambient concentric background glow using user's colors */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-50">
-              <div className="w-96 h-96 rounded-full border border-amber-400/20 animate-pulse" />
-              <div className="w-80 h-80 rounded-full border border-teal-400/20 absolute" />
-              <div className="w-64 h-64 rounded-full border border-emerald-400/20 absolute" />
+              <div
+                className="w-96 h-96 rounded-full border animate-pulse"
+                style={{ borderColor: `${userColor.primaryColor}20` }}
+              />
+              <div
+                className="w-80 h-80 rounded-full border absolute"
+                style={{ borderColor: `${userColor.secondaryColor}20` }}
+              />
+              <div
+                className="w-64 h-64 rounded-full border absolute"
+                style={{ borderColor: `${userColor.spectrumBars[2]?.color ?? '#059669'}20` }}
+              />
             </div>
 
-            {/* Central Pure Chromatic Spectrum Orb */}
+            {/* Central User Chromatic Spectrum Orb */}
             <div className="relative z-10 flex flex-col items-center text-center">
-              <div className="w-44 h-44 sm:w-52 sm:h-52 rounded-full p-2 bg-gradient-to-tr from-[#D97706] via-[#0A6275] to-[#059669] shadow-xl flex items-center justify-center hover:scale-105 transition-transform duration-500">
+              <div
+                className="w-44 h-44 sm:w-52 sm:h-52 rounded-full p-2 shadow-xl flex items-center justify-center hover:scale-105 transition-transform duration-500"
+                style={{
+                  background: `linear-gradient(to top right, ${userColor.primaryColor}, ${userColor.secondaryColor}, ${userColor.spectrumBars[2]?.color ?? '#059669'})`
+                }}
+              >
                 <div className="w-full h-full rounded-full bg-white flex flex-col items-center justify-center p-3 sm:p-4 relative overflow-hidden">
                   {/* Subtle inner chromatic gradient fill */}
                   <div
@@ -68,44 +82,47 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     style={{ background: userColor.bgGradient }}
                   />
 
-                  {/* Multi-color orb visual */}
+                  {/* Multi-color orb visual from user's spectrum */}
                   <div className="flex items-center gap-1.5 mb-2">
-                    <span className="w-3.5 h-3.5 rounded-full bg-[#D97706] shadow-sm animate-bounce" />
-                    <span className="w-4 h-4 rounded-full bg-[#0A6275] shadow-sm animate-pulse" />
-                    <span className="w-3.5 h-3.5 rounded-full bg-[#059669] shadow-sm" />
-                    <span className="w-3 h-3 rounded-full bg-[#7C3AED] shadow-sm" />
+                    {userColor.spectrumBars.slice(0, 4).map((bar, i) => (
+                      <span
+                        key={bar.name}
+                        className={`rounded-full shadow-sm ${i === 1 ? 'w-4 h-4 animate-pulse' : 'w-3.5 h-3.5'} ${i === 0 ? 'animate-bounce' : ''}`}
+                        style={{ backgroundColor: bar.color, animationDuration: i === 0 ? '1.5s' : undefined }}
+                      />
+                    ))}
                   </div>
 
                   <span className="text-xs sm:text-sm font-black text-stone-900 tracking-wide uppercase">
-                    HARMONIC SPECTRUM
+                    {userColor.primaryName}
                   </span>
-                  <span className="mt-1 text-[10px] sm:text-[11px] font-bold text-[#D97706] tracking-wider uppercase">
-                    Solar Gold × Deep Teal
+                  <span
+                    className="mt-1 text-[10px] sm:text-[11px] font-bold tracking-wider uppercase"
+                    style={{ color: userColor.primaryColor }}
+                  >
+                    {userColor.harmonicTitle}
                   </span>
                   <span className="mt-0.5 text-[8px] sm:text-[9px] font-semibold text-stone-400 uppercase tracking-widest">
-                    Pure Chromatic Alignment
+                    {userColor.toneDescription}
                   </span>
                 </div>
               </div>
 
-              {/* 5 Spectrum Color Channels */}
+              {/* User's Spectrum Color Channels */}
               <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs font-semibold text-stone-700">
-                <div className="flex items-center gap-2 bg-white/80 px-3 py-1 rounded-full border border-stone-200 shadow-xs">
-                  <span className="w-3 h-3 rounded-full bg-[#D97706]" />
-                  <span>Solar Gold</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/80 px-3 py-1 rounded-full border border-stone-200 shadow-xs">
-                  <span className="w-3 h-3 rounded-full bg-[#0A6275]" />
-                  <span>Deep Teal</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/80 px-3 py-1 rounded-full border border-stone-200 shadow-xs">
-                  <span className="w-3 h-3 rounded-full bg-[#059669]" />
-                  <span>Verdant Green</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/80 px-3 py-1 rounded-full border border-stone-200 shadow-xs">
-                  <span className="w-3 h-3 rounded-full bg-[#7C3AED]" />
-                  <span>Royal Purple</span>
-                </div>
+                {userColor.spectrumBars.map((bar) => (
+                  <div
+                    key={bar.name}
+                    className="flex items-center gap-2 bg-white/80 px-3 py-1 rounded-full border border-stone-200 shadow-xs"
+                  >
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: bar.color }}
+                    />
+                    <span>{bar.name}</span>
+                    <span className="text-[10px] text-stone-400">({bar.intensity})</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
