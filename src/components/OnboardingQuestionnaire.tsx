@@ -281,7 +281,7 @@ export const OnboardingQuestionnaire: React.FC<Props> = ({ isOpen, onClose, curr
         return (
           <div className="space-y-5">
             {OCEAN_ITEMS.map(item => (
-              <div key={item.key}>
+              <div key={String(item.key)}>
                 <div className="flex justify-between items-center mb-1.5">
                   <div>
                     <div className="text-sm font-semibold text-stone-800 flex items-center gap-2">
