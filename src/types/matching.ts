@@ -10,6 +10,16 @@ export type ConnectionGoal =
   | 'MENTORSHIP';
 
 export interface MatchFeatures {
+  // Identity (profile basics)
+  identity: {
+    name: string;
+    title: string;
+    location: string;
+    bio: string;
+    avatar: string;
+    age: number | null;
+  };
+
   // Objective
   connectionGoals: ConnectionGoal[];
 
@@ -92,6 +102,7 @@ export const GOAL_TO_SUBMODE: Record<ConnectionGoal, IntentSubMode> = {
 };
 
 export const DEFAULT_FEATURES: MatchFeatures = {
+  identity: { name: '', title: '', location: '', bio: '', avatar: '', age: null },
   connectionGoals: [],
   interests: [],
   values: [],
