@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApiExplainMatchRouteImport } from './routes/api/explain-match'
 import { Route as ApiParseCustomMatchRouteImport } from './routes/api/parse-custom-match'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiExplainMatchRoute = ApiExplainMatchRouteImport.update({
@@ -31,30 +37,39 @@ const ApiParseCustomMatchRoute = ApiParseCustomMatchRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/api/explain-match': typeof ApiExplainMatchRoute
   '/api/parse-custom-match': typeof ApiParseCustomMatchRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/api/explain-match': typeof ApiExplainMatchRoute
   '/api/parse-custom-match': typeof ApiParseCustomMatchRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/api/explain-match': typeof ApiExplainMatchRoute
   '/api/parse-custom-match': typeof ApiParseCustomMatchRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/explain-match' | '/api/parse-custom-match'
+  fullPaths: '/' | '/auth' | '/api/explain-match' | '/api/parse-custom-match'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/explain-match' | '/api/parse-custom-match'
-  id: '__root__' | '/' | '/api/explain-match' | '/api/parse-custom-match'
+  to: '/' | '/auth' | '/api/explain-match' | '/api/parse-custom-match'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/api/explain-match'
+    | '/api/parse-custom-match'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   ApiExplainMatchRoute: typeof ApiExplainMatchRoute
   ApiParseCustomMatchRoute: typeof ApiParseCustomMatchRoute
 }
@@ -66,6 +81,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/explain-match': {
@@ -87,6 +109,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   ApiExplainMatchRoute: ApiExplainMatchRoute,
   ApiParseCustomMatchRoute: ApiParseCustomMatchRoute,
 }

@@ -29,6 +29,7 @@ import {
   saveSwipes,
   topLearnedTags,
 } from '../lib/discovery';
+import { syncSwipe, resetCloudSwipes } from '../lib/cloud';
 
 interface DiscoveryViewProps {
   currentUser: UserProfile;
@@ -67,6 +68,7 @@ export function DiscoveryView({ currentUser, candidatePool, onSelectCandidate }:
     ];
     setSwipes(next);
     saveSwipes(next);
+    void syncSwipe(next[next.length - 1]!);
   };
 
   const undo = () => {
@@ -78,6 +80,7 @@ export function DiscoveryView({ currentUser, candidatePool, onSelectCandidate }:
   const reset = () => {
     clearSwipes();
     setSwipes([]);
+    void resetCloudSwipes();
   };
 
   const top = queue[0];

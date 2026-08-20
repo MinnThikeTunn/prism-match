@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { LogOut, Loader2 } from 'lucide-react';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { DashboardView } from './components/DashboardView';
@@ -17,7 +19,15 @@ import { GoogleCredentialInspectorModal } from './components/GoogleCredentialIns
 import { CURRENT_USER, MOCK_PROFILES } from './data/mockData';
 import { UserProfile, ViewMode } from './types';
 import { ChromaticAssessmentResult } from './lib/colorSystem';
-import { ONBOARDING_COMPLETE_KEY } from './lib/onboardingStorage';
+import { ONBOARDING_COMPLETE_KEY, MATCH_FEATURES_STORAGE_KEY } from './lib/onboardingStorage';
+import { useAuth, signOut } from './lib/useAuth';
+import {
+  fetchCloudProfile,
+  saveCloudProfile,
+  fetchCloudFeatures,
+  saveCloudFeatures,
+  fetchCloudSwipes,
+} from './lib/cloud';
 import { 
   GoogleCredential, 
   getStoredGoogleCredential, 
@@ -26,6 +36,9 @@ import {
 } from './lib/googleAuth';
 
 export default function App() {
+  const navigate = useNavigate();
+  const { session, user, loading: authLoading } = useAuth();
+  const [hydrated, setHydrated] = useState(false);
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
   
   // Load saved user profile if available, otherwise default to CURRENT_USER
@@ -83,6 +96,75 @@ export default function App() {
     } catch {
       // ignore
     }
+    if (user) void saveCloudProfile(user.id, updated);
+  };
+
+  // Redirect to the sign-in page when there is no session.
+  useEffect(() => {
+    if (!authLoading && !session) navigate({ to: '/auth', replace: true });
+  }, [authLoading, session, navigate]);
+
+  // Pull the signed-in user's cloud state down before rendering the app.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+
+    (async () => {
+      const [cloudProfile, cloudFeatures, cloudSwipes] = await Promise.all([
+        fetchCloudProfile(user.id),
+        fetchCloudFeatures(user.id),
+        fetchCloudSwipes(user.id),
+      ]);
+      if (cancelled) return;
+
+      if (cloudProfile) {
+        setCurrentUser(cloudProfile);
+        try {
+          localStorage.setItem('matchwise_user_profile', JSON.stringify(cloudProfile));
+        } catch {
+          // ignore
+        }
+      } else {
+        const seeded: UserProfile = {
+          ...CURRENT_USER,
+          name: (user.user_metadata?.['full_name'] as string) || user.email?.split('@')[0] || CURRENT_USER.name,
+          email: user.email ?? CURRENT_USER.email,
+        };
+        setCurrentUser(seeded);
+        void saveCloudProfile(user.id, seeded);
+      }
+
+      if (cloudFeatures) {
+        try {
+          localStorage.setItem(MATCH_FEATURES_STORAGE_KEY, JSON.stringify(cloudFeatures.features));
+          localStorage.setItem(ONBOARDING_COMPLETE_KEY, cloudFeatures.completed ? 'true' : 'false');
+        } catch {
+          // ignore
+        }
+        setIsQuestionnaireOpen(!cloudFeatures.completed);
+      } else {
+        setIsQuestionnaireOpen(true);
+      }
+
+      if (cloudSwipes.length) {
+        try {
+          localStorage.setItem('matchwise_discovery_swipes', JSON.stringify(cloudSwipes));
+        } catch {
+          // ignore
+        }
+      }
+
+      setHydrated(true);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate({ to: '/auth', replace: true });
   };
 
   const handleCompleteChromaticTest = (updatedUser: UserProfile, _result: ChromaticAssessmentResult) => {
@@ -119,10 +201,40 @@ export default function App() {
 
   const quickMatches = candidatePool.slice(0, 4);
 
+  if (authLoading || !session || !hydrated) {
+    return (
+      <div className="min-h-screen bg-[#FAFBFD] flex items-center justify-center">
+        <div className="flex items-center gap-3 text-stone-500 text-sm">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          {session ? 'Syncing your Prism profile…' : 'Checking your session…'}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen flex flex-col transition-colors ${
       highContrast ? 'bg-white text-black font-semibold' : 'bg-[#FAFBFD] text-stone-900'
     }`}>
+      {/* Signed-in account bar */}
+      <div className="w-full bg-stone-900 text-white text-xs">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
+          <span className="font-mono uppercase tracking-[0.2em] text-stone-400">
+            Cloud sync active
+          </span>
+          <div className="flex items-center gap-3">
+            <span className="truncate max-w-[180px] text-stone-200">{user?.email}</span>
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 hover:bg-white/20"
+            >
+              <LogOut className="w-3 h-3" />
+              Sign out
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Navigation Header */}
       <Header
         currentView={currentView}
@@ -247,6 +359,8 @@ export default function App() {
           handleUpdateUser(updated);
           try {
             localStorage.setItem(ONBOARDING_COMPLETE_KEY, 'true');
+            const raw = localStorage.getItem(MATCH_FEATURES_STORAGE_KEY);
+            if (user && raw) void saveCloudFeatures(user.id, JSON.parse(raw), true);
           } catch {
             // ignore
           }
