@@ -3,26 +3,11 @@ import {
   Palette, 
   Sparkles, 
   Brain, 
-  Layers, 
   Sliders, 
-  ShieldCheck, 
-  Zap, 
-  Compass, 
-  Share2, 
   ArrowRight, 
   Check, 
-  Info, 
-  Flame, 
-  Anchor, 
-  HeartHandshake, 
-  Eye, 
-  Shield, 
-  Cpu, 
-  Workflow, 
-  Activity,
-  Maximize2
+  Info 
 } from 'lucide-react';
-import { COLOR_PROFILES, ColorIdentity } from '../lib/colorSystem';
 
 interface Archetype {
   id: string;
@@ -267,7 +252,7 @@ interface ColorSystemViewProps {
 export const ColorSystemView: React.FC<ColorSystemViewProps> = ({
   onOpenChromaticTest
 }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'channels' | 'archetypes' | 'simulator' | 'harmonics' | 'science'>('overview');
+  const [activeTab, setActiveTab] = useState<'archetypes' | 'simulator' | 'harmonics'>('archetypes');
   const [selectedArchetype, setSelectedArchetype] = useState<Archetype>(CHROMATIC_ARCHETYPES[0]);
   
   // Interactive Simulator State
@@ -414,32 +399,6 @@ export const ColorSystemView: React.FC<ColorSystemViewProps> = ({
       {/* Navigation Tabs */}
       <div className="flex flex-wrap items-center gap-2 mb-8 border-b border-stone-200 pb-3">
         <button
-          onClick={() => setActiveTab('overview')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-            activeTab === 'overview'
-              ? 'bg-stone-900 text-white shadow-xs'
-              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-          }`}
-          id="color-tab-overview"
-        >
-          <Info className="w-3.5 h-3.5" />
-          <span>Core Philosophy</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('channels')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-            activeTab === 'channels'
-              ? 'bg-[#D97706] text-white shadow-xs'
-              : 'bg-amber-50 text-[#D97706] hover:bg-amber-100'
-          }`}
-          id="color-tab-channels"
-        >
-          <Layers className="w-3.5 h-3.5" />
-          <span>The 5 Chromatic Channels</span>
-        </button>
-
-        <button
           onClick={() => setActiveTab('archetypes')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
             activeTab === 'archetypes'
@@ -477,235 +436,9 @@ export const ColorSystemView: React.FC<ColorSystemViewProps> = ({
           <Sparkles className="w-3.5 h-3.5" />
           <span>Synergy & Friction Matrix</span>
         </button>
-
-        <button
-          onClick={() => setActiveTab('science')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-            activeTab === 'science'
-              ? 'bg-stone-900 text-white shadow-xs'
-              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-          }`}
-          id="color-tab-science"
-        >
-          <Compass className="w-3.5 h-3.5" />
-          <span>OKLCH Mathematical Model</span>
-        </button>
       </div>
 
-      {/* Tab 1: Core Philosophy */}
-      {activeTab === 'overview' && (
-        <div className="space-y-8 animate-in fade-in duration-200">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Card 1 */}
-            <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 text-[#D97706] flex items-center justify-center">
-                <Flame className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-stone-900">1. Continuous vs Discrete</h3>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                Traditional typing frameworks force people into 16 artificial buckets. Matchwise uses a continuous 360° color wheel where every person occupies a distinct, high-resolution spectral wavelength.
-              </p>
-            </div>
-
-            {/* Card 2 */}
-            <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#0A6275] flex items-center justify-center">
-                <Anchor className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-stone-900">2. Optical Harmony = Synergy</h3>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                Complementary color pairs (e.g. Gold and Teal, or Emerald and Violet) represent cognitive traits that balance each other naturally, preventing monoculture and groupthink in collaborative groups.
-              </p>
-            </div>
-
-            {/* Card 3 */}
-            <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#059669] flex items-center justify-center">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-stone-900">3. Scientific Grounding</h3>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                Color coordinates are directly calculated from peer-reviewed Big Five psychometrics, verified GitHub/portfolio cadence telemetry, and documented operational latency constraints.
-              </p>
-            </div>
-          </div>
-
-          {/* Detailed Narrative Section */}
-          <div className="bg-white border border-stone-200 rounded-2xl p-8 shadow-xs space-y-6">
-            <h2 className="text-xl font-bold text-stone-900 tracking-tight">
-              Why Matchwise Built the Chromatic Behavior Model
-            </h2>
-            <div className="prose prose-stone text-xs sm:text-sm text-stone-600 leading-relaxed space-y-4 max-w-none">
-              <p>
-                When humans collaborate, whether founding a tech startup, pairing on an intensive hackathon sprint, or engaging in a deep mentorship relationship, the primary cause of friction is rarely technical incompetence. It is <strong>behavioral misalignment</strong>: differences in communication cadence, risk tolerance, decision velocity, and need for psychological safety.
-              </p>
-              <p>
-                By mapping each participant's behavioral attributes into the <strong>OKLCH Perceptual Color Space</strong>, Matchwise provides a transparent, intuitive visual language. You can instantly understand a candidate's operational frequency at a single glance:
-              </p>
-              <ul className="list-disc pl-5 space-y-2 text-xs text-stone-700">
-                <li><strong>Are they a Solar Catalyst?</strong> Expect rapid prototypes, immediate Slack replies, and aggressive sprint deadlines.</li>
-                <li><strong>Are they an Oceanic Architect?</strong> Expect deep structural memos, methodical async reviews, and rigorous database schemas.</li>
-                <li><strong>Are they a Verdant Mediator?</strong> Expect psychological safety, bilateral empathy, and conflict de-escalation.</li>
-                <li><strong>Are they a Violet Visionary?</strong> Expect novel paradigm shifts, creative exploration, and boundary-pushing concepts.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 2: The 5 Chromatic Channels */}
-      {activeTab === 'channels' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Channel 1: Solar Gold */}
-            <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-[#D97706] shadow-xs" />
-                  <h3 className="text-base font-bold text-stone-900">Solar Gold / Amber Channel</h3>
-                </div>
-                <span className="text-[11px] font-mono font-bold text-[#D97706] bg-amber-50 px-2.5 py-1 rounded-full">
-                  #D97706 · Hue 45°
-                </span>
-              </div>
-              <div className="space-y-2 text-xs text-stone-600">
-                <p className="font-bold text-stone-800">Primary Dimension: Execution Drive & Velocity</p>
-                <p>
-                  Reflects direct agency, proactive unblocking, and a high bias for shipping. Solar individuals thrive on momentum, rapid iteration, and tangible milestone deliveries.
-                </p>
-                <div className="p-3 bg-stone-50 rounded-xl space-y-1 font-mono text-[11px] text-stone-700">
-                  <div className="flex justify-between">
-                    <span>OCEAN Correlation:</span>
-                    <span className="font-bold">High Conscientiousness + Extraversion</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Preferred Communication:</span>
-                    <span className="font-bold">Direct, Low Latency, Sync Pairing</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Channel 2: Deep Oceanic Teal */}
-            <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-[#0A6275] shadow-xs" />
-                  <h3 className="text-base font-bold text-stone-900">Deep Oceanic Teal / Cyan Channel</h3>
-                </div>
-                <span className="text-[11px] font-mono font-bold text-[#0A6275] bg-teal-50 px-2.5 py-1 rounded-full">
-                  #0A6275 · Hue 210°
-                </span>
-              </div>
-              <div className="space-y-2 text-xs text-stone-600">
-                <p className="font-bold text-stone-800">Primary Dimension: Systems Logic & Architecture</p>
-                <p>
-                  Reflects deep analytical reasoning, structural foresight, and first-principles thinking. Teal individuals excel at designing fault-tolerant systems and scalable abstractions.
-                </p>
-                <div className="p-3 bg-stone-50 rounded-xl space-y-1 font-mono text-[11px] text-stone-700">
-                  <div className="flex justify-between">
-                    <span>OCEAN Correlation:</span>
-                    <span className="font-bold">High Openness + High Analytical Rigor</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Preferred Communication:</span>
-                    <span className="font-bold">Async Memos, Formal RFCs, PR Specs</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Channel 3: Verdant Emerald */}
-            <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-[#059669] shadow-xs" />
-                  <h3 className="text-base font-bold text-stone-900">Verdant Emerald / Mint Channel</h3>
-                </div>
-                <span className="text-[11px] font-mono font-bold text-[#059669] bg-emerald-50 px-2.5 py-1 rounded-full">
-                  #059669 · Hue 150°
-                </span>
-              </div>
-              <div className="space-y-2 text-xs text-stone-600">
-                <p className="font-bold text-stone-800">Primary Dimension: Psychological Safety & Empathy</p>
-                <p>
-                  Reflects interpersonal attunement, ethical congruence, and team stabilization. Emerald individuals foster psychological safety, active listening, and sustainable burnout-free rhythms.
-                </p>
-                <div className="p-3 bg-stone-50 rounded-xl space-y-1 font-mono text-[11px] text-stone-700">
-                  <div className="flex justify-between">
-                    <span>OCEAN Correlation:</span>
-                    <span className="font-bold">High Agreeableness + Emotional Equanimity</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Preferred Communication:</span>
-                    <span className="font-bold">Empathetic, 1-on-1s, Consensus-Driven</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Channel 4: Royal Amethyst */}
-            <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-[#7C3AED] shadow-xs" />
-                  <h3 className="text-base font-bold text-stone-900">Royal Amethyst / Violet Channel</h3>
-                </div>
-                <span className="text-[11px] font-mono font-bold text-[#7C3AED] bg-purple-50 px-2.5 py-1 rounded-full">
-                  #7C3AED · Hue 295°
-                </span>
-              </div>
-              <div className="space-y-2 text-xs text-stone-600">
-                <p className="font-bold text-stone-800">Primary Dimension: Visionary Synthesis & Lateral Ideation</p>
-                <p>
-                  Reflects intellectual appetite for novel frontier paradigms, cross-disciplinary synthesis, and paradigm-shifting hypotheses. Violet individuals discover unexpected solutions.
-                </p>
-                <div className="p-3 bg-stone-50 rounded-xl space-y-1 font-mono text-[11px] text-stone-700">
-                  <div className="flex justify-between">
-                    <span>OCEAN Correlation:</span>
-                    <span className="font-bold">Top 5% Openness to Experience</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Preferred Communication:</span>
-                    <span className="font-bold">Visual Maps, Speculative Prototypes</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Channel 5: Cobalt Blue */}
-            <div className="md:col-span-2 bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-[#1D4ED8] shadow-xs" />
-                  <h3 className="text-base font-bold text-stone-900">Cobalt Blue / Indigo Infrastructure Channel</h3>
-                </div>
-                <span className="text-[11px] font-mono font-bold text-[#1D4ED8] bg-blue-50 px-2.5 py-1 rounded-full">
-                  #1D4ED8 · Hue 260°
-                </span>
-              </div>
-              <div className="space-y-2 text-xs text-stone-600">
-                <p className="font-bold text-stone-800">Primary Dimension: Foundational Resilience & Tenacity</p>
-                <p>
-                  Reflects immutable reliability, security consciousness, zero tolerance for unmitigated failure, and tenacious follow-through on contractual commitments.
-                </p>
-                <div className="p-3 bg-stone-50 rounded-xl space-y-1 font-mono text-[11px] text-stone-700">
-                  <div className="flex justify-between">
-                    <span>OCEAN Correlation:</span>
-                    <span className="font-bold">Top 5% Conscientiousness + Emotional Stability</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Preferred Communication:</span>
-                    <span className="font-bold">Deterministic Checklists, Telemetry Logs, SLA Metrics</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 3: Behavioral Archetypes Catalog */}
+      {/* Behavioral Archetypes Catalog */}
       {activeTab === 'archetypes' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-200">
           {/* Left: Archetype List */}
@@ -1061,56 +794,6 @@ export const ColorSystemView: React.FC<ColorSystemViewProps> = ({
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* Tab 6: OKLCH Mathematical Model */}
-      {activeTab === 'science' && (
-        <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-10 shadow-xs space-y-8 animate-in fade-in duration-200">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
-              The Science of Perceptual OKLCH Psychometrics
-            </h2>
-            <p className="text-xs sm:text-sm text-stone-500 mt-1">
-              Why Matchwise transitioned from legacy RGB/HSL systems to modern perceptual color mathematics.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
-              <span className="text-xs font-mono font-bold text-[#D97706] block">L · Perceived Lightness</span>
-              <h4 className="text-sm font-bold text-stone-900">Cognitive Bandwidth & Transparency</h4>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                In OKLCH, lightness matches human eye sensitivity across all hues uniformly. In Matchwise, Lightness reflects total active collaboration bandwidth and documentation clarity.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
-              <span className="text-xs font-mono font-bold text-[#0A6275] block">C · Chromatic Intensity</span>
-              <h4 className="text-sm font-bold text-stone-900">Intensity & Directivity of Conviction</h4>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                Chroma represents color purity. High chroma indicates strong conviction, high risk-tolerance, and specialized domain dominance. Lower chroma indicates multi-faceted generalists.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
-              <span className="text-xs font-mono font-bold text-[#059669] block">h · Angular Hue (0° - 360°)</span>
-              <h4 className="text-sm font-bold text-stone-900">Behavioral Modality Vector</h4>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                The continuous circular angle on the color wheel: 45° (Execution Solar Gold), 150° (Empathic Verdant), 210° (Cognitive Deep Teal), 295° (Visionary Violet).
-              </p>
-            </div>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-stone-900 text-white space-y-3">
-            <h3 className="text-base font-bold text-amber-400">Deterministic Mathematical Proof</h3>
-            <p className="text-xs text-stone-300 font-mono leading-relaxed">
-              Score_Synergy(A, B) = w₁ · DotProduct(OKLCH_A, OKLCH_B) + w₂ · NeedsOffersMatch(A, B) + w₃ · ConstraintSatisfaction(A, B)
-            </p>
-            <p className="text-xs text-stone-400 leading-relaxed pt-2 border-t border-stone-800">
-              This guarantees that all recommendations are fully deterministic, auditable, and mathematically grounded without black-box halluncinations.
-            </p>
           </div>
         </div>
       )}

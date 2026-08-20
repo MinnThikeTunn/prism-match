@@ -130,29 +130,29 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-6">
           
           {/* Left: Brand & Desktop Navigation */}
-          <div className="flex items-center gap-4 lg:gap-8 shrink-0">
+          <div className="flex items-center gap-3 lg:gap-6 shrink-0 min-w-0">
             {/* Logo / Brand Name */}
             <button
               onClick={() => handleNavClick('dashboard')}
-              className="flex items-center gap-2.5 text-left group min-h-[40px] focus:outline-none"
+              className="flex items-center gap-2 text-left group min-h-[40px] focus:outline-none shrink-0"
               id="brand-logo-btn"
               aria-label="Matchwise Prism Home"
             >
               <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-[#D97706] via-[#0A6275] to-[#059669] shadow-xs shrink-0 group-hover:scale-105 transition-transform" />
-              <span className="text-lg sm:text-xl font-bold tracking-tight text-stone-900 group-hover:text-[#D97706] transition-colors whitespace-nowrap">
+              <span className="text-base sm:text-lg lg:text-xl font-bold tracking-tight text-stone-900 group-hover:text-[#D97706] transition-colors whitespace-nowrap">
                 Matchwise Prism
               </span>
             </button>
 
             {/* Desktop Navigation Links (hidden on mobile/tablet < md) */}
-            <nav className="hidden lg:flex items-center gap-5 xl:gap-8" aria-label="Main Navigation">
+            <nav className="hidden md:flex items-center gap-3 lg:gap-5 xl:gap-7 shrink-0" aria-label="Main Navigation">
               {navItems.map((item) => {
                 const isActive = currentView === item.id;
                 return (
                   <button
                     key={item.id}
                     onClick={() => onViewChange(item.id)}
-                    className={`text-sm font-semibold transition-all relative py-1 focus:outline-none ${
+                    className={`text-xs lg:text-sm font-semibold transition-all relative py-1 whitespace-nowrap focus:outline-none ${
                       isActive
                         ? 'text-[#D97706]'
                         : 'text-stone-600 hover:text-stone-900'
@@ -172,13 +172,13 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Center: Prominent Search Bar */}
           <form
             onSubmit={handleSearchSubmit}
-            className="hidden md:flex flex-1 max-w-xl mx-4 lg:mx-8"
+            className="hidden xl:flex flex-1 max-w-md mx-2 2xl:mx-6 min-w-0"
           >
             <div className="relative w-full group">
               <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:text-[#D97706] transition-colors" />
               <input
                 type="text"
-                placeholder="Search by name, ID, chromatic frequency, or skills..."
+                placeholder="Search by name, chromatic frequency..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
@@ -191,29 +191,16 @@ export const Header: React.FC<HeaderProps> = ({
           </form>
 
           {/* Right: Actions, Notifications, User Menu, & Mobile Hamburger */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             
-            {/* Calibrate / Retake Color Test Button (Desktop & Tablet) */}
-            {onOpenChromaticTest && (
-              <button
-                onClick={onOpenChromaticTest}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-full shadow-xs transition-all active:scale-95"
-                id="header-calibrate-color-btn"
-                title="Calibrate or Retake Chromatic Assessment"
-              >
-                <Palette className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span className="hidden xl:inline">Calibrate Color</span>
-              </button>
-            )}
-
             {/* Custom AI Match Action Button (Desktop & Tablet) */}
             <button
               onClick={onOpenCustomMatch}
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 bg-[#D97706]/10 text-[#D97706] hover:bg-[#D97706]/20 text-xs font-semibold rounded-full border border-[#D97706]/30 transition-all shadow-xs active:scale-95"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-[#D97706]/10 text-[#D97706] hover:bg-[#D97706]/20 text-xs font-semibold rounded-full border border-[#D97706]/30 transition-all shadow-xs active:scale-95 whitespace-nowrap shrink-0"
               id="header-custom-ai-match-btn"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#D97706] shrink-0" />
-              <span className="hidden md:inline">Custom AI Match</span>
+              <span>Custom AI Match</span>
             </button>
 
             {/* Notifications Icon with Dropdown */}
@@ -462,28 +449,6 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
               </div>
             </button>
-
-            {/* Calibrate Chromatic Assessment Button */}
-            {onOpenChromaticTest && (
-              <button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  onOpenChromaticTest();
-                }}
-                className="w-full flex items-center gap-3 p-3 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold transition-all text-left min-h-[48px]"
-                id="mobile-calibrate-color-btn"
-              >
-                <div className="w-8 h-8 rounded-lg bg-stone-800 flex items-center justify-center text-amber-400">
-                  <Palette className="w-4 h-4" />
-                </div>
-                <div className="flex-1">
-                  <span>Calibrate Color Spectrum</span>
-                  <span className="block text-[10px] font-normal text-stone-400">
-                    Retake 5-question chromatic test
-                  </span>
-                </div>
-              </button>
-            )}
 
             {/* Explore Network Graph Modal Button */}
             <button
