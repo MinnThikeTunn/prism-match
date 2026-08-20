@@ -33,20 +33,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <div className="mb-6 sm:mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-stone-900 tracking-tight">
-            Your Prism Signature
+            Your Profile
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-stone-500 max-w-2xl">
-            A pure chromatic spectrum expressing your strategic velocity, cognitive architecture, and ethical resonance.
+            Everything the matching engine reads about you: who you are, what you offer, what you need, and how you work.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-stone-600">Active Spectrum:</span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-900 border border-amber-500/30 text-xs font-bold">
-            <span className="w-2 h-2 rounded-full bg-[#D97706] animate-pulse" />
-            {userColor.harmonicTitle}
+          <span className="text-xs font-bold text-stone-600">Looking for:</span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-700 border border-stone-200 text-xs font-bold">
+            <span className="w-2 h-2 rounded-full bg-stone-800 animate-pulse" />
+            {currentUser.subMode.replace(/_/g, ' ')}
           </span>
         </div>
+
       </div>
 
       {/* Main Grid */}
