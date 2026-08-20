@@ -5,7 +5,6 @@ import {
   ConnectionGoal,
   DEFAULT_FEATURES,
   GOAL_TO_SUBMODE,
-  MATCH_FEATURES_STORAGE_KEY,
   MatchFeatures,
 } from '../lib/onboardingStorage';
 
@@ -97,13 +96,10 @@ const SectionLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
 export const OnboardingQuestionnaire: React.FC<Props> = ({ isOpen, onClose, currentUser, onComplete }) => {
   const [stepIndex, setStepIndex] = useState(0);
-  const [f, setF] = useState<MatchFeatures>(() => {
-    try {
-      const saved = localStorage.getItem(MATCH_FEATURES_STORAGE_KEY);
-      if (saved) return { ...DEFAULT_FEATURES, ...JSON.parse(saved) };
-    } catch { /* ignore */ }
-    return { ...DEFAULT_FEATURES, ocean: { ...currentUser.ocean } };
-  });
+  const [f, setF] = useState<MatchFeatures>(() => ({
+    ...DEFAULT_FEATURES,
+    ocean: { ...currentUser.ocean },
+  }));
 
   const step = STEPS[stepIndex];
   const progress = ((stepIndex + 1) / STEPS.length) * 100;
@@ -124,10 +120,6 @@ export const OnboardingQuestionnaire: React.FC<Props> = ({ isOpen, onClose, curr
 
   const finish = () => {
     const features: MatchFeatures = { ...f, completedAt: new Date().toISOString() };
-    try {
-      localStorage.setItem(MATCH_FEATURES_STORAGE_KEY, JSON.stringify(features));
-    } catch { /* ignore */ }
-
     const primaryGoal = features.connectionGoals[0];
     const execution = Math.round(features.ocean.conscientiousness * 0.7 + features.ocean.openness * 0.3);
     const capability = Math.round(features.ocean.openness * 0.6 + features.ocean.conscientiousness * 0.4);

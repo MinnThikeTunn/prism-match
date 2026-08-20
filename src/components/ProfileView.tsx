@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { UserProfile, OCEANProfile, EngineTier, IntentSubMode } from '../types';
 import { getColorIdentity } from '../lib/colorSystem';
 import { ProfileSummaryCard } from './ProfileSummaryCard';
-import { GoogleCredential, STORAGE_KEY_GOOGLE_AUTH } from '../lib/googleAuth';
+import { AccountIdentity } from '../lib/account';
 import { 
   User, 
   ShieldCheck, 
@@ -42,9 +42,7 @@ interface ProfileViewProps {
   onSelectCandidateSynergy?: (candidate: UserProfile) => void;
   onNavigateToColors?: () => void;
   onOpenChromaticTest?: () => void;
-  googleCredential?: GoogleCredential | null;
-  onOpenGoogleSignIn?: () => void;
-  onOpenGoogleInspector?: () => void;
+  account?: AccountIdentity | null;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
@@ -54,10 +52,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onSelectCandidateSynergy,
   onNavigateToColors,
   onOpenChromaticTest,
-  googleCredential,
-  onOpenGoogleSignIn,
-  onOpenGoogleInspector
+  account
 }) => {
+  const identity = account
+    ? { user: { email: account.email, name: account.name }, idToken: account.id }
+    : null;
   // Selected profile to inspect (defaults to currentUser, can inspect candidates)
   const [inspectedUserId, setInspectedUserId] = useState<string>(currentUser.id);
   const isSelf = inspectedUserId === currentUser.id;
@@ -1097,47 +1096,26 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-stone-900">Google OAuth 2.0 Identity</span>
-                      {googleCredential ? (
+                      <span className="text-xs font-bold text-stone-900">Account Identity</span>
+                      {identity ? (
                         <span className="px-2 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
-                          Connected & Saved
+                          Signed in
                         </span>
                       ) : (
                         <span className="px-2 py-0.2 rounded text-[9px] font-bold bg-stone-200 text-stone-700">
-                          Guest / Not Linked
+                          Not signed in
                         </span>
                       )}
                     </div>
                     <p className="text-[11px] text-stone-600 mt-0.5">
-                      {googleCredential 
-                        ? `Linked to ${googleCredential.user.email} (persisted in localStorage)`
-                        : 'Connect your Google demo account to link OIDC tokens.'}
+                      {identity 
+                        ? `Signed in as ${identity.user.email}`
+                        : 'Sign in to link your cloud account.'}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  {googleCredential ? (
-                    onOpenGoogleInspector && (
-                      <button
-                        onClick={onOpenGoogleInspector}
-                        className="px-3 py-1.5 bg-white hover:bg-stone-50 border border-stone-200 text-stone-800 text-xs font-bold rounded-xl shadow-2xs transition-all flex items-center gap-1.5"
-                      >
-                        <KeyRound className="w-3.5 h-3.5 text-[#D97706]" />
-                        <span>Inspect Credentials</span>
-                      </button>
-                    )
-                  ) : (
-                    onOpenGoogleSignIn && (
-                      <button
-                        onClick={onOpenGoogleSignIn}
-                        className="px-3.5 py-1.5 bg-[#4285F4] hover:bg-[#3367D6] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5"
-                      >
-                        <span>Sign in with Google</span>
-                      </button>
-                    )
-                  )}
-                </div>
+                <div className="flex items-center gap-2" />
               </div>
             )}
           </div>
