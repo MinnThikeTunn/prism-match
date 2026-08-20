@@ -271,59 +271,7 @@ export const VerificationView: React.FC<VerificationViewProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
-            {identity ? (
-              <>
-                {false && (
-                  <button
-                    onClick={onOpenGoogleInspector}
-                    className="flex items-center gap-1.5 px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition-all"
-                    id="verification-inspect-google-btn"
-                  >
-                    <KeyRound className="w-3.5 h-3.5 text-[#D97706]" />
-                    <span>Inspect Token & Claims</span>
-                  </button>
-                )}
-                {false && (
-                  <button
-                    onClick={onOpenGoogleSignIn}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-[#4285F4] hover:bg-[#3367D6] text-white text-xs font-bold rounded-xl shadow-xs transition-all"
-                    id="verification-switch-google-btn"
-                  >
-                    <UserCheck className="w-3.5 h-3.5" />
-                    <span>Switch Google Account</span>
-                  </button>
-                )}
-              </>
-            ) : (
-              onOpenGoogleSignIn && (
-                <button
-                  onClick={onOpenGoogleSignIn}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#4285F4] hover:bg-[#3367D6] text-white text-xs font-bold rounded-xl shadow-xs transition-all"
-                  id="verification-signin-google-btn"
-                >
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 bg-white rounded-full p-0.5">
-                    <path
-                      fill="#4285F4"
-                      d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.29 21.43 7.37 24 12 24z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.29 2.57 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                    />
-                  </svg>
-                  <span>Sign in with Google</span>
-                </button>
-              )
-            )}
+          <div className="flex items-center gap-2.5" />
           </div>
         </div>
 
