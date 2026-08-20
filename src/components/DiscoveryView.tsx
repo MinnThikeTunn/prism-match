@@ -29,10 +29,6 @@ import {
   saveSwipes,
   topLearnedTags,
 } from '../lib/discovery';
-import { syncSwipe, resetCloudSwipes } from '../lib/cloud';
-import { AD_INVENTORY, AD_FREQUENCY } from '../data/ads';
-import { AdSwipeCard } from './AdSwipeCard';
-import { useNavigate } from '@tanstack/react-router';
 
 interface DiscoveryViewProps {
   currentUser: UserProfile;
@@ -44,26 +40,6 @@ export function DiscoveryView({ currentUser, candidatePool, onSelectCandidate }:
   const [context, setContext] = useState<DiscoveryContext>('COLLABORATE');
   const [swipes, setSwipes] = useState<SwipeRecord[]>(() => loadSwipes());
   const [showDebug, setShowDebug] = useState(false);
-  const navigate = useNavigate();
-  const [swipesSinceAd, setSwipesSinceAd] = useState(0);
-  const [adIndex, setAdIndex] = useState(0);
-
-  const currentAd = AD_INVENTORY[adIndex % AD_INVENTORY.length]!;
-  const showAd = swipesSinceAd >= AD_FREQUENCY;
-
-  const dismissAd = () => {
-    setSwipesSinceAd(0);
-    setAdIndex((i) => i + 1);
-  };
-
-  const openAd = () => {
-    dismissAd();
-    if (currentAd.href.startsWith('http')) {
-      window.open(currentAd.href, '_blank', 'noopener');
-    } else {
-      navigate({ to: currentAd.href });
-    }
-  };
 
   const queue = useMemo(
     () => rankDiscovery(currentUser, candidatePool, context, swipes),
@@ -90,9 +66,7 @@ export function DiscoveryView({ currentUser, candidatePool, onSelectCandidate }:
       },
     ];
     setSwipes(next);
-    setSwipesSinceAd((n) => n + 1);
     saveSwipes(next);
-    void syncSwipe(next[next.length - 1]!);
   };
 
   const undo = () => {
@@ -104,7 +78,6 @@ export function DiscoveryView({ currentUser, candidatePool, onSelectCandidate }:
   const reset = () => {
     clearSwipes();
     setSwipes([]);
-    void resetCloudSwipes();
   };
 
   const top = queue[0];
@@ -170,9 +143,7 @@ export function DiscoveryView({ currentUser, candidatePool, onSelectCandidate }:
               ))}
 
             <AnimatePresence mode="popLayout">
-              {showAd ? (
-                <AdSwipeCard key={currentAd.id} ad={currentAd} onOpen={openAd} onSkip={dismissAd} />
-              ) : top ? (
+              {top ? (
                 <SwipeCard
                   key={top.candidate.id}
                   ranked={top}
@@ -202,8 +173,8 @@ export function DiscoveryView({ currentUser, candidatePool, onSelectCandidate }:
           {/* Actions */}
           <div className="mt-6 flex items-center justify-center gap-4">
             <button
-              onClick={() => (showAd ? dismissAd() : top && record(top.candidate, 'pass'))}
-              disabled={!showAd && !top}
+              onClick={() => top && record(top.candidate, 'pass')}
+              disabled={!top}
               aria-label="Pass"
               className="w-14 h-14 rounded-full border border-stone-200 bg-white flex items-center justify-center text-stone-500 hover:text-stone-900 hover:border-stone-400 disabled:opacity-40 transition-colors"
             >
@@ -218,8 +189,8 @@ export function DiscoveryView({ currentUser, candidatePool, onSelectCandidate }:
               <RotateCcw className="w-4 h-4" />
             </button>
             <button
-              onClick={() => (showAd ? openAd() : top && record(top.candidate, 'like'))}
-              disabled={!showAd && !top}
+              onClick={() => top && record(top.candidate, 'like')}
+              disabled={!top}
               aria-label="Connect"
               className="w-14 h-14 rounded-full bg-[#B5751E] text-white flex items-center justify-center shadow-sm hover:brightness-110 disabled:opacity-40 transition-all"
             >
