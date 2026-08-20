@@ -30,7 +30,7 @@ interface HeaderProps {
   onViewChange: (view: ViewMode) => void;
   onOpenCustomMatch: () => void;
   onOpenQuestionnaire: () => void;
-  onOpenNetwork: () => void;
+  onOpenNetwork: (query?: string) => void;
   onOpenChromaticTest?: () => void;
   currentUser: UserProfile;
   highContrast: boolean;
