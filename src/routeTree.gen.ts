@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiExplainMatchRouteImport } from './routes/api/explain-match'
+import { Route as ApiParseCustomMatchRouteImport } from './routes/api/parse-custom-match'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiExplainMatchRoute = ApiExplainMatchRouteImport.update({
+  id: '/api/explain-match',
+  path: '/api/explain-match',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiParseCustomMatchRoute = ApiParseCustomMatchRouteImport.update({
+  id: '/api/parse-custom-match',
+  path: '/api/parse-custom-match',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/explain-match': typeof ApiExplainMatchRoute
+  '/api/parse-custom-match': typeof ApiParseCustomMatchRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/explain-match': typeof ApiExplainMatchRoute
+  '/api/parse-custom-match': typeof ApiParseCustomMatchRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/explain-match': typeof ApiExplainMatchRoute
+  '/api/parse-custom-match': typeof ApiParseCustomMatchRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/api/explain-match' | '/api/parse-custom-match'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/api/explain-match' | '/api/parse-custom-match'
+  id: '__root__' | '/' | '/api/explain-match' | '/api/parse-custom-match'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiExplainMatchRoute: typeof ApiExplainMatchRoute
+  ApiParseCustomMatchRoute: typeof ApiParseCustomMatchRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/explain-match': {
+      id: '/api/explain-match'
+      path: '/api/explain-match'
+      fullPath: '/api/explain-match'
+      preLoaderRoute: typeof ApiExplainMatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/parse-custom-match': {
+      id: '/api/parse-custom-match'
+      path: '/api/parse-custom-match'
+      fullPath: '/api/parse-custom-match'
+      preLoaderRoute: typeof ApiParseCustomMatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiExplainMatchRoute: ApiExplainMatchRoute,
+  ApiParseCustomMatchRoute: ApiParseCustomMatchRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
