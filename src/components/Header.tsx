@@ -185,11 +185,13 @@ export const Header: React.FC<HeaderProps> = ({
               <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search spectrum..."
+                placeholder="Search name, Prism ID, skills..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onClick={openDirectory}
+                onFocus={openDirectory}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') onOpenNetwork();
+                  if (e.key === 'Enter') openDirectory();
                 }}
                 className="w-full pl-9 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#D97706]/30 focus:border-[#D97706] transition-all"
                 id="header-search-input"
