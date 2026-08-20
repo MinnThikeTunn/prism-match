@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { DashboardView } from './components/DashboardView';
@@ -13,53 +12,45 @@ import { CustomAiMatchModal } from './components/CustomAiMatchModal';
 import { NetworkModal } from './components/NetworkModal';
 import { OnboardingQuestionnaire } from './components/OnboardingQuestionnaire';
 import { ChromaticTestModal } from './components/ChromaticTestModal';
+import { GoogleAuthModal } from './components/GoogleAuthModal';
+import { GoogleCredentialInspectorModal } from './components/GoogleCredentialInspectorModal';
 import { CURRENT_USER, MOCK_PROFILES } from './data/mockData';
 import { UserProfile, ViewMode } from './types';
-import { MatchFeatures } from './types/matching';
 import { ChromaticAssessmentResult } from './lib/colorSystem';
-import { AccountIdentity } from './lib/account';
-import { fetchPublicProfiles } from './lib/cloudProfile';
-import { getMyProfile, saveMyProfile, completeOnboarding } from './lib/profile.functions';
-import { supabase } from './integrations/supabase/client';
-
-/** Merge the account's stored profile data over the default profile shape. */
-function hydrateProfile(
-  base: UserProfile,
-  row: {
-    id: string;
-    name: string | null;
-    email: string | null;
-    avatar: string | null;
-    title: string | null;
-    bio: string | null;
-    location: string | null;
-    profile_data: unknown;
-  },
-): UserProfile {
-  const stored =
-    row.profile_data && typeof row.profile_data === 'object'
-      ? (row.profile_data as Partial<UserProfile>)
-      : {};
-
-  return {
-    ...base,
-    ...stored,
-    id: row.id,
-    name: row.name || stored.name || base.name,
-    email: row.email ?? stored.email,
-    avatar: row.avatar || stored.avatar || base.avatar,
-    title: row.title || stored.title || base.title,
-    bio: row.bio || stored.bio || base.bio,
-    location: row.location || stored.location || base.location,
-  };
-}
+import { ONBOARDING_COMPLETE_KEY } from './lib/onboardingStorage';
+import {
+  saveProfileToCloud,
+  loadProfileFromCloud,
+  fetchPublicProfiles,
+  cacheProfileLocally,
+  readCachedFeatures,
+  markOnboardingComplete,
+} from './lib/cloudProfile';
+import { 
+  GoogleCredential, 
+  getStoredGoogleCredential, 
+  saveGoogleCredential, 
+  removeGoogleCredential 
+} from './lib/googleAuth';
 
 export default function App() {
-  const navigate = useNavigate();
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
+  
+  // Load saved user profile if available, otherwise default to CURRENT_USER
+  const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
+    try {
+      const saved = localStorage.getItem('matchwise_user_profile');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // fallback
+    }
+    return CURRENT_USER;
+  });
 
-  const [account, setAccount] = useState<AccountIdentity | null>(null);
-  const [currentUser, setCurrentUser] = useState<UserProfile>(CURRENT_USER);
+  // Google Authentication State stored in localStorage
+  const [googleCredential, setGoogleCredential] = useState<GoogleCredential | null>(() => {
+    return getStoredGoogleCredential();
+  });
 
   const [candidatePool, setCandidatePool] = useState<UserProfile[]>(MOCK_PROFILES);
   const [selectedCandidate, setSelectedCandidate] = useState<UserProfile>(
@@ -67,70 +58,67 @@ export default function App() {
   );
 
   const [highContrast, setHighContrast] = useState(false);
-  const [isFirstTimer, setIsFirstTimer] = useState<boolean>(false);
+
+  // Check if first-timer (test not completed yet in localStorage)
+  const [isFirstTimer, setIsFirstTimer] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('matchwise_chromatic_test_completed') !== 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  // Open assessment modal automatically if first-timer
   const [isChromaticTestOpen, setIsChromaticTestOpen] = useState<boolean>(false);
 
   // Modals state
   const [isCustomMatchOpen, setIsCustomMatchOpen] = useState(false);
   const [isNetworkOpen, setIsNetworkOpen] = useState(false);
-  const [networkSearch, setNetworkSearch] = useState('');
+  const [isQuestionnaireOpen, setIsQuestionnaireOpen] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(ONBOARDING_COMPLETE_KEY) !== 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [isGoogleSignInOpen, setIsGoogleSignInOpen] = useState(false);
+  const [isGoogleInspectorOpen, setIsGoogleInspectorOpen] = useState(false);
 
-  const openNetwork = useCallback((query = '') => {
-    setNetworkSearch(query);
-    setIsNetworkOpen(true);
-  }, []);
-  const [isQuestionnaireOpen, setIsQuestionnaireOpen] = useState(false);
-
-  // Onboarding is per-account and lives in the cloud database.
-  const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null);
-
-  const handleUpdateUser = useCallback((updated: UserProfile) => {
+  const handleUpdateUser = (updated: UserProfile) => {
     setCurrentUser(updated);
-    void saveMyProfile({
-      data: {
-        name: updated.name,
-        title: updated.title,
-        location: updated.location,
-        bio: updated.bio,
-        avatar: updated.avatar,
-        profileData: updated as unknown as Record<string, unknown>,
-      },
-    }).catch(err => console.warn('Profile save failed:', err));
-  }, []);
+    cacheProfileLocally(updated);
+    void saveProfileToCloud(updated, readCachedFeatures(), true);
+  };
 
-  // Load the signed-in account's profile + onboarding state from the database.
+  // Hydrate from the cloud database on first load (no sign-in required).
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
-      try {
-        const res = await getMyProfile();
-        if (cancelled) return;
+      const cloud = await loadProfileFromCloud();
+      if (cancelled) return;
 
-        if (res.profile) {
-          const hydrated = hydrateProfile(CURRENT_USER, res.profile);
-          setCurrentUser(hydrated);
-          setAccount({
-            id: res.userId,
-            email: res.email ?? '',
-            name: hydrated.name,
-          });
-        } else {
-          setAccount({ id: res.userId, email: res.email ?? '', name: CURRENT_USER.name });
+      if (cloud.profile) {
+        setCurrentUser(cloud.profile);
+        cacheProfileLocally(cloud.profile, cloud.features);
+        if (cloud.completed) {
+          markOnboardingComplete();
+          setIsQuestionnaireOpen(false);
         }
-
-        setOnboardingDone(res.onboardingCompleted);
-        setIsFirstTimer(!res.onboardingCompleted);
-        if (!res.onboardingCompleted) setIsQuestionnaireOpen(true);
-      } catch (err) {
-        console.warn('Could not load your account profile:', err);
-        setOnboardingDone(true);
+      } else {
+        // First time on this device with cloud storage: upload whatever is local.
+        const localFeatures = readCachedFeatures();
+        const alreadyCompleted = localStorage.getItem(ONBOARDING_COMPLETE_KEY) === 'true';
+        if (localFeatures || alreadyCompleted) {
+          void saveProfileToCloud(currentUser, localFeatures, alreadyCompleted);
+        }
       }
 
       const publicProfiles = await fetchPublicProfiles();
       if (cancelled || publicProfiles.length === 0) return;
       setCandidatePool(prev => {
-        const fresh = publicProfiles.filter(p => p.name);
+        const mine = cloud.profile?.id;
+        const fresh = publicProfiles.filter(p => p.id !== mine && p.name);
         const seen = new Set(fresh.map(p => p.id));
         return [...fresh, ...prev.filter(p => !seen.has(p.id))];
       });
@@ -139,29 +127,8 @@ export default function App() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleSignOut = useCallback(async () => {
-    await supabase.auth.signOut();
-    navigate({ to: '/auth', replace: true });
-  }, [navigate]);
-
-  const handleCompleteOnboarding = (updated: UserProfile, features: MatchFeatures) => {
-    setCurrentUser(updated);
-    setOnboardingDone(true);
-    setIsQuestionnaireOpen(false);
-    void completeOnboarding({
-      data: {
-        name: updated.name,
-        title: updated.title,
-        location: updated.location,
-        bio: updated.bio,
-        avatar: updated.avatar,
-        profileData: updated as unknown as Record<string, unknown>,
-        features: features as unknown as Record<string, unknown>,
-      },
-    }).catch(err => console.warn('Onboarding save failed:', err));
-  };
 
   const handleCompleteChromaticTest = (updatedUser: UserProfile, _result: ChromaticAssessmentResult) => {
     handleUpdateUser(updatedUser);
@@ -171,6 +138,28 @@ export default function App() {
   const handleSelectCandidate = (candidate: UserProfile) => {
     setSelectedCandidate(candidate);
     setCurrentView('synergy');
+  };
+
+  // Google Auth Handlers
+  const handleGoogleSuccess = (credential: GoogleCredential, syncProfile: boolean) => {
+    saveGoogleCredential(credential);
+    setGoogleCredential(credential);
+
+    if (syncProfile) {
+      const updatedProfile: UserProfile = {
+        ...currentUser,
+        name: credential.user.name,
+        avatar: credential.user.picture,
+        email: credential.user.email,
+        bio: `${currentUser.bio} (Authenticated via Google Account ${credential.user.email})`
+      };
+      handleUpdateUser(updatedProfile);
+    }
+  };
+
+  const handleGoogleSignOut = () => {
+    removeGoogleCredential();
+    setGoogleCredential(null);
   };
 
   const quickMatches = candidatePool.slice(0, 4);
@@ -185,12 +174,14 @@ export default function App() {
         onViewChange={setCurrentView}
         onOpenCustomMatch={() => setIsCustomMatchOpen(true)}
         onOpenQuestionnaire={() => setIsQuestionnaireOpen(true)}
-        onOpenNetwork={openNetwork}
+        onOpenNetwork={() => setIsNetworkOpen(true)}
         onOpenChromaticTest={() => setIsChromaticTestOpen(true)}
         currentUser={currentUser}
         highContrast={highContrast}
-        account={account}
-        onSignOut={handleSignOut}
+        googleCredential={googleCredential}
+        onOpenGoogleSignIn={() => setIsGoogleSignInOpen(true)}
+        onOpenGoogleInspector={() => setIsGoogleInspectorOpen(true)}
+        onGoogleSignOut={handleGoogleSignOut}
       />
 
       {/* Main Screen Content */}
@@ -200,7 +191,7 @@ export default function App() {
             currentUser={currentUser}
             quickMatches={quickMatches}
             onSelectCandidate={handleSelectCandidate}
-            onOpenNetworkModal={() => openNetwork()}
+            onOpenNetworkModal={() => setIsNetworkOpen(true)}
             onOpenCustomMatch={() => setIsCustomMatchOpen(true)}
             onNavigateToColors={() => setCurrentView('colors')}
             onNavigateToMaps={(_tier) => {
@@ -226,9 +217,11 @@ export default function App() {
         )}
 
         {currentView === 'verification' && (
-          <VerificationView
-            currentUser={currentUser}
-            account={account}
+          <VerificationView 
+            currentUser={currentUser} 
+            googleCredential={googleCredential}
+            onOpenGoogleSignIn={() => setIsGoogleSignInOpen(true)}
+            onOpenGoogleInspector={() => setIsGoogleInspectorOpen(true)}
           />
         )}
 
@@ -240,7 +233,9 @@ export default function App() {
             onSelectCandidateSynergy={handleSelectCandidate}
             onNavigateToColors={() => setCurrentView('colors')}
             onOpenChromaticTest={() => setIsChromaticTestOpen(true)}
-            account={account}
+            googleCredential={googleCredential}
+            onOpenGoogleSignIn={() => setIsGoogleSignInOpen(true)}
+            onOpenGoogleInspector={() => setIsGoogleInspectorOpen(true)}
           />
         )}
 
@@ -283,7 +278,6 @@ export default function App() {
 
       <NetworkModal
         isOpen={isNetworkOpen}
-        initialSearch={networkSearch}
         onClose={() => setIsNetworkOpen(false)}
         currentUser={currentUser}
         candidates={candidatePool}
@@ -292,12 +286,34 @@ export default function App() {
 
       <OnboardingQuestionnaire
         isOpen={isQuestionnaireOpen}
-        onClose={() => {
-          // First-time accounts must finish onboarding before using the app.
-          if (onboardingDone) setIsQuestionnaireOpen(false);
-        }}
+        onClose={() => setIsQuestionnaireOpen(false)}
         currentUser={currentUser}
-        onComplete={handleCompleteOnboarding}
+        onComplete={(updated, features) => {
+          setCurrentUser(updated);
+          cacheProfileLocally(updated, features);
+          markOnboardingComplete();
+          void saveProfileToCloud(updated, features, true);
+        }}
+      />
+
+      {/* Google Authentication Modal */}
+      <GoogleAuthModal
+        isOpen={isGoogleSignInOpen}
+        onClose={() => setIsGoogleSignInOpen(false)}
+        onSuccess={handleGoogleSuccess}
+        currentCredential={googleCredential}
+      />
+
+      {/* Google Credential & JWT Claims Inspector Modal */}
+      <GoogleCredentialInspectorModal
+        isOpen={isGoogleInspectorOpen}
+        onClose={() => setIsGoogleInspectorOpen(false)}
+        credential={googleCredential}
+        onSignOut={handleGoogleSignOut}
+        onSwitchAccount={() => {
+          setIsGoogleInspectorOpen(false);
+          setIsGoogleSignInOpen(true);
+        }}
       />
     </div>
   );

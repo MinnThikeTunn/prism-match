@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { UserProfile } from '../types';
 import { Search, ArrowRight, Palette } from 'lucide-react';
 import { getColorIdentity, getPairwiseColorHarmonics } from '../lib/colorSystem';
@@ -9,7 +9,6 @@ interface NetworkModalProps {
   currentUser: UserProfile;
   candidates: UserProfile[];
   onSelectCandidate: (candidate: UserProfile) => void;
-  initialSearch?: string;
 }
 
 export const NetworkModal: React.FC<NetworkModalProps> = ({
@@ -17,28 +16,19 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
   onClose,
   currentUser,
   candidates,
-  onSelectCandidate,
-  initialSearch = ''
+  onSelectCandidate
 }) => {
-  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [searchTerm, setSearchTerm] = useState('');
   const [tierFilter, setTierFilter] = useState<string>('ALL');
-
-  // Seed the directory search with whatever was typed in the nav bar.
-  useEffect(() => {
-    if (isOpen) setSearchTerm(initialSearch);
-  }, [isOpen, initialSearch]);
 
   if (!isOpen) return null;
 
-  const term = searchTerm.trim().toLowerCase();
   const filtered = candidates.filter((c) => {
     const matchesSearch =
-      term === '' ||
-      c.name.toLowerCase().includes(term) ||
-      c.title.toLowerCase().includes(term) ||
-      (c.prismId ?? '').toLowerCase().includes(term) ||
-      c.needsOffers.offers.some(o => o.toLowerCase().includes(term)) ||
-      c.needsOffers.needs.some(n => n.toLowerCase().includes(term));
+      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.needsOffers.offers.some(o => o.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      c.needsOffers.needs.some(n => n.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesTier = tierFilter === 'ALL' || c.tier === tierFilter;
     return matchesSearch && matchesTier;
@@ -74,7 +64,7 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
             <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by name, Prism ID, chromatic frequency, or skills..."
+              placeholder="Search by name, chromatic frequency, or skills..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-9 pr-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D97706]/30 focus:border-[#D97706] text-stone-800"

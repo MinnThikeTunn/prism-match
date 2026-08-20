@@ -19,23 +19,25 @@ import {
   Users,
   ExternalLink,
   Layers,
-  ClipboardList,
   Database
 } from 'lucide-react';
 import { getColorIdentity } from '../lib/colorSystem';
-import { AccountIdentity } from '../lib/account';
+import { GoogleUserMenu } from './GoogleUserMenu';
+import { GoogleCredential } from '../lib/googleAuth';
 
 interface HeaderProps {
   currentView: ViewMode;
   onViewChange: (view: ViewMode) => void;
   onOpenCustomMatch: () => void;
   onOpenQuestionnaire: () => void;
-  onOpenNetwork: (query?: string) => void;
+  onOpenNetwork: () => void;
   onOpenChromaticTest?: () => void;
   currentUser: UserProfile;
   highContrast: boolean;
-  account: AccountIdentity | null;
-  onSignOut: () => void;
+  googleCredential: GoogleCredential | null;
+  onOpenGoogleSignIn: () => void;
+  onOpenGoogleInspector: () => void;
+  onGoogleSignOut: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -46,8 +48,10 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenNetwork,
   onOpenChromaticTest,
   currentUser,
-  account,
-  onSignOut
+  googleCredential,
+  onOpenGoogleSignIn,
+  onOpenGoogleInspector,
+  onGoogleSignOut
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
@@ -83,14 +87,12 @@ export const Header: React.FC<HeaderProps> = ({
     setIsMobileMenuOpen(false);
   };
 
-  const openDirectory = () => {
-    onOpenNetwork(searchQuery);
-    setIsMobileMenuOpen(false);
-  };
-
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    openDirectory();
+    if (searchQuery.trim()) {
+      onOpenNetwork();
+      setIsMobileMenuOpen(false);
+    }
   };
 
   const navItems = [
@@ -185,13 +187,11 @@ export const Header: React.FC<HeaderProps> = ({
               <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search name, Prism ID, skills..."
+                placeholder="Search spectrum..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onClick={openDirectory}
-                onFocus={openDirectory}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') openDirectory();
+                  if (e.key === 'Enter') onOpenNetwork();
                 }}
                 className="w-full pl-9 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#D97706]/30 focus:border-[#D97706] transition-all"
                 id="header-search-input"
@@ -211,17 +211,6 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
 
-            {/* Onboarding Questionnaire Button (Desktop & Tablet) */}
-            <button
-              onClick={onOpenQuestionnaire}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold rounded-full border border-stone-200 transition-all active:scale-95"
-              id="header-onboarding-btn"
-              title="Open the onboarding questionnaire"
-            >
-              <ClipboardList className="w-3.5 h-3.5 shrink-0" />
-              <span className="hidden xl:inline">Onboarding</span>
-            </button>
-
             {/* Custom AI Match Action Button (Desktop & Tablet) */}
             <button
               onClick={onOpenCustomMatch}
@@ -232,23 +221,15 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="hidden md:inline">Custom AI Match</span>
             </button>
 
-            {/* Account menu (Desktop) */}
-            {account && (
-              <div className="hidden sm:flex items-center gap-2 pl-1">
-                <span className="text-[11px] font-semibold text-stone-600 max-w-[140px] truncate" title={account.email}>
-                  {account.email}
-                </span>
-                <button
-                  onClick={onSignOut}
-                  className="p-2 text-stone-500 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors"
-                  id="header-sign-out-btn"
-                  title="Sign out"
-                  aria-label="Sign out"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </div>
-            )}
+            {/* Google Authentication Menu / Sign In Button (Desktop) */}
+            <div className="hidden sm:block">
+              <GoogleUserMenu
+                credential={googleCredential}
+                onOpenSignIn={onOpenGoogleSignIn}
+                onOpenInspector={onOpenGoogleInspector}
+                onSignOut={onGoogleSignOut}
+              />
+            </div>
 
             {/* Notifications Icon with Dropdown */}
             <div className="relative">
@@ -420,34 +401,81 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
 
-          {/* Account section for Mobile */}
-          {account && (
-            <div className="p-3 bg-stone-50 rounded-2xl border border-stone-200 text-xs space-y-2">
-              <p className="font-bold text-stone-800 text-[11px]">Signed in</p>
-              <p className="text-[11px] text-stone-600 truncate">{account.email}</p>
+          {/* Google Auth Status Section for Mobile */}
+          <div className="p-3 bg-blue-50/60 rounded-2xl border border-blue-100 text-xs space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-stone-800 text-[11px] flex items-center gap-1.5">
+                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0">
+                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                  <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.29 21.43 7.37 24 12 24z"/>
+                  <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"/>
+                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.29 2.57 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                </svg>
+                Google Integration
+              </span>
+              {googleCredential ? (
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <Check className="w-3 h-3" /> Linked
+                </span>
+              ) : (
+                <span className="text-[10px] font-medium text-stone-500">
+                  Not Linked
+                </span>
+              )}
+            </div>
+
+            {googleCredential ? (
+              <div className="space-y-1.5 pt-1">
+                <p className="text-[11px] text-stone-600 truncate">
+                  {googleCredential.user.email}
+                </p>
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      onOpenGoogleInspector();
+                    }}
+                    className="flex-1 py-1.5 px-2 bg-white hover:bg-stone-50 border border-blue-200 text-blue-800 text-[11px] font-semibold rounded-lg text-center flex items-center justify-center gap-1"
+                    id="mobile-google-inspect-btn"
+                  >
+                    <KeyRound className="w-3 h-3" />
+                    <span>Inspect Token</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      onGoogleSignOut();
+                    }}
+                    className="py-1.5 px-2.5 bg-white hover:bg-rose-50 border border-rose-200 text-rose-600 text-[11px] font-semibold rounded-lg flex items-center justify-center"
+                    id="mobile-google-signout-btn"
+                    title="Sign Out"
+                  >
+                    <LogOut className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            ) : (
               <button
                 onClick={() => {
                   setIsMobileMenuOpen(false);
-                  onSignOut();
+                  onOpenGoogleSignIn();
                 }}
-                className="w-full py-1.5 px-3 bg-white hover:bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5"
-                id="mobile-sign-out-btn"
+                className="w-full py-1.5 px-3 bg-white hover:bg-stone-50 border border-stone-300 text-stone-800 text-xs font-semibold rounded-xl shadow-2xs transition-colors flex items-center justify-center gap-2"
+                id="mobile-google-signin-btn"
               >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Sign out</span>
+                <span>Sign in with Google</span>
               </button>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Search Input for Mobile */}
           <form onSubmit={handleSearchSubmit} className="relative">
             <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search name, Prism ID, skills..."
+              placeholder="Search spectrum or candidates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onClick={openDirectory}
               className="w-full pl-10 pr-3 py-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D97706]/30 focus:border-[#D97706] transition-all"
               id="mobile-drawer-search-input"
             />
@@ -496,26 +524,6 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider px-2 mb-1">
               Prism Actions
             </div>
-
-            {/* Onboarding Questionnaire Button */}
-            <button
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                onOpenQuestionnaire();
-              }}
-              className="w-full flex items-center gap-3 p-3 bg-stone-50 hover:bg-stone-100 text-stone-800 border border-stone-200 rounded-xl text-xs font-bold transition-all text-left min-h-[48px]"
-              id="mobile-onboarding-btn"
-            >
-              <div className="w-8 h-8 rounded-lg bg-stone-200/80 flex items-center justify-center text-stone-700">
-                <ClipboardList className="w-4 h-4" />
-              </div>
-              <div className="flex-1">
-                <span>Onboarding Questionnaire</span>
-                <span className="block text-[10px] font-normal text-stone-500">
-                  Retake the 10-step matching setup
-                </span>
-              </div>
-            </button>
 
             {/* Custom AI Match Button */}
             <button
