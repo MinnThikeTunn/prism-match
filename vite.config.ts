@@ -1,21 +1,3 @@
-import tailwindcss from '@tailwindcss/vite';
-import viteReact from '@vitejs/plugin-react';
-import { tanstackStart } from '@tanstack/react-start/plugin/vite';
-import path from 'path';
-import { defineConfig } from 'vite';
+import { defineConfig } from '@lovable.dev/vite-tanstack-config';
 
-export default defineConfig({
-  server: {
-    port: 8080,
-  },
-  plugins: [
-    tailwindcss(),
-    tanstackStart(),
-    viteReact(),
-  ],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
-});
+export default defineConfig();
