@@ -73,6 +73,12 @@ export default function App() {
   // Modals state
   const [isCustomMatchOpen, setIsCustomMatchOpen] = useState(false);
   const [isNetworkOpen, setIsNetworkOpen] = useState(false);
+  const [networkSearch, setNetworkSearch] = useState('');
+
+  const openNetwork = useCallback((query = '') => {
+    setNetworkSearch(query);
+    setIsNetworkOpen(true);
+  }, []);
   const [isQuestionnaireOpen, setIsQuestionnaireOpen] = useState(false);
 
   // Onboarding is per-account and lives in the cloud database.
