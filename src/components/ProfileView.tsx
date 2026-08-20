@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { UserProfile, OCEANProfile, EngineTier, IntentSubMode } from '../types';
 import { getColorIdentity } from '../lib/colorSystem';
+import { ProfileSummaryCard } from './ProfileSummaryCard';
 import { GoogleCredential, STORAGE_KEY_GOOGLE_AUTH } from '../lib/googleAuth';
 import { 
   User, 
@@ -315,124 +316,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
       </div>
 
-      {/* Main Profile Hero Card with Dynamic Chromatic Gradient Banner */}
-      <div className="bg-white border border-stone-200 rounded-3xl overflow-hidden shadow-xs mb-8">
-        {/* Dynamic Chromatic Header Banner */}
-        <div 
-          className="h-36 sm:h-44 w-full relative p-6 flex items-end justify-end transition-all"
-          style={{ background: activeColor.bgGradient }}
-        >
-          {/* Chromatic ambient glow lines */}
-          <div className="absolute inset-0 opacity-40 bg-[radial-gradient(#D97706_1px,transparent_1px)] [background-size:16px_16px]" />
-
-          {/* Prism ID badge */}
-          <div className="relative z-10 bg-white/90 backdrop-blur-xs px-3 py-1.5 rounded-full border border-stone-200/80 shadow-xs flex items-center gap-1.5 text-xs font-bold text-stone-800">
-            <Hash className="w-3.5 h-3.5 text-[#D97706]" />
-            <span>Prism ID: {activeProfile.prismId || 'MW-9842-AX'}</span>
-          </div>
-        </div>
-
-        {/* Profile Info Row */}
-        <div className="px-6 sm:px-8 pb-8 pt-0 relative">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 -mt-16 sm:-mt-20">
-            {/* Avatar + Main Details */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-5">
-              <div className="relative">
-                <div 
-                  className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl p-1.5 bg-white shadow-xl ring-4 transition-all"
-                  style={{ ['--tw-ring-color' as any]: activeColor.primaryColor }}
-                >
-                  <img
-                    src={activeProfile.avatar}
-                    alt={activeProfile.name}
-                    className="w-full h-full rounded-2xl object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-                {/* Verified Check Badge */}
-                <div className="absolute -bottom-1.5 -right-1.5 bg-emerald-500 text-white p-1 rounded-full ring-4 ring-white shadow-md">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
-                    {activeProfile.name}
-                  </h1>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-stone-100 text-stone-700 border border-stone-200">
-                    <Award className="w-3 h-3 text-[#D97706]" />
-                    {activeProfile.tier}
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-[#D97706] border border-amber-200">
-                    {activeProfile.subMode}
-                  </span>
-                </div>
-
-                <p className="text-sm font-semibold text-stone-600">
-                  {activeProfile.title}
-                </p>
-
-                <div className="flex flex-wrap items-center gap-4 text-xs font-medium text-stone-500 pt-1">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-stone-400" />
-                    {activeProfile.location}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-stone-400" />
-                    {activeProfile.availabilityHoursPerWeek} hrs/week
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <MessageSquare className="w-3.5 h-3.5 text-stone-400" />
-                    {activeProfile.communicationLatency}
-                  </span>
-                </div>
-              </div>
+      {/* Detailed profile summary (swapped in from the home dashboard) */}
+      <ProfileSummaryCard
+        profile={activeProfile}
+        className="mb-8"
+        footerSlot={
+          isEditing ? (
+            <div className="mt-6 pt-6 border-t border-stone-100 space-y-3">
+              <label className="block text-xs font-bold text-stone-700">Executive Bio</label>
+              <textarea
+                value={formData.bio}
+                onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+                rows={3}
+                className="w-full text-xs bg-stone-50 border border-stone-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#D97706]/30 text-stone-800"
+                id="profile-bio-textarea"
+              />
             </div>
-
-            {/* Harmonic Spectrum Summary Badge */}
-            <div className="flex flex-col sm:items-end gap-2 bg-stone-50 sm:bg-transparent p-4 sm:p-0 rounded-2xl border sm:border-0 border-stone-200">
-              <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">
-                Harmonic Resonance
-              </span>
-              <div 
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border text-xs font-bold shadow-2xs"
-                style={{
-                  backgroundColor: `${activeColor.primaryColor}15`,
-                  color: activeColor.primaryColor,
-                  borderColor: `${activeColor.primaryColor}30`
-                }}
-              >
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: activeColor.primaryColor }} />
-                <span>{activeColor.harmonicTitle}</span>
-              </div>
-              <span className="text-[11px] text-stone-400 font-mono">
-                OKLCH Aura: {activeColor.primaryName} × {activeColor.secondaryName}
-              </span>
-            </div>
-          </div>
-
-          {/* Bio text */}
-          <div className="mt-6 pt-6 border-t border-stone-100">
-            {isEditing ? (
-              <div className="space-y-3">
-                <label className="block text-xs font-bold text-stone-700">Executive Bio</label>
-                <textarea
-                  value={formData.bio}
-                  onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                  rows={3}
-                  className="w-full text-xs bg-stone-50 border border-stone-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#D97706]/30 text-stone-800"
-                  id="profile-bio-textarea"
-                />
-              </div>
-            ) : (
-              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed max-w-4xl">
-                {activeProfile.bio}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
       {/* Navigation Tabs */}
       <div className="flex flex-wrap items-center gap-2 mb-6 border-b border-stone-200 pb-3">
