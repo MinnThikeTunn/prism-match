@@ -443,3 +443,73 @@ export function getPairwiseColorHarmonics(userAId: string, userBId: string) {
     ]
   };
 }
+
+/* ------------------------------------------------------------------
+ * Profile-derived chromatic identity
+ * Colors come from the user's own profile scores (execution / capability /
+ * resonance) + OCEAN traits — not from a static id lookup table.
+ * ----------------------------------------------------------------- */
+
+type ChannelSeed = { name: string; color: string; value: number };
+
+function intensityFor(value: number): ColorIdentity['spectrumBars'][number]['intensity'] {
+  if (value >= 80) return 'Full Luminous';
+  if (value >= 60) return 'Deep Radiance';
+  if (value >= 40) return 'Vibrant Tone';
+  return 'Soft Aura';
+}
+
+export function deriveColorIdentityFromProfile(profile: {
+  executionScore?: number;
+  capabilityScore?: number;
+  resonanceScore?: number;
+  ocean?: { openness?: number; conscientiousness?: number; extraversion?: number; agreeableness?: number; neuroticism?: number };
+}): ColorIdentity {
+  const execution = Math.max(0, Math.min(100, profile.executionScore ?? 50));
+  const capability = Math.max(0, Math.min(100, profile.capabilityScore ?? 50));
+  const resonance = Math.max(0, Math.min(100, profile.resonanceScore ?? 50));
+  const openness = Math.max(0, Math.min(100, profile.ocean?.openness ?? 50));
+
+  const seeds: ChannelSeed[] = [
+    { name: 'Solar Gold', color: '#D97706', value: execution },
+    { name: 'Deep Teal', color: '#0A6275', value: capability },
+    { name: 'Verdant Emerald', color: '#059669', value: resonance },
+    { name: 'Royal Amethyst', color: '#7C3AED', value: openness },
+  ];
+
+  const ranked = [...seeds].sort((a, b) => b.value - a.value);
+  const primary = ranked[0];
+  const secondary = ranked[1];
+  const tertiary = ranked[2];
+
+  const hexToRgb = (hex: string) => {
+    const n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  };
+  const [pr, pg, pb] = hexToRgb(primary.color);
+  const [sr, sg, sb] = hexToRgb(secondary.color);
+  const [tr, tg, tb] = hexToRgb(tertiary.color);
+
+  const spread = primary.value - ranked[3].value;
+  const toneDescription =
+    spread < 12
+      ? `Evenly balanced spectrum — ${primary.name.toLowerCase()} and ${secondary.name.toLowerCase()} share the light.`
+      : `${primary.name} leads at ${Math.round(primary.value)}, anchored by ${secondary.name} (${Math.round(secondary.value)}) and ${tertiary.name} (${Math.round(tertiary.value)}).`;
+
+  return {
+    primaryName: primary.name,
+    primaryColor: primary.color,
+    secondaryName: secondary.name,
+    secondaryColor: secondary.color,
+    harmonicTitle: `${primary.name} × ${secondary.name} Harmonic`,
+    gradientClass: `from-[${primary.color}] via-[${secondary.color}] to-[${tertiary.color}]`,
+    bgGradient: `radial-gradient(circle, rgba(${pr},${pg},${pb},0.18) 0%, rgba(${sr},${sg},${sb},0.12) 50%, rgba(${tr},${tg},${tb},0.06) 100%)`,
+    auraClass: 'bg-stone-500/10 text-stone-900 border-stone-400/30',
+    toneDescription,
+    spectrumBars: ranked.map((s) => ({
+      name: s.name,
+      color: s.color,
+      intensity: intensityFor(s.value),
+    })),
+  };
+}
