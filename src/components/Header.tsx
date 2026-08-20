@@ -19,6 +19,7 @@ import {
   Users,
   ExternalLink,
   Layers,
+  ClipboardList,
   Database
 } from 'lucide-react';
 import { getColorIdentity } from '../lib/colorSystem';
