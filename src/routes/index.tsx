@@ -1,6 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { ClientOnly } from '@tanstack/react-router';
-import App from '../App';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { supabase } from '../integrations/supabase/client';
 
 export const Route = createFileRoute('/')({
   head: () => ({
@@ -24,9 +24,18 @@ export const Route = createFileRoute('/')({
 });
 
 function Home() {
-  return (
-    <ClientOnly fallback={<div className="min-h-screen bg-[#FAFBFD]" />}>
-      <App />
-    </ClientOnly>
-  );
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let cancelled = false;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (cancelled) return;
+      navigate({ to: data.session ? '/app' : '/auth', replace: true });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+
+  return <div className="min-h-screen bg-[#FAFBFD]" />;
 }
