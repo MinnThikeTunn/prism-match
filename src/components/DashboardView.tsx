@@ -1,7 +1,7 @@
 import React from 'react';
 import { Zap, Infinity as InfinityIcon, Scale, SlidersHorizontal, Sparkles, Palette, ArrowRight, Brain, Globe, Heart, Briefcase } from 'lucide-react';
 import { UserProfile, EngineTier } from '../types';
-import { getColorIdentity } from '../lib/colorSystem';
+import { getColorIdentity, deriveColorIdentityFromProfile } from '../lib/colorSystem';
 
 interface DashboardViewProps {
   currentUser: UserProfile;
@@ -21,7 +21,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigateToColors,
   onNavigateToMaps
 }) => {
-  const userColor = getColorIdentity(currentUser.id);
+  // Derived from the signed-in user's own profile scores, not a static id lookup
+  const userColor = React.useMemo(
+    () => deriveColorIdentityFromProfile(currentUser),
+    [currentUser.executionScore, currentUser.capabilityScore, currentUser.resonanceScore, currentUser.ocean]
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 animate-in fade-in duration-300">
