@@ -10,13 +10,14 @@ import { ProfileView } from './components/ProfileView';
 import { ColorSystemView } from './components/ColorSystemView';
 import { CustomAiMatchModal } from './components/CustomAiMatchModal';
 import { NetworkModal } from './components/NetworkModal';
-import { QuestionnaireModal } from './components/QuestionnaireModal';
+import { OnboardingQuestionnaire } from './components/OnboardingQuestionnaire';
 import { ChromaticTestModal } from './components/ChromaticTestModal';
 import { GoogleAuthModal } from './components/GoogleAuthModal';
 import { GoogleCredentialInspectorModal } from './components/GoogleCredentialInspectorModal';
 import { CURRENT_USER, MOCK_PROFILES } from './data/mockData';
 import { UserProfile, ViewMode } from './types';
 import { ChromaticAssessmentResult } from './lib/colorSystem';
+import { ONBOARDING_COMPLETE_KEY } from './lib/onboardingStorage';
 import { 
   GoogleCredential, 
   getStoredGoogleCredential, 
@@ -71,7 +72,13 @@ export default function App() {
   // Modals state
   const [isCustomMatchOpen, setIsCustomMatchOpen] = useState(false);
   const [isNetworkOpen, setIsNetworkOpen] = useState(false);
-  const [isQuestionnaireOpen, setIsQuestionnaireOpen] = useState(false);
+  const [isQuestionnaireOpen, setIsQuestionnaireOpen] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(ONBOARDING_COMPLETE_KEY) !== 'true';
+    } catch {
+      return false;
+    }
+  });
   const [isGoogleSignInOpen, setIsGoogleSignInOpen] = useState(false);
   const [isGoogleInspectorOpen, setIsGoogleInspectorOpen] = useState(false);
 
@@ -238,11 +245,18 @@ export default function App() {
         onSelectCandidate={handleSelectCandidate}
       />
 
-      <QuestionnaireModal
+      <OnboardingQuestionnaire
         isOpen={isQuestionnaireOpen}
         onClose={() => setIsQuestionnaireOpen(false)}
         currentUser={currentUser}
-        onUpdateProfile={handleUpdateUser}
+        onComplete={(updated) => {
+          handleUpdateUser(updated);
+          try {
+            localStorage.setItem(ONBOARDING_COMPLETE_KEY, 'true');
+          } catch {
+            // ignore
+          }
+        }}
       />
 
       {/* Google Authentication Modal */}
