@@ -154,6 +154,14 @@ export default function App() {
           />
         )}
 
+        {currentView === 'discovery' && (
+          <DiscoveryView
+            currentUser={currentUser}
+            candidatePool={candidatePool}
+            onSelectCandidate={handleSelectCandidate}
+          />
+        )}
+
         {currentView === 'maps' && (
           <MapsView
             candidates={candidatePool}
