@@ -7,7 +7,7 @@ import type { SwipeRecord } from './discovery';
 export async function fetchCloudProfile(userId: string): Promise<UserProfile | null> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('profile_data, name, email, avatar')
+    .select('profile_data, name, avatar')
     .eq('id', userId)
     .maybeSingle();
 
