@@ -464,7 +464,7 @@ export const SynergyMatchView: React.FC<SynergyMatchViewProps> = ({
               id="initiate-collaboration-btn"
             >
               <Palette className="w-4 h-4 text-amber-300" />
-              <span>Initiate Chromatic Collaboration</span>
+              <span>Connect</span>
             </button>
           </div>
         </div>
