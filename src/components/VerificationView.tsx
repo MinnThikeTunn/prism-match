@@ -26,7 +26,6 @@ export const VerificationView: React.FC<VerificationViewProps> = ({
   // Combine currentUser with candidate pool for profile selection
   const allProfiles = [currentUser, ...candidatePool.filter(p => p.id !== currentUser.id)];
   const [selectedUser, setSelectedUser] = useState<UserProfile>(currentUser);
-  const [activeTab, setActiveTab] = useState<'certificate' | 'audit' | 'spectrum'>('certificate');
   const [isRegistryModalOpen, setIsRegistryModalOpen] = useState(false);
   const [copiedToken, setCopiedToken] = useState(false);
 
