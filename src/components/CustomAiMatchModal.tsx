@@ -66,12 +66,35 @@ export const CustomAiMatchModal: React.FC<CustomAiMatchModalProps> = ({
   };
 
   const handleExecuteAssembly = () => {
-    if (!criteriaCard) return;
-    const sorted = [...candidatePool].sort((a, b) => b.executionScore - a.executionScore);
-    const selectedTeam = sorted.slice(0, criteriaCard.targetTeamSize);
+    if (!criteriaCard || candidatePool.length === 0) return;
+
+    // Prioritize candidates matching required roles or skills, then rank by execution score
+    const selected = new Set<string>();
+    const team: UserProfile[] = [];
+
+    // Pass 1: Match role/skill keywords
+    const targetSkills = criteriaCard.requiredSkills.map(s => s.toLowerCase());
+    const targetRoles = criteriaCard.requiredRoles.map(r => r.role.toLowerCase());
+
+    const scoredPool = candidatePool.map(cand => {
+      let roleMatch = targetRoles.some(r => cand.title.toLowerCase().includes(r) || r.includes(cand.title.toLowerCase())) ? 2 : 0;
+      let skillMatch = cand.needsOffers.offers.some(off => targetSkills.some(s => off.toLowerCase().includes(s) || s.includes(off.toLowerCase()))) ? 1 : 0;
+      return {
+        candidate: cand,
+        totalScore: cand.executionScore + roleMatch * 15 + skillMatch * 10
+      };
+    }).sort((a, b) => b.totalScore - a.totalScore);
+
+    for (const item of scoredPool) {
+      if (team.length >= criteriaCard.targetTeamSize) break;
+      if (!selected.has(item.candidate.id)) {
+        selected.add(item.candidate.id);
+        team.push(item.candidate);
+      }
+    }
 
     setAssembledTeam({
-      team: selectedTeam
+      team
     });
   };
 
