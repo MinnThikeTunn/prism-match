@@ -93,13 +93,17 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
   const [synergyFilter, setSynergyFilter] = useState<'all' | 'high' | 'ultra' | 'friction'>('all');
   const [isPhysicsRunning, setIsPhysicsRunning] = useState(true);
 
-  // Mobile = static, big touch UI (no physics, no canvas)
+  // Mobile = static, big touch UI (no physics, no pan, no zoom)
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
     const update = () => {
-      setIsMobile(mq.matches);
-      if (mq.matches) setIsPhysicsRunning(false);
+      const next = mq.matches;
+      setIsMobile(next);
+      if (next) {
+        setIsPhysicsRunning(false);
+        setTransform({ scale: 1, x: 0, y: 0 }); // lock view on mobile
+      }
     };
     update();
     mq.addEventListener('change', update);
@@ -311,6 +315,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
 
   // Node Drag Handlers (pointer events = mouse + touch + pen)
   const handleNodeMouseDown = (nodeId: string, e: React.PointerEvent) => {
+    if (isMobile) return; // Mobile: no drag, only tap selection
     e.stopPropagation();
     e.preventDefault();
     svgRef.current?.setPointerCapture?.(e.pointerId);
@@ -319,6 +324,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
   };
 
   const handleCanvasMouseMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
+    if (isMobile) return; // Mobile: graph stays completely still
     if (tapRef.current && !tapRef.current.moved) {
       const dx = e.clientX - tapRef.current.x;
       const dy = e.clientY - tapRef.current.y;
@@ -339,10 +345,10 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
       setTransform(prev => ({ ...prev, x: prev.x + dx, y: prev.y + dy }));
       setPanStart({ x: e.clientX, y: e.clientY });
     }
-  }, [draggedNodeId, isPanning, panStart, transform]);
+  }, [draggedNodeId, isPanning, panStart, transform, isMobile]);
 
   const handleCanvasMouseUp = useCallback((e?: React.PointerEvent<SVGSVGElement>) => {
-    if (e && svgRef.current?.hasPointerCapture?.(e.pointerId)) {
+    if (!isMobile && e && svgRef.current?.hasPointerCapture?.(e.pointerId)) {
       svgRef.current.releasePointerCapture(e.pointerId);
     }
     const tap = tapRef.current;
@@ -353,9 +359,10 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
     }
     setDraggedNodeId(null);
     setIsPanning(false);
-  }, []);
+  }, [isMobile]);
 
   const handleCanvasMouseDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (isMobile) return; // Mobile: no panning, graph is static
     // Only pan if clicking on canvas background (not on a node or link)
     if (e.target === svgRef.current || (e.target as HTMLElement).tagName === 'rect') {
       svgRef.current?.setPointerCapture?.(e.pointerId);
@@ -560,51 +567,53 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                 </span>
               </div>
 
-              {/* Right: Zoom & Physics Controls */}
-              <div className="bg-stone-900/80 backdrop-blur-md border border-white/10 p-1 rounded-2xl pointer-events-auto flex items-center gap-1 shadow-lg">
-                <button
-                  onClick={() => setIsPhysicsRunning(!isPhysicsRunning)}
-                  className={`p-2 rounded-xl text-xs font-bold transition-colors ${
-                    isPhysicsRunning
-                      ? 'text-emerald-400 hover:bg-emerald-500/20'
-                      : 'text-amber-400 hover:bg-amber-500/20'
-                  }`}
-                  title={isPhysicsRunning ? 'Pause Physics' : 'Resume Physics'}
-                >
-                  {isPhysicsRunning ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                </button>
-                <button
-                  onClick={() => handleZoom('in')}
-                  className="p-2 text-stone-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
-                  title="Zoom In"
-                >
-                  <ZoomIn className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => handleZoom('out')}
-                  className="p-2 text-stone-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
-                  title="Zoom Out"
-                >
-                  <ZoomOut className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={handleResetView}
-                  className="p-2 text-stone-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
-                  title="Reset View"
-                >
-                  <Maximize2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
+              {/* Right: Zoom & Physics Controls (desktop only; mobile graph is static) */}
+              {!isMobile && (
+                <div className="bg-stone-900/80 backdrop-blur-md border border-white/10 p-1 rounded-2xl pointer-events-auto flex items-center gap-1 shadow-lg">
+                  <button
+                    onClick={() => setIsPhysicsRunning(!isPhysicsRunning)}
+                    className={`p-2 rounded-xl text-xs font-bold transition-colors ${
+                      isPhysicsRunning
+                        ? 'text-emerald-400 hover:bg-emerald-500/20'
+                        : 'text-amber-400 hover:bg-amber-500/20'
+                    }`}
+                    title={isPhysicsRunning ? 'Pause Physics' : 'Resume Physics'}
+                  >
+                    {isPhysicsRunning ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                  </button>
+                  <button
+                    onClick={() => handleZoom('in')}
+                    className="p-2 text-stone-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+                    title="Zoom In"
+                  >
+                    <ZoomIn className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => handleZoom('out')}
+                    className="p-2 text-stone-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+                    title="Zoom Out"
+                  >
+                    <ZoomOut className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={handleResetView}
+                    className="p-2 text-stone-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+                    title="Reset View"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Hint Badge at Bottom Left */}
             <div className="absolute bottom-4 left-4 z-20 pointer-events-none">
               <div className="bg-stone-900/75 backdrop-blur-md border border-white/10 px-3.5 py-2 rounded-2xl text-[11px] text-stone-300 space-y-0.5 shadow-lg">
                 <p className="flex items-center gap-1.5 font-medium">
-                  <span className="text-amber-400 font-bold">●</span> Tap a node to inspect its color archetype
+                  <span className="text-amber-400 font-bold">●</span> {isMobile ? 'Tap a node to see its color archetype' : 'Tap a node to inspect its color archetype'}
                 </p>
                 <p className="flex items-center gap-1.5 font-medium">
-                  <span className="text-purple-400 font-bold">—</span> Hover line for synergy %, click for the <strong>Why</strong>
+                  <span className="text-purple-400 font-bold">—</span> {isMobile ? 'Tap a line to see the synergy %' : 'Hover line for synergy %, click for the Why'}
                 </p>
               </div>
             </div>
@@ -613,8 +622,8 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
             <svg
               ref={svgRef}
               viewBox="0 0 800 600"
-              className="w-full h-[520px] sm:h-[560px] cursor-grab active:cursor-grabbing select-none"
-              style={{ touchAction: 'none' }}
+              className={`w-full h-[520px] sm:h-[560px] select-none ${isMobile ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}`}
+              style={{ touchAction: isMobile ? 'pan-y' : 'none' }}
               onPointerDown={handleCanvasMouseDown}
               onPointerMove={handleCanvasMouseMove}
               onPointerUp={handleCanvasMouseUp}
