@@ -604,10 +604,10 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
             <div className="absolute bottom-4 left-4 z-20 pointer-events-none">
               <div className="bg-stone-900/75 backdrop-blur-md border border-white/10 px-3.5 py-2 rounded-2xl text-[11px] text-stone-300 space-y-0.5 shadow-lg">
                 <p className="flex items-center gap-1.5 font-medium">
-                  <span className="text-amber-400 font-bold">●</span> Tap a node to inspect its color archetype
+                  <span className="text-amber-400 font-bold">●</span> {isMobile ? 'Tap a node to see its color archetype' : 'Tap a node to inspect its color archetype'}
                 </p>
                 <p className="flex items-center gap-1.5 font-medium">
-                  <span className="text-purple-400 font-bold">—</span> Hover line for synergy %, click for the <strong>Why</strong>
+                  <span className="text-purple-400 font-bold">—</span> {isMobile ? 'Tap a line to see the synergy %' : 'Hover line for synergy %, click for the Why'}
                 </p>
               </div>
             </div>
