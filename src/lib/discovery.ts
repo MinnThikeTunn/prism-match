@@ -53,6 +53,9 @@ export interface RankedColorMatchCandidate {
   score: number;
 }
 
+/** Minimum chromatic resonance required before we recommend someone. */
+export const MIN_COLOR_MATCH_SCORE = 70;
+
 /**
  * Ranks candidate pool strictly based on Chromatic Resonance (Color Match).
  */
@@ -74,6 +77,20 @@ export function rankCandidatesByColorMatch(
       };
     })
     .sort((a, b) => b.score - a.score);
+}
+
+/**
+ * Shared recommendation pool: colour-ranked candidates at or above the
+ * 70% chromatic resonance floor. Used by both the home Network Resonance
+ * panel and the Chromatic Network Directory so they always agree.
+ */
+export function getResonantPool(
+  requester: UserProfile,
+  pool: UserProfile[],
+): RankedColorMatchCandidate[] {
+  return rankCandidatesByColorMatch(requester, pool).filter(
+    (r) => r.score >= MIN_COLOR_MATCH_SCORE,
+  );
 }
 
 /** Non-romantic discovery contexts. */

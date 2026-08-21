@@ -2,7 +2,7 @@ import React from 'react';
 import { Zap, Infinity as InfinityIcon, Scale, SlidersHorizontal, Sparkles, Palette, ArrowRight, Brain, Globe, Heart, Briefcase } from 'lucide-react';
 import { UserProfile, EngineTier } from '../types';
 import { getColorIdentity } from '../lib/colorSystem';
-import { getStoredConnections } from '../lib/discovery';
+import { getStoredConnections, MIN_COLOR_MATCH_SCORE } from '../lib/discovery';
 import { ProfileHeroCard } from './ProfileHeroCard';
 
 interface DashboardViewProps {
@@ -277,6 +277,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       );
                     })
                   )
+                ) : quickMatches.length === 0 ? (
+                  <div className="py-8 text-center px-4">
+                    <h4 className="text-xs font-bold text-stone-800">No resonant matches yet</h4>
+                    <p className="text-[11px] text-stone-500 mt-1">
+                      Nobody currently clears the {MIN_COLOR_MATCH_SCORE}% chromatic resonance floor.
+                    </p>
+                  </div>
                 ) : (
                   quickMatches.map((profile) => {
                     const profColor = getColorIdentity(profile.id, profile);

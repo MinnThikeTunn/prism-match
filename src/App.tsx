@@ -15,7 +15,7 @@ import { CURRENT_USER, MOCK_PROFILES } from './data/mockData';
 import { UserProfile, ViewMode } from './types';
 import { ChromaticAssessmentResult } from './lib/colorSystem';
 import { ONBOARDING_COMPLETE_KEY } from './lib/onboardingStorage';
-import { getStoredConnections } from './lib/discovery';
+import { getStoredConnections, getResonantPool } from './lib/discovery';
 import {
   saveProfileToCloud,
   loadProfileFromCloud,
@@ -127,7 +127,13 @@ export default function App() {
   };
 
 
-  const quickMatches = candidatePool.slice(0, 4);
+  // Home "Network Resonance" pool and the Chromatic Network Directory share the
+  // same colour-filtered ranking (>= 70% resonance).
+  const resonantPool = React.useMemo(
+    () => getResonantPool(currentUser, candidatePool),
+    [currentUser, candidatePool],
+  );
+  const quickMatches = resonantPool.slice(0, 4).map(r => r.candidate);
 
   return (
     <div className={`min-h-screen flex flex-col transition-colors ${
