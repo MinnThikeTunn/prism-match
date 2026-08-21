@@ -341,98 +341,120 @@ export const SynergyMatchView: React.FC<SynergyMatchViewProps> = ({
           <div>
             <div className="pb-4 border-b border-stone-100 mb-6">
               <h2 className="text-base font-bold text-stone-800">
-                Archetypal Color Resonance
+                How similar are you two?
               </h2>
               <p className="text-[11px] text-stone-400 mt-0.5">
-                5-channel continuous OKLCH spectral balance between both profiles
+                Each bar shows how closely you and {candidate.name} match on that trait — 100% means nearly identical.
               </p>
             </div>
 
-            {/* Pure Color Gradient Bars */}
             <div className="space-y-4">
               {(() => {
-                const sScore = Math.round(((requester.executionScore || 80) + (candidate.executionScore || 80)) / 2);
-                const oScore = Math.round(((requester.capabilityScore || 80) + (candidate.capabilityScore || 80)) / 2);
-                const vScore = Math.round(((requester.resonanceScore || 80) + (candidate.resonanceScore || 80)) / 2);
-                const rScore = Math.round((((requester.ocean?.openness || 80) + (candidate.ocean?.openness || 80))) / 2);
-                const cScore = Math.round((((requester.ocean?.conscientiousness || 80) + (candidate.ocean?.conscientiousness || 80))) / 2);
-
-                const getIntensityLabel = (score: number) => {
-                  if (score >= 94) return 'Full Luminous';
-                  if (score >= 90) return 'Deep Radiance';
-                  if (score >= 84) return 'Harmonic Depth';
-                  if (score >= 75) return 'Vibrant Tone';
-                  return 'Core Stability';
-                };
+                const sim = (a: number, b: number) =>
+                  Math.max(0, Math.round(100 - Math.abs((a ?? 0) - (b ?? 0))));
 
                 const channels = [
                   {
                     code: 'S',
-                    name: 'Solar Gold: Focus & Execution',
+                    name: 'Focus & Execution',
                     color: '#D97706',
                     gradient: 'from-amber-200 via-amber-400 to-[#D97706]',
                     textColor: 'text-amber-900',
-                    score: sScore,
+                    a: requester.executionScore ?? 0,
+                    b: candidate.executionScore ?? 0,
                   },
                   {
                     code: 'O',
-                    name: 'Oceanic Teal: Clarity & Systems Logic',
+                    name: 'Clarity & Systems Logic',
                     color: '#0A6275',
                     gradient: 'from-cyan-200 via-teal-400 to-[#0A6275]',
                     textColor: 'text-teal-900',
-                    score: oScore,
+                    a: requester.capabilityScore ?? 0,
+                    b: candidate.capabilityScore ?? 0,
                   },
                   {
                     code: 'V',
-                    name: 'Verdant Emerald: Empathy & Ethical Anchor',
+                    name: 'Empathy & Ethical Anchor',
                     color: '#059669',
                     gradient: 'from-emerald-200 via-emerald-400 to-[#059669]',
                     textColor: 'text-emerald-900',
-                    score: vScore,
+                    a: requester.resonanceScore ?? 0,
+                    b: candidate.resonanceScore ?? 0,
                   },
                   {
                     code: 'R',
-                    name: 'Royal Amethyst: Intuitive Synthesis & Vision',
+                    name: 'Curiosity & Vision',
                     color: '#7C3AED',
                     gradient: 'from-purple-200 via-purple-400 to-[#7C3AED]',
                     textColor: 'text-purple-900',
-                    score: rScore,
+                    a: requester.ocean?.openness ?? 0,
+                    b: candidate.ocean?.openness ?? 0,
                   },
                   {
                     code: 'C',
-                    name: 'Cobalt Blue: Reliability & Resilience',
+                    name: 'Reliability & Follow-through',
                     color: '#1D4ED8',
                     gradient: 'from-blue-200 via-blue-400 to-[#1D4ED8]',
                     textColor: 'text-blue-900',
-                    score: cScore,
+                    a: requester.ocean?.conscientiousness ?? 0,
+                    b: candidate.ocean?.conscientiousness ?? 0,
                   },
-                ];
+                ].map((ch) => ({ ...ch, score: sim(ch.a, ch.b) }));
 
-                return channels.map((ch) => (
-                  <div key={ch.code}>
-                    <div className="flex items-center justify-between text-xs font-semibold text-stone-800 mb-1.5">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="w-2.5 h-2.5 rounded-full shadow-2xs"
-                          style={{ backgroundColor: ch.color }}
-                        />
-                        <span>{ch.name}</span>
-                      </div>
-                      <span className={`text-[11px] font-bold ${ch.textColor}`}>
-                        {getIntensityLabel(ch.score)}
+                const overall = Math.round(
+                  channels.reduce((acc, c) => acc + c.score, 0) / channels.length,
+                );
+
+                const label = (score: number) => {
+                  if (score >= 90) return 'Almost identical';
+                  if (score >= 75) return 'Very similar';
+                  if (score >= 60) return 'Fairly similar';
+                  if (score >= 40) return 'Somewhat different';
+                  return 'Very different';
+                };
+
+                return (
+                  <>
+                    <div className="flex items-baseline justify-between rounded-xl bg-stone-50 border border-stone-100 px-4 py-3">
+                      <span className="text-xs font-semibold text-stone-600">
+                        Overall similarity
+                      </span>
+                      <span className="text-lg font-bold text-stone-900">
+                        {overall}%
                       </span>
                     </div>
-                    <div className="w-full bg-stone-100 rounded-full h-2 overflow-hidden shadow-inner">
-                      <div
-                        className={`h-2 rounded-full bg-gradient-to-r ${ch.gradient} transition-all duration-500 shadow-xs`}
-                        style={{ width: `${ch.score}%` }}
-                      />
-                    </div>
-                  </div>
-                ));
+
+                    {channels.map((ch) => (
+                      <div key={ch.code}>
+                        <div className="flex items-center justify-between text-xs font-semibold text-stone-800 mb-1.5">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="w-2.5 h-2.5 rounded-full shadow-2xs"
+                              style={{ backgroundColor: ch.color }}
+                            />
+                            <span>{ch.name}</span>
+                          </div>
+                          <span className={`text-[11px] font-bold ${ch.textColor}`}>
+                            {ch.score}% · {label(ch.score)}
+                          </span>
+                        </div>
+                        <div className="w-full bg-stone-100 rounded-full h-2 overflow-hidden shadow-inner">
+                          <div
+                            className={`h-2 rounded-full bg-gradient-to-r ${ch.gradient} transition-all duration-500 shadow-xs`}
+                            style={{ width: `${ch.score}%` }}
+                          />
+                        </div>
+                        <p className="text-[10px] text-stone-400 mt-1">
+                          You {Math.round(ch.a)} · {candidate.name} {Math.round(ch.b)}
+                        </p>
+                      </div>
+                    ))}
+                  </>
+                );
               })()}
             </div>
           </div>
+
 
           {/* Action Button */}
           <div className="mt-8 pt-6 border-t border-stone-100">
