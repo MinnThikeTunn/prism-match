@@ -1,25 +1,15 @@
 import React, { useState } from 'react';
-import { ConicRingVisual } from './ConicRingVisual';
 import { ChromaticCertificateCard } from './ChromaticCertificateCard';
 import { UserProfile } from '../types';
 import { 
   Palette, 
   ShieldCheck, 
-  Sparkles, 
   CheckCircle2, 
-  Award, 
-  FileText, 
   Check, 
   Copy, 
-  ExternalLink, 
   Users, 
-  ChevronRight, 
   Globe, 
-  Database, 
-  X, 
-  Sliders,
-  Layers,
-  Fingerprint
+  X
 } from 'lucide-react';
 import { generateIsoCertificate, IsoCertificateData } from '../lib/standardizationCertificate';
 import { getColorIdentity } from '../lib/colorSystem';
