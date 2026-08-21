@@ -563,41 +563,43 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                 </span>
               </div>
 
-              {/* Right: Zoom & Physics Controls */}
-              <div className="bg-stone-900/80 backdrop-blur-md border border-white/10 p-1 rounded-2xl pointer-events-auto flex items-center gap-1 shadow-lg">
-                <button
-                  onClick={() => setIsPhysicsRunning(!isPhysicsRunning)}
-                  className={`p-2 rounded-xl text-xs font-bold transition-colors ${
-                    isPhysicsRunning
-                      ? 'text-emerald-400 hover:bg-emerald-500/20'
-                      : 'text-amber-400 hover:bg-amber-500/20'
-                  }`}
-                  title={isPhysicsRunning ? 'Pause Physics' : 'Resume Physics'}
-                >
-                  {isPhysicsRunning ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                </button>
-                <button
-                  onClick={() => handleZoom('in')}
-                  className="p-2 text-stone-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
-                  title="Zoom In"
-                >
-                  <ZoomIn className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => handleZoom('out')}
-                  className="p-2 text-stone-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
-                  title="Zoom Out"
-                >
-                  <ZoomOut className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={handleResetView}
-                  className="p-2 text-stone-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
-                  title="Reset View"
-                >
-                  <Maximize2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
+              {/* Right: Zoom & Physics Controls (desktop only; mobile graph is static) */}
+              {!isMobile && (
+                <div className="bg-stone-900/80 backdrop-blur-md border border-white/10 p-1 rounded-2xl pointer-events-auto flex items-center gap-1 shadow-lg">
+                  <button
+                    onClick={() => setIsPhysicsRunning(!isPhysicsRunning)}
+                    className={`p-2 rounded-xl text-xs font-bold transition-colors ${
+                      isPhysicsRunning
+                        ? 'text-emerald-400 hover:bg-emerald-500/20'
+                        : 'text-amber-400 hover:bg-amber-500/20'
+                    }`}
+                    title={isPhysicsRunning ? 'Pause Physics' : 'Resume Physics'}
+                  >
+                    {isPhysicsRunning ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                  </button>
+                  <button
+                    onClick={() => handleZoom('in')}
+                    className="p-2 text-stone-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+                    title="Zoom In"
+                  >
+                    <ZoomIn className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => handleZoom('out')}
+                    className="p-2 text-stone-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+                    title="Zoom Out"
+                  >
+                    <ZoomOut className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={handleResetView}
+                    className="p-2 text-stone-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+                    title="Reset View"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Hint Badge at Bottom Left */}
