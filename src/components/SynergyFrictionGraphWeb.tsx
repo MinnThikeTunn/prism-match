@@ -18,6 +18,7 @@ import {
   X,
   Compass
 } from 'lucide-react';
+import { MobileSynergyBoard } from './MobileSynergyBoard';
 
 export interface Archetype {
   id: string;
@@ -92,6 +93,16 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
   const [searchQuery, setSearchQuery] = useState('');
   const [synergyFilter, setSynergyFilter] = useState<'all' | 'high' | 'ultra' | 'friction'>('all');
   const [isPhysicsRunning, setIsPhysicsRunning] = useState(true);
+
+  // Mobile = static, big touch UI (no physics, no canvas)
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
 
   // Selection & Hover States
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -182,7 +193,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
 
   // Physics Simulation Loop (Smooth spring-charge force calculation)
   useEffect(() => {
-    if (!isPhysicsRunning) return;
+    if (!isPhysicsRunning || isMobile) return;
 
     let animId: number;
     const simulate = () => {
@@ -277,7 +288,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
 
     animId = requestAnimationFrame(simulate);
     return () => cancelAnimationFrame(animId);
-  }, [isPhysicsRunning, links, draggedNodeId]);
+  }, [isPhysicsRunning, links, draggedNodeId, isMobile]);
 
   // Handle Zoom
   const handleZoom = (direction: 'in' | 'out') => {
@@ -447,7 +458,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
           </div>
 
           {/* View Mode Segmented Control */}
-          <div className="flex items-center gap-2 self-start lg:self-center shrink-0">
+          <div className="hidden md:flex items-center gap-2 self-start lg:self-center shrink-0">
             <div className="inline-flex p-1 bg-stone-100/80 rounded-2xl border border-stone-200">
               <button
                 onClick={() => setViewMode('graph')}
@@ -528,7 +539,9 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
       </div>
 
       {/* Main Interactive View Area */}
-      {viewMode === 'graph' ? (
+      {isMobile ? (
+        <MobileSynergyBoard archetypes={archetypes} pairs={filteredLinks} />
+      ) : viewMode === 'graph' ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left / Center: Obsidian Force Graph Canvas */}
           <div className="lg:col-span-12 xl:col-span-7 bg-[#0E1117] border border-stone-800 rounded-[32px] shadow-lg relative overflow-hidden min-h-[560px] flex flex-col justify-between" ref={containerRef}>
