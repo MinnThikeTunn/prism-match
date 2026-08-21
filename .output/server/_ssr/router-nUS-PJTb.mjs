@@ -13,7 +13,7 @@ import "../_libs/seroval-plugins.mjs";
 
 import "../_libs/react-dom.mjs";
 import "../_libs/isbot.mjs";
-const appCss = "/assets/styles-CHuV0gED.css";
+const appCss = "/assets/styles-CZlUCYGL.css";
 const Route$3 = createRootRoute({
   head: () => ({
     meta: [

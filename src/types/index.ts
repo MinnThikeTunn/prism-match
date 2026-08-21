@@ -109,6 +109,9 @@ export interface MatchResult {
   archetypalMetrics: ArchetypalMetric[];
   holisticBalance: number;
   isAiGeneratedExplanation?: boolean;
+  frictionRisk?: 'Low' | 'Low-Medium' | 'Medium' | 'High' | 'Critical';
+  frictionSummary?: string;
+  mitigationCadence?: string;
 }
 
 export interface CriteriaCardData {

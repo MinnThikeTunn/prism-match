@@ -175,9 +175,6 @@ export const MapsView: React.FC<MapsViewProps> = ({
   // Sub-Purpose Selection within Active Map Tier
   const [activeSubMode, setActiveSubMode] = useState<'ALL' | IntentSubMode>('ALL');
 
-  // Secondary Filter: Chromatic Spectrum Band
-  const [selectedColorBand, setSelectedColorBand] = useState<string>('ALL');
-
   // Selected & Hovered Candidate State
   const [selectedPinCandidate, setSelectedPinCandidate] = useState<UserProfile | null>(null);
   const [_hoveredCandidate, setHoveredCandidate] = useState<UserProfile | null>(null);
@@ -198,8 +195,7 @@ export const MapsView: React.FC<MapsViewProps> = ({
   // Filtered Candidates computation based on:
   // 1. Active Map Tier (Personal / Professional / Collaborative)
   // 2. Active Sub-Purpose (Dating, Friends, Activities / Networking, Mentorship, Study / Hackathon, Projects, Custom AI)
-  // 3. Chromatic Color Band (Solar Gold, Deep Teal, Verdant Green, Royal Purple)
-  // 4. Text Search
+  // 3. Text Search
   const filteredCandidates = useMemo(() => {
     return candidates.filter((c) => {
       // 1. Filter by Map Tier
@@ -214,16 +210,7 @@ export const MapsView: React.FC<MapsViewProps> = ({
         if (c.subMode !== activeSubMode) return false;
       }
 
-      // 3. Filter by Color Band
-      if (selectedColorBand !== 'ALL') {
-        const color = getColorIdentity(c.id);
-        if (selectedColorBand === 'GOLD' && !(color.primaryName.includes('Gold') || color.primaryName.includes('Amber') || color.secondaryName.includes('Gold'))) return false;
-        if (selectedColorBand === 'TEAL' && !(color.primaryName.includes('Teal') || color.secondaryName.includes('Teal') || color.primaryName.includes('Cyan') || color.primaryName.includes('Cobalt'))) return false;
-        if (selectedColorBand === 'GREEN' && !(color.primaryName.includes('Verdant') || color.primaryName.includes('Green') || color.primaryName.includes('Mint') || color.primaryName.includes('Emerald'))) return false;
-        if (selectedColorBand === 'PURPLE' && !(color.primaryName.includes('Purple') || color.primaryName.includes('Violet') || color.primaryName.includes('Amethyst') || color.secondaryName.includes('Amethyst'))) return false;
-      }
-
-      // 4. Filter by Text Search
+      // 3. Filter by Text Search
       if (searchFilter.trim()) {
         const q = searchFilter.toLowerCase();
         const matchesName = c.name.toLowerCase().includes(q);
@@ -238,7 +225,7 @@ export const MapsView: React.FC<MapsViewProps> = ({
 
       return true;
     });
-  }, [candidates, activeMapTier, activeSubMode, selectedColorBand, searchFilter]);
+  }, [candidates, activeMapTier, activeSubMode, searchFilter]);
 
   // Counts for each sub-mode pill within the active tier
   const subModeCounts = useMemo(() => {
@@ -265,75 +252,6 @@ export const MapsView: React.FC<MapsViewProps> = ({
             <h1 className="text-3xl sm:text-4xl font-black text-stone-900 tracking-tight">
               Prism Global Cartography
             </h1>
-            <p className="mt-1 text-xs sm:text-sm text-stone-500 max-w-2xl leading-relaxed">
-              Select one of the <strong>3 Map Cartographies</strong> to align spatial matching with your exact relational purpose.
-            </p>
-          </div>
-
-          {/* Quick Color Band Filter */}
-          <div className="flex items-center gap-1.5 p-1 bg-stone-100/90 rounded-2xl border border-stone-200/80">
-            <span className="text-[10px] font-bold text-stone-500 uppercase px-2">
-              Aura:
-            </span>
-            <button
-              onClick={() => setSelectedColorBand('ALL')}
-              className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all ${
-                selectedColorBand === 'ALL'
-                  ? 'bg-white text-stone-900 shadow-2xs'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-              id="map-color-all"
-            >
-              All
-            </button>
-            <button
-              onClick={() => setSelectedColorBand('GOLD')}
-              className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all flex items-center gap-1 ${
-                selectedColorBand === 'GOLD'
-                  ? 'bg-[#D97706] text-white shadow-2xs'
-                  : 'text-amber-800 hover:bg-amber-50'
-              }`}
-              id="map-color-gold"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D97706]" />
-              <span>Gold</span>
-            </button>
-            <button
-              onClick={() => setSelectedColorBand('TEAL')}
-              className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all flex items-center gap-1 ${
-                selectedColorBand === 'TEAL'
-                  ? 'bg-[#0A6275] text-white shadow-2xs'
-                  : 'text-teal-800 hover:bg-teal-50'
-              }`}
-              id="map-color-teal"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0A6275]" />
-              <span>Teal</span>
-            </button>
-            <button
-              onClick={() => setSelectedColorBand('GREEN')}
-              className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all flex items-center gap-1 ${
-                selectedColorBand === 'GREEN'
-                  ? 'bg-[#059669] text-white shadow-2xs'
-                  : 'text-emerald-800 hover:bg-emerald-50'
-              }`}
-              id="map-color-green"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#059669]" />
-              <span>Green</span>
-            </button>
-            <button
-              onClick={() => setSelectedColorBand('PURPLE')}
-              className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all flex items-center gap-1 ${
-                selectedColorBand === 'PURPLE'
-                  ? 'bg-[#7C3AED] text-white shadow-2xs'
-                  : 'text-purple-800 hover:bg-purple-50'
-              }`}
-              id="map-color-purple"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED]" />
-              <span>Purple</span>
-            </button>
           </div>
         </div>
 
@@ -394,15 +312,9 @@ export const MapsView: React.FC<MapsViewProps> = ({
                   <h3 className="text-base font-bold text-stone-900 group-hover:text-stone-950">
                     {tier.label}
                   </h3>
-                  <p className="text-xs text-stone-500 leading-relaxed">
-                    {tier.tagline}
-                  </p>
                 </div>
 
-                <div className="mt-3 pt-2 border-t border-stone-100 flex items-center justify-between text-[11px]">
-                  <span className="text-stone-400 font-medium">
-                    {tier.subModes.length - 1} Sub-purposes
-                  </span>
+                <div className="mt-3 pt-2 border-t border-stone-100 flex items-center justify-end text-[11px]">
                   <span 
                     className="font-bold flex items-center gap-1 transition-transform group-hover:translate-x-0.5"
                     style={{ color: tier.themeColor }}
@@ -424,16 +336,11 @@ export const MapsView: React.FC<MapsViewProps> = ({
             borderColor: `${currentTierConfig.themeColor}25`
           }}
         >
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2">
-              <currentTierConfig.icon className="w-4 h-4" style={{ color: currentTierConfig.themeColor }} />
-              <span className="text-xs font-bold text-stone-900 uppercase tracking-wider">
-                {currentTierConfig.label} Sub-Purposes:
-              </span>
-            </div>
-            <p className="text-xs text-stone-600">
-              Filter spatial pins by specific relational intent in this cartography.
-            </p>
+          <div className="flex items-center gap-2">
+            <currentTierConfig.icon className="w-4 h-4" style={{ color: currentTierConfig.themeColor }} />
+            <span className="text-xs font-bold text-stone-900 uppercase tracking-wider">
+              {currentTierConfig.label} Sub-Purposes:
+            </span>
           </div>
 
           {/* Sub-Purpose Pills */}
@@ -738,7 +645,6 @@ export const MapsView: React.FC<MapsViewProps> = ({
                   <button
                     onClick={() => {
                       setActiveSubMode('ALL');
-                      setSelectedColorBand('ALL');
                       setSearchFilter('');
                     }}
                     className="mt-2 px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold rounded-xl shadow-xs transition-colors"

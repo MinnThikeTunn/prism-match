@@ -440,12 +440,12 @@ export const ChromaticTestModal: React.FC<ChromaticTestModalProps> = ({
               </div>
               <div className="p-2.5 rounded-xl border border-teal-200 bg-teal-50/50">
                 <div className="w-3 h-3 rounded-full bg-[#0A6275] mb-1.5" />
-                <span className="block text-[11px] font-bold text-teal-950">Deep Teal</span>
+                <span className="block text-[11px] font-bold text-teal-950">Oceanic Teal</span>
                 <span className="block text-[10px] text-teal-900/70">Systems Logic</span>
               </div>
               <div className="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50">
                 <div className="w-3 h-3 rounded-full bg-[#059669] mb-1.5" />
-                <span className="block text-[11px] font-bold text-emerald-950">Verdant Mint</span>
+                <span className="block text-[11px] font-bold text-emerald-950">Verdant Emerald</span>
                 <span className="block text-[10px] text-emerald-900/70">Empathic Trust</span>
               </div>
               <div className="p-2.5 rounded-xl border border-purple-200 bg-purple-50/50">
@@ -631,24 +631,17 @@ export const ChromaticTestModal: React.FC<ChromaticTestModalProps> = ({
               <div className="space-y-2 text-center sm:text-left">
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                   <span 
-                    className="px-2.5 py-1 rounded-full text-xs font-bold border shadow-2xs"
+                    className="px-3 py-1 rounded-full text-xs font-bold border shadow-2xs flex items-center gap-1.5"
                     style={{ 
                       backgroundColor: `${assessmentResult.identity.primaryColor}20`,
                       color: assessmentResult.identity.primaryColor,
                       borderColor: `${assessmentResult.identity.primaryColor}40`
                     }}
                   >
-                    Primary: {assessmentResult.identity.primaryName}
-                  </span>
-                  <span 
-                    className="px-2.5 py-1 rounded-full text-xs font-bold border shadow-2xs"
-                    style={{ 
-                      backgroundColor: `${assessmentResult.identity.secondaryColor}20`,
-                      color: assessmentResult.identity.secondaryColor,
-                      borderColor: `${assessmentResult.identity.secondaryColor}40`
-                    }}
-                  >
-                    Secondary: {assessmentResult.identity.secondaryName}
+                    <span className="w-4 h-4 rounded-full text-white text-[10px] font-black flex items-center justify-center" style={{ backgroundColor: assessmentResult.identity.primaryColor }}>
+                      {assessmentResult.profileCode}
+                    </span>
+                    <span>Dominant Resonance: {assessmentResult.identity.primaryName}</span>
                   </span>
                 </div>
 
@@ -664,7 +657,7 @@ export const ChromaticTestModal: React.FC<ChromaticTestModalProps> = ({
               <div 
                 className="w-24 h-24 rounded-full p-2 shadow-xl shrink-0 flex items-center justify-center"
                 style={{ 
-                  background: `linear-gradient(135deg, ${assessmentResult.identity.primaryColor}, ${assessmentResult.identity.secondaryColor})` 
+                  background: `linear-gradient(135deg, ${assessmentResult.identity.primaryColor}, ${assessmentResult.identity.primaryColor}CC)` 
                 }}
               >
                 <div className="w-full h-full rounded-full bg-white flex flex-col items-center justify-center text-center p-1 shadow-inner">
@@ -689,7 +682,7 @@ export const ChromaticTestModal: React.FC<ChromaticTestModalProps> = ({
                   const meta: Record<string, { label: string; color: string }> = {
                     solar: { label: 'Solar Gold (Velocity)', color: '#D97706' },
                     teal: { label: 'Oceanic Teal (Architecture)', color: '#0A6275' },
-                    emerald: { label: 'Verdant Mint (Empathy)', color: '#059669' },
+                    emerald: { label: 'Verdant Emerald (Empathy)', color: '#059669' },
                     amethyst: { label: 'Royal Amethyst (Vision)', color: '#7C3AED' },
                     cobalt: { label: 'Cobalt Blue (Reliability)', color: '#1D4ED8' }
                   };

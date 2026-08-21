@@ -8,6 +8,8 @@ import { ProfileHeroCard } from './ProfileHeroCard';
 interface DashboardViewProps {
   currentUser: UserProfile;
   quickMatches: UserProfile[];
+  candidatePool?: UserProfile[];
+  connections?: string[];
   onSelectCandidate: (candidate: UserProfile) => void;
   onOpenNetworkModal: () => void;
   onOpenCustomMatch: () => void;
@@ -18,11 +20,18 @@ interface DashboardViewProps {
 export const DashboardView: React.FC<DashboardViewProps> = ({
   currentUser,
   quickMatches,
+  candidatePool = [],
+  connections = [],
   onSelectCandidate,
   onOpenNetworkModal,
   onNavigateToColors,
   onNavigateToMaps
 }) => {
+  const activeConnections = connections.length ? connections : getStoredConnections();
+  const connectedProfiles = candidatePool.filter(c => activeConnections.includes(c.id));
+  const [activeTab, setActiveTab] = React.useState<'connected' | 'pool'>(
+    connectedProfiles.length > 0 ? 'connected' : 'pool'
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 animate-in fade-in duration-300">
@@ -54,192 +63,283 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* Chromatic dossier hero (swapped in from the profile page) */}
           <ProfileHeroCard profile={currentUser} />
 
-
-
-
           {/* Dedicated Color System & Behavioral Science Banner Card */}
-          <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 text-[#D97706] flex items-center justify-center shrink-0">
-                <Palette className="w-5 h-5" />
-              </div>
+          <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 rounded-3xl p-6 text-white border border-stone-800 shadow-xl relative overflow-hidden">
+            <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[radial-gradient(circle_at_center,rgba(217,119,6,0.15),transparent_70%)] pointer-events-none" />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
               <div className="space-y-1">
-                <h4 className="text-sm font-bold text-stone-900 flex items-center gap-2">
-                  <span>Matchwise Chromatic Behavioral Model</span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100/70 text-[#D97706]">
-                    OKLCH Science
-                  </span>
-                </h4>
-                <p className="text-xs text-stone-500 max-w-xl">
-                  Learn how perceptual color frequencies define execution speed, systems thinking, empathy, and visionary intuition across team dynamics.
-                </p>
-              </div>
-            </div>
-
-            {onNavigateToColors && (
-              <button
-                onClick={onNavigateToColors}
-                className="flex items-center gap-1.5 px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold rounded-xl shadow-xs transition-all shrink-0"
-                id="dashboard-explore-color-system-btn"
-              >
-                <span>Explore Color System</span>
-                <ArrowRight className="w-3.5 h-3.5 text-amber-400" />
-              </button>
-            )}
-          </div>
-
-          {/* 3 Types of Maps Spatial Grid Banner */}
-          <div className="bg-gradient-to-br from-stone-900 via-stone-800 to-stone-950 text-white border border-stone-800 rounded-2xl p-6 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-amber-400 animate-spin" style={{ animationDuration: '20s' }} />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-400">
-                    Spatial Constellation Grid
-                  </span>
+                <div className="flex items-center gap-2 text-[#D97706] text-xs font-bold uppercase tracking-wider">
+                  <Palette className="w-4 h-4" />
+                  <span>Five-Color Chromatic Engine</span>
                 </div>
-                <h3 className="text-lg font-black tracking-tight text-white">
-                  3 Purpose-Aligned Maps
+                <h3 className="text-lg font-bold text-white">
+                  Discover Your Full Spectral Resonance
                 </h3>
-                <p className="text-xs text-stone-300 max-w-lg">
-                  Explore global nodes across Personal, Professional, and Collaborative spatial cartographies with sub-purpose filtering.
+                <p className="text-xs text-stone-300 max-w-xl">
+                  Deep-dive into Solar Gold (Execution), Oceanic Teal (Systems Logic), Verdant Emerald (Empathy), Royal Amethyst (Vision), and Cobalt Blue (Reliability) archetype synergy matrices.
                 </p>
               </div>
-
-              {onNavigateToMaps && (
+              {onNavigateToColors && (
                 <button
-                  onClick={() => onNavigateToMaps()}
-                  className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-2 shrink-0"
-                  id="dashboard-open-maps-btn"
+                  onClick={onNavigateToColors}
+                  className="px-4 py-2.5 bg-white text-stone-900 hover:bg-stone-100 text-xs font-bold rounded-xl transition-all flex items-center gap-2 shrink-0 shadow-md group cursor-pointer"
                 >
-                  <Globe className="w-3.5 h-3.5" />
-                  <span>Launch Maps</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <span>Explore Color Matrix</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </button>
               )}
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
-              <button
-                onClick={() => onNavigateToMaps && onNavigateToMaps('PERSONAL')}
-                className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-left transition-all group"
-              >
-                <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold mb-1">
-                  <Heart className="w-3.5 h-3.5" />
-                  <span>Personal Map</span>
+          {/* Three Tier Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div
+              onClick={() => onNavigateToMaps?.('PROFESSIONAL')}
+              className="bg-white border border-stone-200/80 rounded-2xl p-5 shadow-xs hover:border-[#D97706]/40 hover:shadow-md transition-all cursor-pointer group"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2 bg-amber-50 rounded-xl text-[#D97706]">
+                  <Briefcase className="w-5 h-5" />
                 </div>
-                <p className="text-[11px] text-stone-300">Dating, friendship & activity partners</p>
-              </button>
+                <span className="text-[10px] font-bold font-mono px-2 py-0.5 bg-stone-100 text-stone-600 rounded-md">
+                  TIER 1
+                </span>
+              </div>
+              <h4 className="text-sm font-bold text-stone-900 group-hover:text-[#D97706] transition-colors">
+                Professional
+              </h4>
+              <p className="text-xs text-stone-500 mt-1">
+                Hard skills, project deliverables & work styles.
+              </p>
+            </div>
 
-              <button
-                onClick={() => onNavigateToMaps && onNavigateToMaps('PROFESSIONAL')}
-                className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-left transition-all group"
-              >
-                <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold mb-1">
-                  <Briefcase className="w-3.5 h-3.5" />
-                  <span>Professional Map</span>
+            <div
+              onClick={() => onNavigateToMaps?.('COLLABORATIVE')}
+              className="bg-white border border-stone-200/80 rounded-2xl p-5 shadow-xs hover:border-[#0A6275]/40 hover:shadow-md transition-all cursor-pointer group"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2 bg-teal-50 rounded-xl text-[#0A6275]">
+                  <Globe className="w-5 h-5" />
                 </div>
-                <p className="text-[11px] text-stone-300">Networking, mentorship & study cohorts</p>
-              </button>
+                <span className="text-[10px] font-bold font-mono px-2 py-0.5 bg-stone-100 text-stone-600 rounded-md">
+                  TIER 2
+                </span>
+              </div>
+              <h4 className="text-sm font-bold text-stone-900 group-hover:text-[#0A6275] transition-colors">
+                Collaborative
+              </h4>
+              <p className="text-xs text-stone-500 mt-1">
+                Communication cadence, working rhythm & latency.
+              </p>
+            </div>
 
-              <button
-                onClick={() => onNavigateToMaps && onNavigateToMaps('COLLABORATIVE')}
-                className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-left transition-all group"
-              >
-                <div className="flex items-center gap-2 text-amber-400 text-xs font-bold mb-1">
-                  <Zap className="w-3.5 h-3.5" />
-                  <span>Collaborative Map</span>
+            <div
+              onClick={() => onNavigateToMaps?.('PERSONAL')}
+              className="bg-white border border-stone-200/80 rounded-2xl p-5 shadow-xs hover:border-[#059669]/40 hover:shadow-md transition-all cursor-pointer group"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2 bg-emerald-50 rounded-xl text-[#059669]">
+                  <Heart className="w-5 h-5" />
                 </div>
-                <p className="text-[11px] text-stone-300">Hackathon squads & venture co-founders</p>
-              </button>
+                <span className="text-[10px] font-bold font-mono px-2 py-0.5 bg-stone-100 text-stone-600 rounded-md">
+                  TIER 3
+                </span>
+              </div>
+              <h4 className="text-sm font-bold text-stone-900 group-hover:text-[#059669] transition-colors">
+                Personal
+              </h4>
+              <p className="text-xs text-stone-500 mt-1">
+                Core values, passions, philosophy & vibe.
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Right Column (4 cols): Quick Matches Card with Color Spectrum Identifiers */}
+        {/* Right Column (4 cols): Connected / Resonant Pool Panel */}
         <div className="lg:col-span-4">
           <div className="bg-white border border-stone-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between min-h-[500px]">
             <div>
-              {/* Card Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-stone-100">
+              {/* Card Header & Tabs */}
+              <div className="flex items-center justify-between pb-3 border-b border-stone-100">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-[#D97706]" />
                   <h2 className="text-base font-bold text-stone-900">
-                    Resonant Colors
+                    Network Resonance
                   </h2>
                 </div>
                 <button
                   onClick={onOpenNetworkModal}
                   className="p-1 text-stone-400 hover:text-stone-700 transition-colors"
-                  aria-label="Filter quick matches"
+                  aria-label="Filter network"
                 >
                   <SlidersHorizontal className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Match Items List with Pure Color Identifiers */}
-              <div className="mt-3 divide-y divide-stone-100">
-                {quickMatches.map((profile) => {
-                  const profColor = getColorIdentity(profile.id);
-                  const isUserConnected = getStoredConnections().includes(profile.id);
+              {/* Connected / Resonant Tab Switcher */}
+              <div className="flex gap-1.5 p-1 bg-stone-100 rounded-xl mt-3 mb-2">
+                <button
+                  onClick={() => setActiveTab('connected')}
+                  className={`flex-1 py-1.5 px-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                    activeTab === 'connected'
+                      ? 'bg-white text-stone-900 shadow-xs'
+                      : 'text-stone-500 hover:text-stone-800'
+                  }`}
+                >
+                  <Heart className={`w-3 h-3 ${activeTab === 'connected' ? 'fill-[#D97706] text-[#D97706]' : ''}`} />
+                  <span>Connected ({connectedProfiles.length})</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('pool')}
+                  className={`flex-1 py-1.5 px-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                    activeTab === 'pool'
+                      ? 'bg-white text-stone-900 shadow-xs'
+                      : 'text-stone-500 hover:text-stone-800'
+                  }`}
+                >
+                  <span>Resonant Pool</span>
+                </button>
+              </div>
 
-                  return (
-                    <div
-                      key={profile.id}
-                      onClick={() => onSelectCandidate(profile)}
-                      className="py-3.5 flex items-center justify-between hover:bg-stone-50/80 px-2 rounded-xl transition-all cursor-pointer group"
-                      id={`quick-match-card-${profile.id}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="relative">
-                          <img
-                            src={profile.avatar}
-                            alt={profile.name}
-                            className="w-10 h-10 rounded-full object-cover ring-2"
-                            style={{ borderColor: profColor.primaryColor }}
-                            referrerPolicy="no-referrer"
-                          />
-                          <span
-                            className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white shadow-xs"
-                            style={{ backgroundColor: profColor.primaryColor }}
-                          />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <h4 className="text-xs font-bold text-stone-900 group-hover:text-[#D97706] transition-colors">
-                              {profile.name}
-                            </h4>
-                            {isUserConnected && (
-                              <span title="Connected Profile">
-                                <Heart className="w-3 h-3 fill-[#D97706] text-[#D97706]" />
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-[11px] text-stone-400">
-                            {profile.title}
-                          </p>
-                        </div>
+              {/* Items List */}
+              <div className="mt-2 divide-y divide-stone-100 max-h-[380px] overflow-y-auto">
+                {activeTab === 'connected' ? (
+                  connectedProfiles.length === 0 ? (
+                    <div className="py-8 text-center px-4">
+                      <div className="w-10 h-10 mx-auto rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center text-[#D97706] mb-2">
+                        <Heart className="w-5 h-5" />
                       </div>
-
-                      <div className="text-right">
-                        <span
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border shadow-2xs"
-                          style={{
-                            backgroundColor: `${profColor.primaryColor}15`,
-                            color: profColor.primaryColor,
-                            borderColor: `${profColor.primaryColor}30`
-                          }}
-                        >
-                          <span
-                            className="w-1.5 h-1.5 rounded-full"
-                            style={{ backgroundColor: profColor.primaryColor }}
-                          />
-                          {profColor.primaryName}
-                        </span>
-                      </div>
+                      <h4 className="text-xs font-bold text-stone-800">No connections yet</h4>
+                      <p className="text-[11px] text-stone-500 mt-1">
+                        Connect with peers during onboarding or browse the network directory.
+                      </p>
+                      <button
+                        onClick={onOpenNetworkModal}
+                        className="mt-3 px-3 py-1.5 bg-stone-900 text-white rounded-lg text-xs font-bold hover:bg-stone-800 transition-colors"
+                      >
+                        Explore Network
+                      </button>
                     </div>
-                  );
-                })}
+                  ) : (
+                    connectedProfiles.map((profile) => {
+                      const profColor = getColorIdentity(profile.id, profile);
+                      return (
+                        <div
+                          key={profile.id}
+                          onClick={() => onSelectCandidate(profile)}
+                          className="py-3 flex items-center justify-between hover:bg-amber-50/40 px-2 rounded-xl transition-all cursor-pointer group"
+                          id={`connected-card-${profile.id}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <img
+                                src={profile.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+                                alt={profile.name}
+                                className="w-10 h-10 rounded-full object-cover ring-2"
+                                style={{ borderColor: profColor.primaryColor }}
+                                referrerPolicy="no-referrer"
+                              />
+                              <span
+                                className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white shadow-xs"
+                                style={{ backgroundColor: profColor.primaryColor }}
+                              />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <h4 className="text-xs font-bold text-stone-900 group-hover:text-[#D97706] transition-colors">
+                                  {profile.name}
+                                </h4>
+                                <Heart className="w-3 h-3 fill-[#D97706] text-[#D97706]" />
+                              </div>
+                              <p className="text-[11px] text-stone-400 truncate max-w-[150px]">
+                                {profile.title}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="text-right">
+                            <span
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border shadow-2xs"
+                              style={{
+                                backgroundColor: `${profColor.primaryColor}15`,
+                                color: profColor.primaryColor,
+                                borderColor: `${profColor.primaryColor}30`
+                              }}
+                            >
+                              <span
+                                className="w-1.5 h-1.5 rounded-full"
+                                style={{ backgroundColor: profColor.primaryColor }}
+                              />
+                              {profColor.primaryName}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )
+                ) : (
+                  quickMatches.map((profile) => {
+                    const profColor = getColorIdentity(profile.id, profile);
+                    const isUserConnected = activeConnections.includes(profile.id);
+
+                    return (
+                      <div
+                        key={profile.id}
+                        onClick={() => onSelectCandidate(profile)}
+                        className="py-3.5 flex items-center justify-between hover:bg-stone-50/80 px-2 rounded-xl transition-all cursor-pointer group"
+                        id={`quick-match-card-${profile.id}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="relative">
+                            <img
+                              src={profile.avatar}
+                              alt={profile.name}
+                              className="w-10 h-10 rounded-full object-cover ring-2"
+                              style={{ borderColor: profColor.primaryColor }}
+                              referrerPolicy="no-referrer"
+                            />
+                            <span
+                              className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white shadow-xs"
+                              style={{ backgroundColor: profColor.primaryColor }}
+                            />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <h4 className="text-xs font-bold text-stone-900 group-hover:text-[#D97706] transition-colors">
+                                {profile.name}
+                              </h4>
+                              {isUserConnected && (
+                                <span title="Connected Profile">
+                                  <Heart className="w-3 h-3 fill-[#D97706] text-[#D97706]" />
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-stone-400">
+                              {profile.title}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <span
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border shadow-2xs"
+                            style={{
+                              backgroundColor: `${profColor.primaryColor}15`,
+                              color: profColor.primaryColor,
+                              borderColor: `${profColor.primaryColor}30`
+                            }}
+                          >
+                            <span
+                              className="w-1.5 h-1.5 rounded-full"
+                              style={{ backgroundColor: profColor.primaryColor }}
+                            />
+                            {profColor.primaryName}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
 

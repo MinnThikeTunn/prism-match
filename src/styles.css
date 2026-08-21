@@ -7,3 +7,20 @@
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
 }
+
+@media print {
+  header, footer, nav, .no-print {
+    display: none !important;
+  }
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .certificate-print-root {
+    box-shadow: none !important;
+    border-width: 4px !important;
+    margin: 0 !important;
+    page-break-inside: avoid !important;
+  }
+}
+

@@ -2,31 +2,49 @@ import { UserProfile, ChromaticSpec } from '../types';
 
 export const CHROMATIC_SPEC_PRESETS: ChromaticSpec[] = [
   {
-    name: 'SOLAR RESONANCE',
-    dotColor: '#935815', // Warm bronze/gold
+    name: 'SOLAR GOLD',
+    dotColor: '#D97706',
     l: 0.85,
     c: 0.12,
-    h: 75.5,
+    h: 75.0,
     channel: 'SOLAR',
     description: 'Strategic execution, velocity, and delivery drive.'
   },
   {
-    name: 'DEEP TEAL ANCHOR',
-    dotColor: '#0A6275', // Deep cyan/teal
+    name: 'OCEANIC TEAL',
+    dotColor: '#0A6275',
     l: 0.45,
     c: 0.08,
-    h: 220.1,
+    h: 195.0,
     channel: 'NEXUS',
-    description: 'Cognitive architecture, systems modeling, and domain mastery.'
+    description: 'Cognitive architecture, systems modeling, and formal schema rigor.'
   },
   {
-    name: 'VERDANT SPARK',
-    dotColor: '#28976C', // Mint green/emerald
+    name: 'VERDANT EMERALD',
+    dotColor: '#059669',
     l: 0.78,
     c: 0.15,
-    h: 155.3,
+    h: 155.0,
     channel: 'RESONANCE',
-    description: 'Ethical governance, psychological safety, and philosophical congruence.'
+    description: 'Ethical governance, psychological safety, and team equilibrium.'
+  },
+  {
+    name: 'ROYAL AMETHYST',
+    dotColor: '#7C3AED',
+    l: 0.70,
+    c: 0.18,
+    h: 290.0,
+    channel: 'NEXUS',
+    description: 'Visionary synthesis, lateral discovery, and cross-domain innovation.'
+  },
+  {
+    name: 'COBALT BLUE',
+    dotColor: '#1D4ED8',
+    l: 0.50,
+    c: 0.16,
+    h: 245.0,
+    channel: 'SOLAR',
+    description: 'Deterministic reliability, infrastructure resilience, and zero-defect discipline.'
   }
 ];
 
@@ -43,10 +61,10 @@ export const CURRENT_USER: UserProfile = {
   prismId: 'MW-9842-AX',
   verifiedAt: '2024-05-14T08:30:00Z',
   ocean: {
-    openness: 94,
+    openness: 86,
     conscientiousness: 88,
-    extraversion: 72,
-    agreeableness: 91,
+    extraversion: 78,
+    agreeableness: 88,
     neuroticism: 22
   },
   needsOffers: {
@@ -61,16 +79,16 @@ export const CURRENT_USER: UserProfile = {
     location: 'Global / Remote'
   },
   spectrum: {
-    solarResonance: 88,
-    deepTealAnchor: 92,
-    verdantSpark: 96,
-    dominantSignature: 'High Blue-Gold Synergy',
+    solarResonance: 96,
+    deepTealAnchor: 90,
+    verdantSpark: 88,
+    dominantSignature: 'Solar Gold Radiance',
     globalSynergyScore: 94,
     chromaticSpecs: CHROMATIC_SPEC_PRESETS
   },
-  executionScore: 88,
-  capabilityScore: 92,
-  resonanceScore: 96,
+  executionScore: 96,
+  capabilityScore: 90,
+  resonanceScore: 88,
   availabilityHoursPerWeek: 20,
   communicationLatency: 'Async-first, high depth',
   riskTolerance: 'Experimental iteration with structural safety rails'
@@ -91,7 +109,7 @@ export const MOCK_PROFILES: UserProfile[] = [
     verifiedAt: '2024-05-12T14:15:00Z',
     ocean: {
       openness: 91,
-      conscientiousness: 96,
+      conscientiousness: 92,
       extraversion: 65,
       agreeableness: 89,
       neuroticism: 18
@@ -109,14 +127,14 @@ export const MOCK_PROFILES: UserProfile[] = [
     },
     spectrum: {
       solarResonance: 90,
-      deepTealAnchor: 95,
+      deepTealAnchor: 98,
       verdantSpark: 92,
-      dominantSignature: 'High Blue-Gold Synergy',
-      globalSynergyScore: 91,
+      dominantSignature: 'Oceanic Teal Radiance',
+      globalSynergyScore: 94,
       chromaticSpecs: CHROMATIC_SPEC_PRESETS
     },
     executionScore: 90,
-    capabilityScore: 95,
+    capabilityScore: 98,
     resonanceScore: 92,
     availabilityHoursPerWeek: 18,
     communicationLatency: 'Async-first, structured docs',
@@ -135,7 +153,7 @@ export const MOCK_PROFILES: UserProfile[] = [
     prismId: 'MW-4109-ET',
     verifiedAt: '2024-05-10T10:00:00Z',
     ocean: {
-      openness: 89,
+      openness: 86,
       conscientiousness: 98,
       extraversion: 60,
       agreeableness: 88,
@@ -153,16 +171,16 @@ export const MOCK_PROFILES: UserProfile[] = [
       location: 'Remote'
     },
     spectrum: {
-      solarResonance: 96,
-      deepTealAnchor: 98,
-      verdantSpark: 90,
-      dominantSignature: 'Hyper-Structured Solar Nexus',
-      globalSynergyScore: 98,
+      solarResonance: 92,
+      deepTealAnchor: 94,
+      verdantSpark: 88,
+      dominantSignature: 'Cobalt Blue Radiance',
+      globalSynergyScore: 95,
       chromaticSpecs: CHROMATIC_SPEC_PRESETS
     },
-    executionScore: 96,
-    capabilityScore: 98,
-    resonanceScore: 90,
+    executionScore: 92,
+    capabilityScore: 94,
+    resonanceScore: 88,
     availabilityHoursPerWeek: 25,
     communicationLatency: 'High responsiveness, asynchronous PR-driven',
     riskTolerance: 'Pragmatic security and bulletproof fallbacks'
@@ -181,7 +199,7 @@ export const MOCK_PROFILES: UserProfile[] = [
     verifiedAt: '2024-05-08T16:20:00Z',
     ocean: {
       openness: 95,
-      conscientiousness: 92,
+      conscientiousness: 90,
       extraversion: 76,
       agreeableness: 97,
       neuroticism: 14
@@ -201,8 +219,8 @@ export const MOCK_PROFILES: UserProfile[] = [
       solarResonance: 89,
       deepTealAnchor: 93,
       verdantSpark: 99,
-      dominantSignature: 'Resonant Verdant Anchor',
-      globalSynergyScore: 94,
+      dominantSignature: 'Verdant Emerald Radiance',
+      globalSynergyScore: 96,
       chromaticSpecs: CHROMATIC_SPEC_PRESETS
     },
     executionScore: 89,
@@ -226,7 +244,7 @@ export const MOCK_PROFILES: UserProfile[] = [
     verifiedAt: '2024-05-05T09:45:00Z',
     ocean: {
       openness: 82,
-      conscientiousness: 95,
+      conscientiousness: 90,
       extraversion: 88,
       agreeableness: 84,
       neuroticism: 20
@@ -243,16 +261,16 @@ export const MOCK_PROFILES: UserProfile[] = [
       location: 'New York / Hybrid'
     },
     spectrum: {
-      solarResonance: 94,
-      deepTealAnchor: 85,
-      verdantSpark: 88,
-      dominantSignature: 'Solar Momentum Lead',
-      globalSynergyScore: 89,
+      solarResonance: 96,
+      deepTealAnchor: 88,
+      verdantSpark: 86,
+      dominantSignature: 'Solar Gold Radiance',
+      globalSynergyScore: 92,
       chromaticSpecs: CHROMATIC_SPEC_PRESETS
     },
-    executionScore: 94,
-    capabilityScore: 85,
-    resonanceScore: 88,
+    executionScore: 96,
+    capabilityScore: 88,
+    resonanceScore: 86,
     availabilityHoursPerWeek: 30,
     communicationLatency: 'Rapid synchronous bursts & clear dashboards',
     riskTolerance: 'Calculated milestones with sprint velocity'
@@ -270,8 +288,8 @@ export const MOCK_PROFILES: UserProfile[] = [
     prismId: 'MW-8831-ER',
     verifiedAt: '2024-05-02T11:30:00Z',
     ocean: {
-      openness: 98,
-      conscientiousness: 91,
+      openness: 99,
+      conscientiousness: 88,
       extraversion: 55,
       agreeableness: 90,
       neuroticism: 25
@@ -289,15 +307,15 @@ export const MOCK_PROFILES: UserProfile[] = [
     },
     spectrum: {
       solarResonance: 86,
-      deepTealAnchor: 99,
-      verdantSpark: 91,
-      dominantSignature: 'Deep Cognitive Nexus',
-      globalSynergyScore: 93,
+      deepTealAnchor: 95,
+      verdantSpark: 90,
+      dominantSignature: 'Royal Amethyst Radiance',
+      globalSynergyScore: 94,
       chromaticSpecs: CHROMATIC_SPEC_PRESETS
     },
     executionScore: 86,
-    capabilityScore: 99,
-    resonanceScore: 91,
+    capabilityScore: 95,
+    resonanceScore: 90,
     availabilityHoursPerWeek: 20,
     communicationLatency: 'Async-first, technical notebooks',
     riskTolerance: 'Deep exploratory research with high upside'
@@ -315,7 +333,7 @@ export const MOCK_PROFILES: UserProfile[] = [
     prismId: 'MW-3190-MC',
     verifiedAt: '2024-05-01T07:10:00Z',
     ocean: {
-      openness: 96,
+      openness: 98,
       conscientiousness: 84,
       extraversion: 78,
       agreeableness: 93,
@@ -334,15 +352,15 @@ export const MOCK_PROFILES: UserProfile[] = [
     },
     spectrum: {
       solarResonance: 85,
-      deepTealAnchor: 91,
-      verdantSpark: 95,
-      dominantSignature: 'Luminescent Creative Prism',
-      globalSynergyScore: 90,
+      deepTealAnchor: 90,
+      verdantSpark: 94,
+      dominantSignature: 'Royal Amethyst Radiance',
+      globalSynergyScore: 92,
       chromaticSpecs: CHROMATIC_SPEC_PRESETS
     },
     executionScore: 85,
-    capabilityScore: 91,
-    resonanceScore: 95,
+    capabilityScore: 90,
+    resonanceScore: 94,
     availabilityHoursPerWeek: 22,
     communicationLatency: 'Visual moodboards and responsive chat',
     riskTolerance: 'Bold aesthetic experimentation'
@@ -363,7 +381,7 @@ export const MOCK_PROFILES: UserProfile[] = [
       openness: 94,
       conscientiousness: 89,
       extraversion: 70,
-      agreeableness: 95,
+      agreeableness: 96,
       neuroticism: 16
     },
     needsOffers: {
@@ -380,14 +398,14 @@ export const MOCK_PROFILES: UserProfile[] = [
     spectrum: {
       solarResonance: 87,
       deepTealAnchor: 94,
-      verdantSpark: 97,
-      dominantSignature: 'Verdant Nexus Resonance',
-      globalSynergyScore: 93,
+      verdantSpark: 98,
+      dominantSignature: 'Verdant Emerald Radiance',
+      globalSynergyScore: 94,
       chromaticSpecs: CHROMATIC_SPEC_PRESETS
     },
     executionScore: 87,
     capabilityScore: 94,
-    resonanceScore: 97,
+    resonanceScore: 98,
     availabilityHoursPerWeek: 16,
     communicationLatency: 'Bi-weekly synchronous deep dives',
     riskTolerance: 'Evidence-based iterative validation'
@@ -406,7 +424,7 @@ export const MOCK_PROFILES: UserProfile[] = [
     verifiedAt: '2024-05-18T12:00:00Z',
     ocean: {
       openness: 88,
-      conscientiousness: 97,
+      conscientiousness: 98,
       extraversion: 62,
       agreeableness: 86,
       neuroticism: 12
@@ -424,15 +442,15 @@ export const MOCK_PROFILES: UserProfile[] = [
     },
     spectrum: {
       solarResonance: 95,
-      deepTealAnchor: 97,
-      verdantSpark: 89,
-      dominantSignature: 'Solar Deep Teal Matrix',
+      deepTealAnchor: 94,
+      verdantSpark: 88,
+      dominantSignature: 'Cobalt Blue Radiance',
       globalSynergyScore: 96,
       chromaticSpecs: CHROMATIC_SPEC_PRESETS
     },
     executionScore: 95,
-    capabilityScore: 97,
-    resonanceScore: 89,
+    capabilityScore: 94,
+    resonanceScore: 88,
     availabilityHoursPerWeek: 25,
     communicationLatency: 'Real-time chat & async PR reviews',
     riskTolerance: 'Calculated high-throughput resilience'
@@ -469,14 +487,14 @@ export const MOCK_PROFILES: UserProfile[] = [
     },
     spectrum: {
       solarResonance: 92,
-      deepTealAnchor: 96,
+      deepTealAnchor: 97,
       verdantSpark: 93,
-      dominantSignature: 'Cyan Emerald Vector',
+      dominantSignature: 'Oceanic Teal Radiance',
       globalSynergyScore: 94,
       chromaticSpecs: CHROMATIC_SPEC_PRESETS
     },
     executionScore: 92,
-    capabilityScore: 96,
+    capabilityScore: 97,
     resonanceScore: 93,
     availabilityHoursPerWeek: 20,
     communicationLatency: 'Async-first with clear visual demos',
@@ -495,10 +513,10 @@ export const MOCK_PROFILES: UserProfile[] = [
     prismId: 'MW-2940-CL',
     verifiedAt: '2024-05-22T08:15:00Z',
     ocean: {
-      openness: 97,
+      openness: 96,
       conscientiousness: 86,
       extraversion: 72,
-      agreeableness: 96,
+      agreeableness: 97,
       neuroticism: 19
     },
     needsOffers: {
@@ -516,7 +534,7 @@ export const MOCK_PROFILES: UserProfile[] = [
       solarResonance: 84,
       deepTealAnchor: 92,
       verdantSpark: 98,
-      dominantSignature: 'Verdant Rose Synthesis',
+      dominantSignature: 'Verdant Emerald Radiance',
       globalSynergyScore: 95,
       chromaticSpecs: CHROMATIC_SPEC_PRESETS
     },
@@ -540,8 +558,8 @@ export const MOCK_PROFILES: UserProfile[] = [
     prismId: 'MW-6518-MS',
     verifiedAt: '2024-05-25T14:40:00Z',
     ocean: {
-      openness: 93,
-      conscientiousness: 88,
+      openness: 91,
+      conscientiousness: 97,
       extraversion: 85,
       agreeableness: 92,
       neuroticism: 14
@@ -558,16 +576,16 @@ export const MOCK_PROFILES: UserProfile[] = [
       location: 'Barcelona / Pyrenees'
     },
     spectrum: {
-      solarResonance: 91,
+      solarResonance: 92,
       deepTealAnchor: 88,
-      verdantSpark: 96,
-      dominantSignature: 'Solar Verdant Cadence',
-      globalSynergyScore: 92,
+      verdantSpark: 90,
+      dominantSignature: 'Cobalt Blue Radiance',
+      globalSynergyScore: 93,
       chromaticSpecs: CHROMATIC_SPEC_PRESETS
     },
-    executionScore: 91,
+    executionScore: 92,
     capabilityScore: 88,
-    resonanceScore: 96,
+    resonanceScore: 90,
     availabilityHoursPerWeek: 18,
     communicationLatency: 'Real-time weekend plans & voice notes',
     riskTolerance: 'High outdoor energy and calculated physical agility'
@@ -586,7 +604,7 @@ export const MOCK_PROFILES: UserProfile[] = [
     verifiedAt: '2024-05-26T10:20:00Z',
     ocean: {
       openness: 90,
-      conscientiousness: 98,
+      conscientiousness: 95,
       extraversion: 75,
       agreeableness: 94,
       neuroticism: 11
@@ -606,7 +624,7 @@ export const MOCK_PROFILES: UserProfile[] = [
       solarResonance: 93,
       deepTealAnchor: 99,
       verdantSpark: 94,
-      dominantSignature: 'Oceanic Cobalt Anchor',
+      dominantSignature: 'Oceanic Teal Radiance',
       globalSynergyScore: 97,
       chromaticSpecs: CHROMATIC_SPEC_PRESETS
     },
@@ -630,8 +648,8 @@ export const MOCK_PROFILES: UserProfile[] = [
     prismId: 'MW-3381-ZN',
     verifiedAt: '2024-05-28T18:00:00Z',
     ocean: {
-      openness: 96,
-      conscientiousness: 94,
+      openness: 99,
+      conscientiousness: 90,
       extraversion: 80,
       agreeableness: 89,
       neuroticism: 15
@@ -648,15 +666,15 @@ export const MOCK_PROFILES: UserProfile[] = [
       location: 'Berlin / Europe / Remote'
     },
     spectrum: {
-      solarResonance: 98,
-      deepTealAnchor: 95,
+      solarResonance: 95,
+      deepTealAnchor: 92,
       verdantSpark: 88,
-      dominantSignature: 'Solar Amethyst High-Velocity Core',
+      dominantSignature: 'Royal Amethyst Radiance',
       globalSynergyScore: 96,
       chromaticSpecs: CHROMATIC_SPEC_PRESETS
     },
-    executionScore: 98,
-    capabilityScore: 95,
+    executionScore: 95,
+    capabilityScore: 92,
     resonanceScore: 88,
     availabilityHoursPerWeek: 28,
     communicationLatency: 'Discord/Slack rapid turnaround, live pair programming',

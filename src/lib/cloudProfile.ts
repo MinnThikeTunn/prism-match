@@ -7,6 +7,7 @@ import {
 } from './onboarding.functions';
 import { getDeviceToken, storeProfileId } from './deviceIdentity';
 import { MATCH_FEATURES_STORAGE_KEY, ONBOARDING_COMPLETE_KEY } from './onboardingStorage';
+import { deriveColorIdentityFromProfile, saveUserCustomColorIdentity } from './colorSystem';
 
 const USER_PROFILE_KEY = 'matchwise_user_profile';
 
@@ -20,6 +21,10 @@ export function cacheProfileLocally(profile: UserProfile, features?: MatchFeatur
   try {
     localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile));
     if (features) localStorage.setItem(MATCH_FEATURES_STORAGE_KEY, JSON.stringify(features));
+    const colorIdentity = deriveColorIdentityFromProfile(profile);
+    saveUserCustomColorIdentity(profile.id, colorIdentity);
+    saveUserCustomColorIdentity('user-current-alex', colorIdentity);
+    localStorage.setItem('matchwise_chromatic_test_completed', 'true');
   } catch {
     /* ignore */
   }

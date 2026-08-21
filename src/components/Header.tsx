@@ -46,7 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const userColor = getColorIdentity(currentUser.id);
+  const userColor = getColorIdentity(currentUser?.id, currentUser);
 
   // Close mobile drawer on Escape key
   useEffect(() => {
@@ -109,12 +109,6 @@ export const Header: React.FC<HeaderProps> = ({
       label: 'Color System',
       icon: Palette,
       description: '5 Core channels & harmonic archetype matrix'
-    },
-    {
-      id: 'profile' as ViewMode,
-      label: 'Profile',
-      icon: User,
-      description: 'Big Five psychometrics & vector parameters'
     }
   ];
 

@@ -181,7 +181,7 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
                         {candColor.primaryName}
                       </span>
                       <div className="text-[10px] font-semibold text-stone-400 mt-0.5">
-                        {harmonic.title}
+                        {candColor.harmonicTitle}
                       </div>
                     </div>
 

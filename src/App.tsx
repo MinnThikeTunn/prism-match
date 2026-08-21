@@ -15,6 +15,7 @@ import { CURRENT_USER, MOCK_PROFILES } from './data/mockData';
 import { UserProfile, ViewMode } from './types';
 import { ChromaticAssessmentResult } from './lib/colorSystem';
 import { ONBOARDING_COMPLETE_KEY } from './lib/onboardingStorage';
+import { getStoredConnections } from './lib/discovery';
 import {
   saveProfileToCloud,
   loadProfileFromCloud,
@@ -38,6 +39,7 @@ export default function App() {
     return CURRENT_USER;
   });
 
+  const [connections, setConnections] = useState<string[]>(() => getStoredConnections());
   const [candidatePool, setCandidatePool] = useState<UserProfile[]>(MOCK_PROFILES);
   const [selectedCandidate, setSelectedCandidate] = useState<UserProfile>(
     MOCK_PROFILES.find(p => p.id === 'user-sam-reed') || MOCK_PROFILES[3]
@@ -149,6 +151,8 @@ export default function App() {
           <DashboardView
             currentUser={currentUser}
             quickMatches={quickMatches}
+            candidatePool={candidatePool}
+            connections={connections}
             onSelectCandidate={handleSelectCandidate}
             onOpenNetworkModal={() => setIsNetworkOpen(true)}
             onOpenCustomMatch={() => setIsCustomMatchOpen(true)}
@@ -168,7 +172,10 @@ export default function App() {
         )}
 
         {currentView === 'verification' && (
-          <VerificationView currentUser={currentUser} />
+          <VerificationView 
+            currentUser={currentUser} 
+            candidatePool={candidatePool}
+          />
         )}
 
         {currentView === 'profile' && (
@@ -179,6 +186,7 @@ export default function App() {
             onSelectCandidateSynergy={handleSelectCandidate}
             onNavigateToColors={() => setCurrentView('colors')}
             onOpenChromaticTest={() => setIsChromaticTestOpen(true)}
+            onNavigateToVerification={() => setCurrentView('verification')}
           />
         )}
 
@@ -234,6 +242,7 @@ export default function App() {
         candidatePool={candidatePool}
         onComplete={(updated, features) => {
           setCurrentUser(updated);
+          setConnections(getStoredConnections());
           cacheProfileLocally(updated, features);
           markOnboardingComplete();
           void saveProfileToCloud(updated, features, true);

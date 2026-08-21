@@ -1,21 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import { 
   Palette, 
   Sparkles, 
-  Brain, 
-  Sliders, 
-  ArrowRight, 
-  Check, 
-  Info 
+  ArrowRight 
 } from 'lucide-react';
 import { SynergyFrictionGraphWeb, HarmonicPair } from './SynergyFrictionGraphWeb';
 
-interface Archetype {
+export interface Archetype {
   id: string;
+  code: 'S' | 'O' | 'V' | 'R' | 'C';
   name: string;
   title: string;
   primaryColor: string;
-  secondaryColor: string;
   gradientClass: string;
   bgGradient: string;
   tagline: string;
@@ -41,12 +37,12 @@ interface Archetype {
 const CHROMATIC_ARCHETYPES: Archetype[] = [
   {
     id: 'solar-catalyst',
+    code: 'S',
     name: 'The Solar Catalyst',
-    title: 'High-Velocity Execution Driver',
+    title: 'High-Velocity Execution Driver (Solar Gold)',
     primaryColor: '#D97706',
-    secondaryColor: '#EA580C',
-    gradientClass: 'from-[#D97706] to-[#EA580C]',
-    bgGradient: 'radial-gradient(circle, rgba(217,119,6,0.15) 0%, rgba(234,88,12,0.08) 100%)',
+    gradientClass: 'from-[#D97706] to-[#B45309]',
+    bgGradient: 'radial-gradient(circle, rgba(217,119,6,0.18) 0%, rgba(217,119,6,0.06) 100%)',
     tagline: 'Translates ambiguity into tangible velocity within hours.',
     behaviorSummary: 'Possesses exceptional directive agency and bias for shipping. Excels at unblocking stalled initiatives, driving sprint deadlines, and turning abstract strategies into running software.',
     cadence: {
@@ -64,16 +60,16 @@ const CHROMATIC_ARCHETYPES: Archetype[] = [
     },
     strengths: ['0-to-1 Momentum', 'Unblocking Teams', 'Bias for Action', 'Decisive Prioritization'],
     blindspots: ['May bypass edge-case documentation', 'Impatient with prolonged consensus'],
-    optimalCounterpart: 'The Oceanic Architect (Deep Teal) to ensure structural longevity'
+    optimalCounterpart: 'The Oceanic Architect (Oceanic Teal) to ensure structural longevity'
   },
   {
     id: 'oceanic-architect',
+    code: 'O',
     name: 'The Oceanic Architect',
-    title: 'Systems & Cognitive Theorist',
+    title: 'Systems & Cognitive Theorist (Oceanic Teal)',
     primaryColor: '#0A6275',
-    secondaryColor: '#0891B2',
     gradientClass: 'from-[#0A6275] to-[#0891B2]',
-    bgGradient: 'radial-gradient(circle, rgba(10,98,117,0.15) 0%, rgba(8,145,178,0.08) 100%)',
+    bgGradient: 'radial-gradient(circle, rgba(10,98,117,0.18) 0%, rgba(10,98,117,0.06) 100%)',
     tagline: 'Builds fault-tolerant abstractions designed to scale for decades.',
     behaviorSummary: 'Characterized by high analytical bandwidth and structural precision. Prefers deep async memos, formal system specifications, and meticulous root-cause investigations.',
     cadence: {
@@ -95,12 +91,12 @@ const CHROMATIC_ARCHETYPES: Archetype[] = [
   },
   {
     id: 'verdant-mediator',
+    code: 'V',
     name: 'The Verdant Mediator',
-    title: 'Ethical & Psychological Anchor',
+    title: 'Ethical & Psychological Anchor (Verdant Emerald)',
     primaryColor: '#059669',
-    secondaryColor: '#10B981',
-    gradientClass: 'from-[#059669] to-[#10B981]',
-    bgGradient: 'radial-gradient(circle, rgba(5,150,105,0.15) 0%, rgba(16,185,129,0.08) 100%)',
+    gradientClass: 'from-[#059669] to-[#047857]',
+    bgGradient: 'radial-gradient(circle, rgba(5,150,105,0.18) 0%, rgba(5,150,105,0.06) 100%)',
     tagline: 'Maintains psychological safety and ethical congruence under extreme stress.',
     behaviorSummary: 'The emotional and cultural bedrock of high-performing collectives. Excels at active listening, de-escalating friction, facilitating consensus, and safeguarding long-term member wellbeing.',
     cadence: {
@@ -118,16 +114,16 @@ const CHROMATIC_ARCHETYPES: Archetype[] = [
     },
     strengths: ['Conflict Resolution', 'Psychological Safety', 'Values Alignment', 'Stakeholder Empathy'],
     blindspots: ['May hesitate to deliver harsh direct critiques', 'Slow to enforce drastic cutbacks'],
-    optimalCounterpart: 'The Solar Catalyst or Cobalt Anchor to enforce hard operational constraints'
+    optimalCounterpart: 'The Solar Catalyst (Solar Gold) to enforce hard operational constraints'
   },
   {
-    id: 'violet-visionary',
-    name: 'The Violet Visionary',
-    title: 'Lateral Explorer & Paradigm Pioneer',
+    id: 'royal-visionary',
+    code: 'R',
+    name: 'The Royal Visionary',
+    title: 'Lateral Explorer & Paradigm Pioneer (Royal Amethyst)',
     primaryColor: '#7C3AED',
-    secondaryColor: '#9333EA',
-    gradientClass: 'from-[#7C3AED] to-[#9333EA]',
-    bgGradient: 'radial-gradient(circle, rgba(124,58,237,0.15) 0%, rgba(147,51,234,0.08) 100%)',
+    gradientClass: 'from-[#7C3AED] to-[#6D28D9]',
+    bgGradient: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, rgba(124,58,237,0.06) 100%)',
     tagline: 'Discovers uncharted vectors at the boundary of disparate domains.',
     behaviorSummary: 'Driven by intense intellectual curiosity and lateral pattern matching. Challenges legacy assumptions, anticipates macroeconomic shifts, and conceives novel interface paradigms.',
     cadence: {
@@ -149,12 +145,12 @@ const CHROMATIC_ARCHETYPES: Archetype[] = [
   },
   {
     id: 'cobalt-anchor',
+    code: 'C',
     name: 'The Cobalt Anchor',
-    title: 'High-Resilience Operational Guardian',
+    title: 'High-Resilience Operational Guardian (Cobalt Blue)',
     primaryColor: '#1D4ED8',
-    secondaryColor: '#312E81',
-    gradientClass: 'from-[#1D4ED8] to-[#312E81]',
-    bgGradient: 'radial-gradient(circle, rgba(29,78,216,0.15) 0%, rgba(49,46,129,0.08) 100%)',
+    gradientClass: 'from-[#1D4ED8] to-[#1E40AF]',
+    bgGradient: 'radial-gradient(circle, rgba(29,78,216,0.18) 0%, rgba(29,78,216,0.06) 100%)',
     tagline: 'Upholds zero-defect standards and immutable operational discipline.',
     behaviorSummary: 'The ultimate stabilizer for mission-critical operations. Ensures uptime, security compliance, regression testing, and relentless adherence to contract commitments.',
     cadence: {
@@ -172,34 +168,7 @@ const CHROMATIC_ARCHETYPES: Archetype[] = [
     },
     strengths: ['Zero-Downtime Operations', 'Security & Compliance', 'Stress Resilience', 'Contractual Rigor'],
     blindspots: ['Can be resistant to radical paradigm shifts', 'Heavy process overhead for lightweight tasks'],
-    optimalCounterpart: 'The Violet Visionary (Royal Violet) to inject fresh lateral exploration'
-  },
-  {
-    id: 'solar-teal-polymath',
-    name: 'The Amber-Teal Polymath',
-    title: 'Dual-Engine Product Engineer',
-    primaryColor: '#D97706',
-    secondaryColor: '#0A6275',
-    gradientClass: 'from-[#D97706] to-[#0A6275]',
-    bgGradient: 'radial-gradient(circle, rgba(217,119,6,0.15) 0%, rgba(10,98,117,0.1) 100%)',
-    tagline: 'Seamlessly bridges high-speed shipping with architectural integrity.',
-    behaviorSummary: 'A rare hybrid capable of drafting distributed systems whitepapers in the morning and shipping polished client-side React code in the afternoon. High autonomy and versatile bandwidth.',
-    cadence: {
-      communication: 'Adaptive async memos paired with rapid pairing sessions',
-      velocity: 'High-velocity sustainable cadence',
-      riskProfile: 'Calculated aggressive risk',
-      decisionMaking: 'Full-stack pragmatic optimization'
-    },
-    oceanProfile: {
-      openness: 88,
-      conscientiousness: 90,
-      extraversion: 64,
-      agreeableness: 80,
-      stability: 86
-    },
-    strengths: ['Full-Stack Agility', 'Pragmatic Trade-offs', 'Self-Directed Autonomy', 'Technical Leadership'],
-    blindspots: ['Risk of bottlenecking work due to excessive solo capacity'],
-    optimalCounterpart: 'The Verdant Mediator to ensure team-wide scaling and alignment'
+    optimalCounterpart: 'The Royal Visionary (Royal Amethyst) to inject fresh lateral exploration'
   }
 ];
 
@@ -216,132 +185,33 @@ const HARMONIC_PAIRS: HarmonicPair[] = [
     cadenceBalance: 'Fast synchronous syncs for daily sprints; deep async RFCs for architectural schemas.'
   },
   {
-    archetypeA: 'The Violet Visionary',
-    colorA: '#7C3AED',
-    archetypeB: 'The Cobalt Anchor',
-    colorB: '#1D4ED8',
-    synergyScore: 92,
-    synergyTitle: 'Vision-To-Infrastructure Bridge',
-    description: 'Bridges radical creative breakthrough with rock-solid execution. Visionary generates breakthrough concepts, while Anchor filters, stabilizes, and scales them into enterprise-ready reality.',
-    frictionRisk: 'Medium (Requires mutual respect: Visionary must not view Anchor as rigid; Anchor must not dismiss Visionary as chaotic).',
-    cadenceBalance: 'Conceptual exploratory whiteboards paired with deterministic milestone gating.'
-  },
-  {
-    archetypeA: 'The Solar Catalyst',
-    colorA: '#D97706',
-    archetypeB: 'The Verdant Mediator',
-    colorB: '#059669',
-    synergyScore: 90,
-    synergyTitle: 'Harmonic Execution & Culture',
-    description: 'Prevents founder burnout and team turnover during intense crunch cycles. Solar provides execution velocity while Verdant safeguards empathy, psychological safety, and collective morale.',
-    frictionRisk: 'Low (High mutual appreciation of complementary values; minor friction if tough feedback is softened).',
-    cadenceBalance: 'Punchy task-oriented standups softened with regular 1:1 empathy check-ins.'
-  },
-  {
     archetypeA: 'The Oceanic Architect',
     colorA: '#0A6275',
     archetypeB: 'The Cobalt Anchor',
     colorB: '#1D4ED8',
-    synergyScore: 94,
+    synergyScore: 92,
     synergyTitle: 'Deterministic Systems Fortress',
     description: 'Unmatched operational resilience and zero-defect architecture. Oceanic provides elegant distributed models while Cobalt enforces strict telemetry, compliance, CI/CD reliability, and high uptime.',
     frictionRisk: 'Low-Medium (Can risk over-planning before customer feedback; benefits from velocity pressure).',
     cadenceBalance: 'Deep async memos, comprehensive PR reviews, and deterministic release cycles.'
   },
   {
-    archetypeA: 'The Violet Visionary',
-    colorA: '#7C3AED',
-    archetypeB: 'The Solar Catalyst',
-    colorB: '#D97706',
-    synergyScore: 89,
-    synergyTitle: '0-to-1 Innovation Rocket',
-    description: 'Rapid frontier innovation and blitzscaling. Violet opens radical new paradigm spaces while Solar immediately turns speculative ideas into living code and working MVPs in record time.',
-    frictionRisk: 'Medium (Risk of pivoting too quickly before completing existing initiatives without anchor stability).',
-    cadenceBalance: 'Dynamic visual brainstorming coupled with immediate sprint commitments.'
-  },
-  {
-    archetypeA: 'The Oceanic Architect',
-    colorA: '#0A6275',
-    archetypeB: 'The Verdant Mediator',
-    colorB: '#059669',
-    synergyScore: 91,
-    synergyTitle: 'Empathetic Systems Architecture',
-    description: 'Combines high intellectual bandwidth with human-centered product development. Oceanic builds clear, fault-tolerant mental models while Verdant ensures team collaboration remains healthy, inclusive, and aligned.',
-    frictionRisk: 'Low (Gentle, thoughtful communication cadence; decisions are measured and carefully reasoned).',
-    cadenceBalance: 'Async-first structured memos paired with bilateral consensus building.'
-  },
-  {
-    archetypeA: 'The Amber-Teal Polymath',
-    colorA: '#D97706',
-    archetypeB: 'The Verdant Mediator',
-    colorB: '#059669',
-    synergyScore: 93,
-    synergyTitle: 'Full-Stack Scalability & Culture',
-    description: 'The Polymath bridges high-speed code with systems design, while Verdant ensures the broader organization scales harmoniously without knowledge silos or single-person bottlenecks.',
-    frictionRisk: 'Low (Verdant naturally helps the Polymath delegate and mentor team members).',
-    cadenceBalance: 'Adaptive pairing sessions mixed with team-wide retrospectives.'
-  },
-  {
-    archetypeA: 'The Amber-Teal Polymath',
-    colorA: '#D97706',
-    archetypeB: 'The Violet Visionary',
-    colorB: '#7C3AED',
-    synergyScore: 91,
-    synergyTitle: 'Frontier Product Laboratory',
-    description: 'Visionary generates paradigm-shifting concepts, and the Polymath possesses the exact cross-stack bandwidth to prototype and architect them simultaneously in real time.',
-    frictionRisk: 'Medium (Tendency to generate too many concurrent experiments; requires disciplined focus).',
-    cadenceBalance: 'Rapid interactive sandbox cycles with continuous concept filtering.'
-  },
-  {
-    archetypeA: 'The Amber-Teal Polymath',
-    colorA: '#D97706',
-    archetypeB: 'The Cobalt Anchor',
-    colorB: '#1D4ED8',
-    synergyScore: 93,
-    synergyTitle: 'Agile Production Pipeline',
-    description: 'Combines full-stack agile velocity with rigorous infrastructure discipline. The Polymath writes clean, versatile feature code while Cobalt secures high availability, automated testing, and release integrity.',
-    frictionRisk: 'Low (Mutual appreciation for high-quality, maintainable codebases).',
-    cadenceBalance: 'Structured PR workflows with automated test verification.'
-  },
-  {
     archetypeA: 'The Solar Catalyst',
     colorA: '#D97706',
-    archetypeB: 'The Amber-Teal Polymath',
-    colorB: '#0A6275',
-    synergyScore: 88,
-    synergyTitle: 'Hyper-Velocity Builder Duo',
-    description: 'Extremely high shipping cadence and execution power. Both archetypes possess tremendous agency and bias for action, unblocking complex challenges in hours.',
-    frictionRisk: 'Medium (Requires clear boundary ownership so both builders do not edit the same modules concurrently).',
-    cadenceBalance: 'Lightweight synchronous syncs and split-domain ownership.'
-  },
-  {
-    archetypeA: 'The Oceanic Architect',
-    colorA: '#0A6275',
-    archetypeB: 'The Amber-Teal Polymath',
-    colorB: '#D97706',
-    synergyScore: 90,
-    synergyTitle: 'Cognitive Architecture Exchange',
-    description: 'Harmonious technical co-piloting. The Oceanic Architect formalizes long-term schema boundaries while the Polymath rapidly validates the APIs through living client applications.',
-    frictionRisk: 'Low (Shared technical vocabulary and mutual respect for system elegance).',
-    cadenceBalance: 'Async architectural memos with instant pairing sessions for complex edge cases.'
-  },
-  {
-    archetypeA: 'The Oceanic Architect',
-    colorA: '#0A6275',
-    archetypeB: 'The Violet Visionary',
-    colorB: '#7C3AED',
-    synergyScore: 87,
-    synergyTitle: 'Deep Cognitive Theorist Guild',
-    description: 'A powerhouse of first-principles thinking and lateral discovery. Connects abstract macro-horizons with mathematical schemas and formal data models.',
-    frictionRisk: 'Medium (Can get stuck in theoretical exploration without an execution driver to force concrete shipping).',
-    cadenceBalance: 'Formal technical whitepapers and regular prototype milestone checks.'
+    archetypeB: 'The Verdant Mediator',
+    colorB: '#059669',
+    synergyScore: 91,
+    synergyTitle: 'Harmonic Execution & Culture',
+    description: 'Prevents founder burnout and team turnover during intense crunch cycles. Solar provides execution velocity while Verdant safeguards empathy, psychological safety, and collective morale.',
+    frictionRisk: 'Low (High mutual appreciation of complementary values; minor friction if tough feedback is softened).',
+    cadenceBalance: 'Punchy task-oriented standups softened with regular 1:1 empathy check-ins.'
   },
   {
     archetypeA: 'The Verdant Mediator',
     colorA: '#059669',
     archetypeB: 'The Cobalt Anchor',
     colorB: '#1D4ED8',
-    synergyScore: 89,
+    synergyScore: 88,
     synergyTitle: 'Organizational Safety Net',
     description: 'Provides the highest degree of organizational stability and psychological trust. Cobalt ensures zero operational failures while Verdant ensures zero interpersonal burnout.',
     frictionRisk: 'Low (Steady, predictable, and supportive operating environment).',
@@ -350,35 +220,123 @@ const HARMONIC_PAIRS: HarmonicPair[] = [
   {
     archetypeA: 'The Verdant Mediator',
     colorA: '#059669',
-    archetypeB: 'The Violet Visionary',
+    archetypeB: 'The Royal Visionary',
     colorB: '#7C3AED',
-    synergyScore: 88,
+    synergyScore: 84,
     synergyTitle: 'Human-Centric Future Design',
-    description: 'Creates empathetic, transformative user experiences. Violet conceives novel interaction paradigms while Verdant ensures the technology serves genuine human emotional and ethical needs.',
+    description: 'Creates empathetic, transformative user experiences. Royal Amethyst conceives novel interaction paradigms while Verdant Emerald ensures the technology serves genuine human emotional and ethical needs.',
     frictionRisk: 'Low-Medium (Visionary rapid cognitive pivots must be paced for team comprehension).',
     cadenceBalance: 'Empathetic feedback sessions on futuristic prototypes.'
+  },
+  {
+    archetypeA: 'The Verdant Mediator',
+    colorA: '#059669',
+    archetypeB: 'The Verdant Mediator',
+    colorB: '#059669',
+    synergyScore: 80,
+    synergyTitle: 'Empathic Consensus Core',
+    description: 'Unbeatable mutual psychological safety and trust, but can hesitate to execute drastic operational cuts or direct performance critiques without external velocity enforcement.',
+    frictionRisk: 'Low-Medium (Decision latency during complex tradeoffs).',
+    cadenceBalance: 'Schedule explicit decision deadlines with external execution pressure.'
+  },
+  {
+    archetypeA: 'The Oceanic Architect',
+    colorA: '#0A6275',
+    archetypeB: 'The Oceanic Architect',
+    colorB: '#0A6275',
+    synergyScore: 78,
+    synergyTitle: 'Dual Architect Nexus',
+    description: 'Extremely high theoretical bandwidth and system depth, but can result in protracted architectural debates over abstraction boundaries and framework selection.',
+    frictionRisk: 'Medium (Abstraction deadlock without domain partitioning).',
+    cadenceBalance: 'Define clear subsystem boundaries and appoint tie-breaking criteria.'
+  },
+  {
+    archetypeA: 'The Royal Visionary',
+    colorA: '#7C3AED',
+    archetypeB: 'The Solar Catalyst',
+    colorB: '#D97706',
+    synergyScore: 74,
+    synergyTitle: '0-to-1 Innovation Sprint',
+    description: 'Rapid frontier innovation and blitzscaling. Royal Amethyst opens radical new paradigm spaces while Solar Gold immediately turns speculative ideas into living code and working MVPs in record time.',
+    frictionRisk: 'Medium (Risk of pivoting too quickly before completing existing initiatives without anchor stability).',
+    cadenceBalance: 'Dynamic visual brainstorming coupled with immediate sprint commitments.'
+  },
+  {
+    archetypeA: 'The Oceanic Architect',
+    colorA: '#0A6275',
+    archetypeB: 'The Verdant Mediator',
+    colorB: '#059669',
+    synergyScore: 72,
+    synergyTitle: 'Empathetic Systems Architecture',
+    description: 'Combines high intellectual bandwidth with human-centered product development. Oceanic builds clear, fault-tolerant mental models while Verdant ensures team collaboration remains healthy, inclusive, and aligned.',
+    frictionRisk: 'Low-Medium (Gentle, thoughtful communication cadence; decisions are measured and carefully reasoned).',
+    cadenceBalance: 'Async-first structured memos paired with bilateral consensus building.'
+  },
+  {
+    archetypeA: 'The Oceanic Architect',
+    colorA: '#0A6275',
+    archetypeB: 'The Royal Visionary',
+    colorB: '#7C3AED',
+    synergyScore: 66,
+    synergyTitle: 'Deep Cognitive Theorist Guild',
+    description: 'A powerhouse of first-principles thinking and lateral discovery. Connects abstract macro-horizons with mathematical schemas and formal data models.',
+    frictionRisk: 'Medium (Can get stuck in theoretical exploration without an execution driver to force concrete shipping).',
+    cadenceBalance: 'Formal technical whitepapers and regular prototype milestone checks.'
+  },
+  {
+    archetypeA: 'The Cobalt Anchor',
+    colorA: '#1D4ED8',
+    archetypeB: 'The Cobalt Anchor',
+    colorB: '#1D4ED8',
+    synergyScore: 54,
+    synergyTitle: 'Process Fortress (Risk Averse)',
+    description: 'Process inertia & extreme risk aversion: Mutual insistence on exhaustive edge-case testing and compliance reviews can cause paralysis and delay shipping.',
+    frictionRisk: 'High (Over-regulation and resistance to rapid prototyping).',
+    cadenceBalance: 'Enforce maximum SLA review windows and lightweight prototype sandbox exemptions.'
+  },
+  {
+    archetypeA: 'The Solar Catalyst',
+    colorA: '#D97706',
+    archetypeB: 'The Solar Catalyst',
+    colorB: '#D97706',
+    synergyScore: 52,
+    synergyTitle: 'Dual Solar Pulse (Authority Friction)',
+    description: 'Authority collision: Two high-velocity execution drivers clashing on technical leadership, roadmap ownership, and sprint priorities.',
+    frictionRisk: 'High (Territory disputes on velocity leadership).',
+    cadenceBalance: 'Daily domain segmentation and strict independent autonomy.'
   },
   {
     archetypeA: 'The Solar Catalyst',
     colorA: '#D97706',
     archetypeB: 'The Cobalt Anchor',
     colorB: '#1D4ED8',
-    synergyScore: 86,
-    synergyTitle: 'Velocity vs Precision Balance',
-    description: 'Forces the classic high-speed builder and high-reliability guardian to collaborate. Solar drives time-to-market while Cobalt prevents production regressions.',
-    frictionRisk: 'Medium-High (Pacing tension: Solar wants to ship now; Cobalt requires verification suite passes).',
+    synergyScore: 48,
+    synergyTitle: 'Velocity vs Verification Tension',
+    description: 'Forces high-speed builder and high-reliability guardian to collide. Solar demands immediate production deployment; Cobalt halts releases until multi-stage regression and compliance suites pass.',
+    frictionRisk: 'High (Severe pacing deadlock without clear staging SLAs and decoupled sandbox environments).',
     cadenceBalance: 'Explicit SLA agreements: fast staging iteration with strict production gates.'
   },
   {
-    archetypeA: 'The Solar Catalyst',
-    colorA: '#D97706',
-    archetypeB: 'The Solar Catalyst',
-    colorB: '#EA580C',
-    synergyScore: 78,
-    synergyTitle: 'Dual Solar Pulse (High Voltage)',
-    description: 'Unmatched raw speed, but high potential for overlapping authority. Thrives only when divided strictly across separate sub-domains (e.g. Founder A = Product, Founder B = Go-To-Market).',
-    frictionRisk: 'High (Risk of ego collisions and duplicate effort without explicit ownership boundaries).',
-    cadenceBalance: 'Daily domain segmentation and independent autonomy.'
+    archetypeA: 'The Royal Visionary',
+    colorA: '#7C3AED',
+    archetypeB: 'The Royal Visionary',
+    colorB: '#7C3AED',
+    synergyScore: 45,
+    synergyTitle: 'Speculative Loop (Low Execution)',
+    description: 'Speculative Loop: Endless generative brainstorming and paradigm reimagination with zero operational follow-through or working software.',
+    frictionRisk: 'High (Visionary looping with zero shipping cadence).',
+    cadenceBalance: 'Must be paired with a Cobalt Anchor or Solar Catalyst to enforce delivery deadlines.'
+  },
+  {
+    archetypeA: 'The Royal Visionary',
+    colorA: '#7C3AED',
+    archetypeB: 'The Cobalt Anchor',
+    colorB: '#1D4ED8',
+    synergyScore: 42,
+    synergyTitle: 'Paradigm Ambiguity vs SLA Clash',
+    description: 'Fundamental cognitive incompatibility: Radical speculative experimentation directly opposes zero-defect deterministic compliance.',
+    frictionRisk: 'Critical (Severe friction: Visionary rejects rigid processes; Cobalt rejects unvalidated paradigms).',
+    cadenceBalance: 'Complete phase separation: Royal explores in isolated R&D labs; Cobalt governs hardened production pipelines.'
   }
 ];
 
@@ -389,85 +347,6 @@ interface ColorSystemViewProps {
 export const ColorSystemView: React.FC<ColorSystemViewProps> = ({
   onOpenChromaticTest
 }) => {
-  const [activeTab, setActiveTab] = useState<'archetypes' | 'simulator' | 'harmonics'>('archetypes');
-  const [selectedArchetype, setSelectedArchetype] = useState<Archetype>(CHROMATIC_ARCHETYPES[0]);
-  
-  // Interactive Simulator State
-  const [simDrive, setSimDrive] = useState(82);       // Solar Gold
-  const [simLogic, setSimLogic] = useState(75);       // Deep Teal
-  const [simEmpathy, setSimEmpathy] = useState(88);   // Verdant Emerald
-  const [simVision, setSimVision] = useState(68);     // Royal Amethyst
-  const [simStability, setSimStability] = useState(85); // Cobalt Blue
-
-  // Derived simulator values
-  const simulatedColor = useMemo(() => {
-    // Determine dominant channel
-    const maxVal = Math.max(simDrive, simLogic, simEmpathy, simVision, simStability);
-    let primaryName = 'Solar Gold';
-    let primaryHex = '#D97706';
-    let secondaryName = 'Deep Teal';
-    let secondaryHex = '#0A6275';
-    let archetypeLabel = 'The Balanced Synthesizer';
-    let oklchHue = 45; // Golden amber in OKLCH
-
-    if (maxVal === simDrive) {
-      primaryName = 'Solar Gold';
-      primaryHex = '#D97706';
-      oklchHue = 45;
-      if (simLogic > simEmpathy) {
-        secondaryName = 'Deep Teal';
-        secondaryHex = '#0A6275';
-        archetypeLabel = 'Solar-Teal High-Velocity Architect';
-      } else {
-        secondaryName = 'Verdant Emerald';
-        secondaryHex = '#059669';
-        archetypeLabel = 'Solar-Verdant Empathetic Catalyst';
-      }
-    } else if (maxVal === simLogic) {
-      primaryName = 'Deep Teal';
-      primaryHex = '#0A6275';
-      oklchHue = 210;
-      secondaryName = simVision > simDrive ? 'Royal Amethyst' : 'Solar Gold';
-      secondaryHex = simVision > simDrive ? '#7C3AED' : '#D97706';
-      archetypeLabel = 'Oceanic Systems & Cognitive Theorist';
-    } else if (maxVal === simEmpathy) {
-      primaryName = 'Verdant Emerald';
-      primaryHex = '#059669';
-      oklchHue = 150;
-      secondaryName = simLogic > simDrive ? 'Deep Teal' : 'Solar Gold';
-      secondaryHex = simLogic > simDrive ? '#0A6275' : '#D97706';
-      archetypeLabel = 'Verdant Ethical & Psychological Mediator';
-    } else if (maxVal === simVision) {
-      primaryName = 'Royal Amethyst';
-      primaryHex = '#7C3AED';
-      oklchHue = 295;
-      secondaryName = simLogic > simDrive ? 'Deep Teal' : 'Solar Gold';
-      secondaryHex = simLogic > simDrive ? '#0A6275' : '#D97706';
-      archetypeLabel = 'Violet Lateral Explorer & Frontier Pioneer';
-    } else {
-      primaryName = 'Cobalt Blue';
-      primaryHex = '#1D4ED8';
-      oklchHue = 260;
-      secondaryName = 'Solar Gold';
-      secondaryHex = '#D97706';
-      archetypeLabel = 'Cobalt High-Resilience Infrastructure Guardian';
-    }
-
-    const lightness = 0.65 + ((simEmpathy + simVision) / 500) * 0.15;
-    const chroma = 0.16 + (maxVal / 100) * 0.08;
-
-    return {
-      primaryName,
-      primaryHex,
-      secondaryName,
-      secondaryHex,
-      archetypeLabel,
-      oklchCoords: `oklch(${lightness.toFixed(2)} ${chroma.toFixed(2)} ${oklchHue})`,
-      gradient: `linear-gradient(135deg, ${primaryHex}, ${secondaryHex})`,
-      bgAura: `radial-gradient(circle, ${primaryHex}25 0%, ${secondaryHex}12 60%, transparent 100%)`
-    };
-  }, [simDrive, simLogic, simEmpathy, simVision, simStability]);
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 animate-in fade-in duration-300">
       {/* Hero Section */}
@@ -501,7 +380,7 @@ export const ColorSystemView: React.FC<ColorSystemViewProps> = ({
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[#0A6275]" />
-              Deep Teal (Systems Logic)
+              Oceanic Teal (Systems Logic)
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[#059669]" />
@@ -533,370 +412,14 @@ export const ColorSystemView: React.FC<ColorSystemViewProps> = ({
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex flex-wrap items-center gap-2 mb-8 border-b border-stone-200 pb-3">
-        <button
-          onClick={() => setActiveTab('archetypes')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-            activeTab === 'archetypes'
-              ? 'bg-[#0A6275] text-white shadow-xs'
-              : 'bg-teal-50 text-[#0A6275] hover:bg-teal-100'
-          }`}
-          id="color-tab-archetypes"
-        >
-          <Brain className="w-3.5 h-3.5" />
-          <span>Behavioral Archetypes</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('simulator')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-            activeTab === 'simulator'
-              ? 'bg-[#059669] text-white shadow-xs'
-              : 'bg-emerald-50 text-[#059669] hover:bg-emerald-100'
-          }`}
-          id="color-tab-simulator"
-        >
-          <Sliders className="w-3.5 h-3.5" />
-          <span>Live Color Simulator</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('harmonics')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-            activeTab === 'harmonics'
-              ? 'bg-[#7C3AED] text-white shadow-xs'
-              : 'bg-purple-50 text-[#7C3AED] hover:bg-purple-100'
-          }`}
-          id="color-tab-harmonics"
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Synergy & Friction Matrix</span>
-        </button>
+      {/* Synergy & Friction Metrics (Obsidian Web & Matrix Grid) */}
+      <div className="animate-in fade-in duration-200">
+        <SynergyFrictionGraphWeb
+          archetypes={CHROMATIC_ARCHETYPES}
+          harmonicPairs={HARMONIC_PAIRS}
+          onOpenChromaticTest={onOpenChromaticTest}
+        />
       </div>
-
-      {/* Behavioral Archetypes Catalog */}
-      {activeTab === 'archetypes' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-200">
-          {/* Left: Archetype List */}
-          <div className="lg:col-span-5 space-y-3">
-            <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
-              Select Behavioral Profile:
-            </h3>
-            {CHROMATIC_ARCHETYPES.map((arch) => (
-              <button
-                key={arch.id}
-                onClick={() => setSelectedArchetype(arch)}
-                className={`w-full text-left p-4 rounded-2xl border transition-all flex items-center justify-between ${
-                  selectedArchetype.id === arch.id
-                    ? 'bg-white border-stone-900 ring-2 ring-stone-900 shadow-md'
-                    : 'bg-white border-stone-200 hover:border-stone-300 shadow-2xs'
-                }`}
-                id={`arch-select-${arch.id}`}
-              >
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs font-black shadow-xs shrink-0"
-                    style={{ backgroundColor: arch.primaryColor }}
-                  >
-                    {arch.name[4] || 'A'}
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-stone-900">{arch.name}</h4>
-                    <p className="text-[11px] text-stone-500">{arch.title}</p>
-                  </div>
-                </div>
-                <ArrowRight className={`w-4 h-4 transition-transform ${
-                  selectedArchetype.id === arch.id ? 'translate-x-1 text-stone-900' : 'text-stone-300'
-                }`} />
-              </button>
-            ))}
-          </div>
-
-          {/* Right: Archetype Deep-Dive Detail View */}
-          <div className="lg:col-span-7 bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            {/* Header Banner */}
-            <div 
-              className="p-6 rounded-2xl text-white relative overflow-hidden flex flex-col justify-between min-h-[140px]"
-              style={{
-                background: `linear-gradient(135deg, ${selectedArchetype.primaryColor}, ${selectedArchetype.secondaryColor})`
-              }}
-            >
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-widest bg-black/20 px-2.5 py-1 rounded-full backdrop-blur-xs">
-                  CHROMATIC ARCHETYPE DOSSIER
-                </span>
-                <h2 className="text-2xl font-black mt-2 tracking-tight">{selectedArchetype.name}</h2>
-                <p className="text-xs text-white/90 font-medium">{selectedArchetype.title}</p>
-              </div>
-
-              <p className="text-xs text-white/80 italic pt-3 border-t border-white/20">
-                "{selectedArchetype.tagline}"
-              </p>
-            </div>
-
-            {/* Behavioral Summary */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
-                Behavioral Core & Operating Mode
-              </h4>
-              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                {selectedArchetype.behaviorSummary}
-              </p>
-            </div>
-
-            {/* Operational Cadence Matrix */}
-            <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div>
-                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Communication Rhythm</span>
-                <span className="font-semibold text-stone-800 mt-0.5 block">{selectedArchetype.cadence.communication}</span>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Velocity Cycle</span>
-                <span className="font-semibold text-stone-800 mt-0.5 block">{selectedArchetype.cadence.velocity}</span>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Risk Tolerance</span>
-                <span className="font-semibold text-stone-800 mt-0.5 block">{selectedArchetype.cadence.riskProfile}</span>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Decision Protocol</span>
-                <span className="font-semibold text-stone-800 mt-0.5 block">{selectedArchetype.cadence.decisionMaking}</span>
-              </div>
-            </div>
-
-            {/* Strengths and Blindspots */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200/80 space-y-2">
-                <h5 className="font-bold text-emerald-900 flex items-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-emerald-700" />
-                  Key Strengths
-                </h5>
-                <ul className="space-y-1 text-emerald-950 text-[11px]">
-                  {selectedArchetype.strengths.map((s, idx) => (
-                    <li key={idx}>• {s}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200/80 space-y-2">
-                <h5 className="font-bold text-amber-900 flex items-center gap-1.5">
-                  <Info className="w-3.5 h-3.5 text-amber-700" />
-                  Potential Blindspots
-                </h5>
-                <ul className="space-y-1 text-amber-950 text-[11px]">
-                  {selectedArchetype.blindspots.map((b, idx) => (
-                    <li key={idx}>• {b}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* Optimal Pairing Recommendation */}
-            <div className="p-4 rounded-xl bg-stone-900 text-white flex items-center justify-between gap-4">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#D97706] block">
-                  Harmonic Complement
-                </span>
-                <p className="text-xs font-semibold mt-0.5">
-                  {selectedArchetype.optimalCounterpart}
-                </p>
-              </div>
-              <Sparkles className="w-5 h-5 text-[#D97706] shrink-0" />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 4: Interactive Chromatic Simulator */}
-      {activeTab === 'simulator' && (
-        <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-10 shadow-xs space-y-8 animate-in fade-in duration-200">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
-              Interactive Chromatic Behavioral Synthesizer
-            </h2>
-            <p className="text-xs sm:text-sm text-stone-500 mt-1">
-              Adjust the 5 cognitive vectors to see live real-time synthesis in OKLCH perceptual color space and behavioral archetype prediction.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Sliders Form */}
-            <div className="lg:col-span-7 space-y-5">
-              {/* Drive */}
-              <div className="p-4 rounded-2xl bg-amber-50/40 border border-amber-100">
-                <div className="flex justify-between text-xs font-bold text-stone-800 mb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#D97706]" />
-                    Execution Drive & Momentum (Solar Gold)
-                  </span>
-                  <span className="text-[#D97706] font-mono">{simDrive}%</span>
-                </div>
-                <input
-                  type="range"
-                  min="10"
-                  max="100"
-                  value={simDrive}
-                  onChange={(e) => setSimDrive(Number(e.target.value))}
-                  className="w-full accent-[#D97706] cursor-pointer"
-                  id="sim-slider-drive"
-                />
-                <div className="flex justify-between text-[10px] text-stone-400 mt-1">
-                  <span>Methodical Pace</span>
-                  <span>High-Velocity Sprinting</span>
-                </div>
-              </div>
-
-              {/* Logic */}
-              <div className="p-4 rounded-2xl bg-teal-50/40 border border-teal-100">
-                <div className="flex justify-between text-xs font-bold text-stone-800 mb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#0A6275]" />
-                    Systems Logic & Schema Rigor (Deep Teal)
-                  </span>
-                  <span className="text-[#0A6275] font-mono">{simLogic}%</span>
-                </div>
-                <input
-                  type="range"
-                  min="10"
-                  max="100"
-                  value={simLogic}
-                  onChange={(e) => setSimLogic(Number(e.target.value))}
-                  className="w-full accent-[#0A6275] cursor-pointer"
-                  id="sim-slider-logic"
-                />
-                <div className="flex justify-between text-[10px] text-stone-400 mt-1">
-                  <span>Pragmatic Hacker</span>
-                  <span>Formal Systems Architect</span>
-                </div>
-              </div>
-
-              {/* Empathy */}
-              <div className="p-4 rounded-2xl bg-emerald-50/40 border border-emerald-100">
-                <div className="flex justify-between text-xs font-bold text-stone-800 mb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#059669]" />
-                    Psychological Safety & Empathy (Verdant Emerald)
-                  </span>
-                  <span className="text-[#059669] font-mono">{simEmpathy}%</span>
-                </div>
-                <input
-                  type="range"
-                  min="10"
-                  max="100"
-                  value={simEmpathy}
-                  onChange={(e) => setSimEmpathy(Number(e.target.value))}
-                  className="w-full accent-[#059669] cursor-pointer"
-                  id="sim-slider-empathy"
-                />
-                <div className="flex justify-between text-[10px] text-stone-400 mt-1">
-                  <span>Direct Task Focus</span>
-                  <span>Empathetic Culture Anchor</span>
-                </div>
-              </div>
-
-              {/* Vision */}
-              <div className="p-4 rounded-2xl bg-purple-50/40 border border-purple-100">
-                <div className="flex justify-between text-xs font-bold text-stone-800 mb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED]" />
-                    Lateral Exploration & Vision (Royal Amethyst)
-                  </span>
-                  <span className="text-[#7C3AED] font-mono">{simVision}%</span>
-                </div>
-                <input
-                  type="range"
-                  min="10"
-                  max="100"
-                  value={simVision}
-                  onChange={(e) => setSimVision(Number(e.target.value))}
-                  className="w-full accent-[#7C3AED] cursor-pointer"
-                  id="sim-slider-vision"
-                />
-                <div className="flex justify-between text-[10px] text-stone-400 mt-1">
-                  <span>Linear Incrementalism</span>
-                  <span>Radical Paradigm Synthesis</span>
-                </div>
-              </div>
-
-              {/* Stability */}
-              <div className="p-4 rounded-2xl bg-blue-50/40 border border-blue-100">
-                <div className="flex justify-between text-xs font-bold text-stone-800 mb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#1D4ED8]" />
-                    Operational Resilience & Stability (Cobalt Blue)
-                  </span>
-                  <span className="text-[#1D4ED8] font-mono">{simStability}%</span>
-                </div>
-                <input
-                  type="range"
-                  min="10"
-                  max="100"
-                  value={simStability}
-                  onChange={(e) => setSimStability(Number(e.target.value))}
-                  className="w-full accent-[#1D4ED8] cursor-pointer"
-                  id="sim-slider-stability"
-                />
-                <div className="flex justify-between text-[10px] text-stone-400 mt-1">
-                  <span>Flexible Fluidity</span>
-                  <span>Immutable Infrastructure Anchor</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Synthesized Output Display */}
-            <div className="lg:col-span-5 space-y-6">
-              <div 
-                className="rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-lg text-white space-y-6 relative overflow-hidden transition-all duration-300"
-                style={{ background: simulatedColor.gradient }}
-              >
-                <div className="relative z-10 space-y-1">
-                  <span className="text-[10px] font-black uppercase tracking-widest bg-black/30 px-3 py-1 rounded-full backdrop-blur-xs">
-                    REAL-TIME OKLCH SYNTHESIS
-                  </span>
-                  <h3 className="text-2xl font-black tracking-tight pt-2">
-                    {simulatedColor.primaryName} × {simulatedColor.secondaryName}
-                  </h3>
-                  <p className="text-xs text-white/90 font-medium">
-                    {simulatedColor.archetypeLabel}
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-black/30 backdrop-blur-md border border-white/20 space-y-2 text-xs font-mono">
-                  <div className="flex justify-between">
-                    <span className="text-white/70">OKLCH Spectrum:</span>
-                    <span className="font-bold text-white">{simulatedColor.oklchCoords}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/70">Primary Hex:</span>
-                    <span className="font-bold text-white">{simulatedColor.primaryHex}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/70">Secondary Hex:</span>
-                    <span className="font-bold text-white">{simulatedColor.secondaryHex}</span>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-white/20 text-xs text-white/90 leading-relaxed">
-                  <span className="font-bold block mb-1">Collaborative Footprint:</span>
-                  Combines high-luminous {simulatedColor.primaryName} agency with deep {simulatedColor.secondaryName} perspective. Highly effective in distributed agile squads.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 5: Synergy & Friction Matrix (Obsidian Web & Matrix Grid) */}
-      {activeTab === 'harmonics' && (
-        <div className="animate-in fade-in duration-200">
-          <SynergyFrictionGraphWeb
-            archetypes={CHROMATIC_ARCHETYPES}
-            harmonicPairs={HARMONIC_PAIRS}
-            onOpenChromaticTest={onOpenChromaticTest}
-          />
-        </div>
-      )}
     </div>
   );
 };

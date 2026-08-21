@@ -139,41 +139,42 @@ export const SynergyMatchView: React.FC<SynergyMatchViewProps> = ({
               {requester.title}
             </p>
             <span
-              className="mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-bold border"
+              className="mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-bold border flex items-center gap-1.5"
               style={{
                 backgroundColor: `${reqColor.primaryColor}15`,
                 color: reqColor.primaryColor,
                 borderColor: `${reqColor.primaryColor}30`
               }}
             >
-              {reqColor.primaryName} Spectrum
+              <span className="w-3.5 h-3.5 rounded-full text-white text-[9px] font-black flex items-center justify-center" style={{ backgroundColor: reqColor.primaryColor }}>
+                {reqColor.profileCode}
+              </span>
+              <span>{reqColor.primaryName}</span>
             </span>
           </div>
 
-          {/* Center: Pure Chromatic Fusion Lens (NO NUMBERS) */}
+          {/* Center: Pairwise Chromatic Synergy */}
           <div className="flex flex-col items-center justify-center py-4 border-y md:border-y-0 md:border-x border-stone-100">
-            {/* Blending Multi-Color Fusion Sphere */}
             <div
-              className="w-24 h-24 rounded-full shadow-lg p-1 flex items-center justify-center relative overflow-hidden animate-pulse"
-              style={{ background: harmonic.gradient }}
+              className="w-24 h-24 rounded-full shadow-lg p-1 flex items-center justify-center relative overflow-hidden"
+              style={{ background: `linear-gradient(135deg, ${reqColor.primaryColor}, ${candColor.primaryColor})` }}
             >
-              <div className="w-full h-full rounded-full bg-white/90 backdrop-blur-xs flex flex-col items-center justify-center p-2 text-center">
-                <div className="flex items-center gap-1 mb-1">
+              <div className="w-full h-full rounded-full bg-white/95 backdrop-blur-xs flex flex-col items-center justify-center p-2 text-center">
+                <div className="flex items-center gap-1.5 mb-0.5">
                   <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: reqColor.primaryColor }} />
                   <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: candColor.primaryColor }} />
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#059669]" />
                 </div>
-                <span className="text-[10px] font-black tracking-wider text-stone-900 uppercase">
-                  COLOR FUSION
+                <span className="text-lg font-black tracking-tight text-stone-900 leading-none">
+                  {matchResult.finalMatchScore}%
                 </span>
                 <span className="text-[8px] font-bold text-stone-400 uppercase tracking-widest mt-0.5">
-                  Dual Resonance
+                  {matchResult.finalMatchScore >= 80 ? 'High Synergy' : matchResult.finalMatchScore >= 65 ? 'Complementary' : 'Cognitive Friction'}
                 </span>
               </div>
             </div>
 
-            <div className="mt-3 text-[11px] font-bold uppercase tracking-wider text-stone-500">
-              HOLISTIC CHROMATIC HARMONY
+            <div className="mt-3 text-[11px] font-bold uppercase tracking-wider text-stone-600 text-center">
+              {harmonic.subLabel}
             </div>
           </div>
 
@@ -197,17 +198,38 @@ export const SynergyMatchView: React.FC<SynergyMatchViewProps> = ({
               {candidate.title}
             </p>
             <span
-              className="mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-bold border"
+              className="mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-bold border flex items-center gap-1.5"
               style={{
                 backgroundColor: `${candColor.primaryColor}15`,
                 color: candColor.primaryColor,
                 borderColor: `${candColor.primaryColor}30`
               }}
             >
-              {candColor.primaryName} Spectrum
+              <span className="w-3.5 h-3.5 rounded-full text-white text-[9px] font-black flex items-center justify-center" style={{ backgroundColor: candColor.primaryColor }}>
+                {candColor.profileCode}
+              </span>
+              <span>{candColor.primaryName}</span>
             </span>
           </div>
         </div>
+
+        {/* Cognitive Friction & Mitigation Banner if Tension Exists */}
+        {(matchResult.finalMatchScore < 65 || harmonic.frictionRisk === 'High' || harmonic.frictionRisk === 'Critical') && (
+          <div className="mt-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+            <div className="space-y-0.5">
+              <span className="font-bold text-amber-900 flex items-center gap-1.5 uppercase tracking-wider text-[10px]">
+                <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse" />
+                Active Cognitive Friction ({harmonic.frictionRisk} Risk)
+              </span>
+              <p className="text-stone-700">
+                {harmonic.frictionSummary}
+              </p>
+            </div>
+            <div className="px-3 py-1.5 bg-white/80 border border-amber-500/20 rounded-xl text-amber-900 font-medium text-[11px] shrink-0">
+              <strong>Mitigation:</strong> {harmonic.mitigationCadence}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Bottom 2 Cards Grid */}
@@ -216,13 +238,18 @@ export const SynergyMatchView: React.FC<SynergyMatchViewProps> = ({
         <div className="bg-white border border-stone-200/80 rounded-2xl p-8 flex flex-col justify-between shadow-xs">
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-stone-100 mb-6">
-              <h2 className="text-base font-bold text-stone-800">
-                XAI Chromatic Drivers
-              </h2>
+              <div>
+                <h2 className="text-base font-bold text-stone-800">
+                  XAI Chromatic Drivers
+                </h2>
+                <p className="text-[11px] text-stone-400 mt-0.5">
+                  Explainable behavioral and structural compatibility vectors
+                </p>
+              </div>
               <button
                 onClick={handleRegenerateXai}
                 disabled={isGeneratingAi}
-                className="text-xs font-semibold text-[#D97706] hover:text-amber-700 flex items-center gap-1 disabled:opacity-50"
+                className="text-xs font-semibold text-[#D97706] hover:text-amber-700 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200/60 transition-colors disabled:opacity-50"
                 title="Regenerate with AI"
               >
                 <RefreshCw className={`w-3 h-3 ${isGeneratingAi ? 'animate-spin' : ''}`} />
@@ -230,121 +257,180 @@ export const SynergyMatchView: React.FC<SynergyMatchViewProps> = ({
               </button>
             </div>
 
-            {/* Drivers List */}
-            <div className="space-y-6">
-              {/* Driver 1: Technical Overlap (Emerald Green) */}
-              <div className="flex items-start gap-3.5">
-                <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
-                  <CheckCircle2 className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold text-stone-900">
-                      Verdant Technical Overlap
-                    </h4>
-                    <span className="w-2 h-2 rounded-full bg-emerald-600" />
-                  </div>
-                  <p className="text-xs text-stone-500 mt-1 leading-relaxed">
-                    Extensive shared foundations in distributed architecture, interface design, and systems engineering.
-                  </p>
-                </div>
-              </div>
+            {/* Dynamic Drivers List */}
+            <div className="space-y-5">
+              {matchResult.keyDrivers && matchResult.keyDrivers.length > 0 ? (
+                matchResult.keyDrivers.map((driver, idx) => {
+                  const getDriverConfig = (type: string) => {
+                    switch (type) {
+                      case 'technical':
+                        return {
+                          icon: CheckCircle2,
+                          bgClass: 'bg-emerald-50 text-emerald-600',
+                          dotColor: '#059669',
+                          badgeLabel: 'Technical Overlap',
+                        };
+                      case 'communication':
+                        return {
+                          icon: MessageSquare,
+                          bgClass: 'bg-teal-50 text-[#0A6275]',
+                          dotColor: '#0A6275',
+                          badgeLabel: 'Communication Sync',
+                        };
+                      case 'risk':
+                        return {
+                          icon: Scale,
+                          bgClass: 'bg-amber-50 text-[#D97706]',
+                          dotColor: '#D97706',
+                          badgeLabel: 'Risk & Cadence',
+                        };
+                      case 'values':
+                      default:
+                        return {
+                          icon: Sparkles,
+                          bgClass: 'bg-purple-50 text-[#7C3AED]',
+                          dotColor: '#7C3AED',
+                          badgeLabel: 'Archetypal Resonance',
+                        };
+                    }
+                  };
 
-              {/* Driver 2: Communication Latency (Deep Teal) */}
-              <div className="flex items-start gap-3.5">
-                <div className="w-8 h-8 rounded-full bg-teal-50 text-[#0A6275] flex items-center justify-center shrink-0 mt-0.5">
-                  <MessageSquare className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold text-stone-900">
-                      Oceanic Communication Sync
-                    </h4>
-                    <span className="w-2 h-2 rounded-full bg-[#0A6275]" />
-                  </div>
-                  <p className="text-xs text-stone-500 mt-1 leading-relaxed">
-                    Complementary async-first communication rhythms with matched documentation and feedback cadence.
-                  </p>
-                </div>
-              </div>
+                  const cfg = getDriverConfig(driver.type);
+                  const Icon = cfg.icon;
 
-              {/* Driver 3: Risk Tolerance (Solar Gold) */}
-              <div className="flex items-start gap-3.5">
-                <div className="w-8 h-8 rounded-full bg-amber-50 text-[#D97706] flex items-center justify-center shrink-0 mt-0.5">
-                  <Scale className="w-4 h-4" />
+                  return (
+                    <div key={idx} className="flex items-start gap-3.5 p-3 rounded-xl bg-stone-50/60 border border-stone-100 transition-all hover:bg-stone-50">
+                      <div className={`w-8 h-8 rounded-full ${cfg.bgClass} flex items-center justify-center shrink-0 mt-0.5`}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-xs font-bold text-stone-900">
+                              {driver.title}
+                            </h4>
+                            <span
+                              className="w-2 h-2 rounded-full shrink-0"
+                              style={{ backgroundColor: cfg.dotColor }}
+                            />
+                          </div>
+                          {driver.scoreImpact !== undefined && (
+                            <span className="text-[10px] font-mono font-bold text-stone-400 bg-white px-2 py-0.5 rounded-md border border-stone-200 shrink-0">
+                              +{driver.scoreImpact} pts
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-stone-600 mt-1 leading-relaxed">
+                          {driver.description}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="text-xs text-stone-400 py-4 text-center">
+                  Calculating pure chromatic drivers...
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold text-stone-900">
-                      Solar Risk & Strategy Balance
-                    </h4>
-                    <span className="w-2 h-2 rounded-full bg-[#D97706]" />
-                  </div>
-                  <p className="text-xs text-stone-500 mt-1 leading-relaxed">
-                    Balanced equilibrium between rapid experimental innovation and deep architectural safety rails.
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Right Card: Archetypal Resonance (Pure Color Bands, NO NUMBERS) */}
+        {/* Right Card: Archetypal Resonance (Pure Color Bands, dynamically bound) */}
         <div className="bg-white border border-stone-200/80 rounded-2xl p-8 flex flex-col justify-between shadow-xs">
           <div>
-            <h2 className="text-base font-bold text-stone-800 pb-4 border-b border-stone-100 mb-6">
-              Archetypal Color Resonance
-            </h2>
+            <div className="pb-4 border-b border-stone-100 mb-6">
+              <h2 className="text-base font-bold text-stone-800">
+                Archetypal Color Resonance
+              </h2>
+              <p className="text-[11px] text-stone-400 mt-0.5">
+                5-channel continuous OKLCH spectral balance between both profiles
+              </p>
+            </div>
 
             {/* Pure Color Gradient Bars */}
-            <div className="space-y-6">
-              {/* Row 1: Solar Gold (Focus & Execution) */}
-              <div>
-                <div className="flex items-center justify-between text-xs font-semibold text-stone-800 mb-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-[#D97706]" />
-                    <span>Solar Gold: Focus & Execution</span>
-                  </div>
-                  <span className="text-[11px] font-bold text-amber-900">Luminous Radiance</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-gradient-to-r from-amber-200 via-amber-400 to-[#D97706] shadow-xs" />
-              </div>
+            <div className="space-y-4">
+              {(() => {
+                const sScore = Math.round(((requester.executionScore || 80) + (candidate.executionScore || 80)) / 2);
+                const oScore = Math.round(((requester.capabilityScore || 80) + (candidate.capabilityScore || 80)) / 2);
+                const vScore = Math.round(((requester.resonanceScore || 80) + (candidate.resonanceScore || 80)) / 2);
+                const rScore = Math.round((((requester.ocean?.openness || 80) + (candidate.ocean?.openness || 80))) / 2);
+                const cScore = Math.round((((requester.ocean?.conscientiousness || 80) + (candidate.ocean?.conscientiousness || 80))) / 2);
 
-              {/* Row 2: Deep Teal (Clarity & Structure) */}
-              <div>
-                <div className="flex items-center justify-between text-xs font-semibold text-stone-800 mb-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-[#0A6275]" />
-                    <span>Deep Teal: Clarity & Structure</span>
-                  </div>
-                  <span className="text-[11px] font-bold text-teal-900">Harmonic Depth</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-gradient-to-r from-cyan-200 via-teal-400 to-[#0A6275] shadow-xs" />
-              </div>
+                const getIntensityLabel = (score: number) => {
+                  if (score >= 94) return 'Full Luminous';
+                  if (score >= 90) return 'Deep Radiance';
+                  if (score >= 84) return 'Harmonic Depth';
+                  if (score >= 75) return 'Vibrant Tone';
+                  return 'Core Stability';
+                };
 
-              {/* Row 3: Verdant Green (Agility & Vision) */}
-              <div>
-                <div className="flex items-center justify-between text-xs font-semibold text-stone-800 mb-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-[#059669]" />
-                    <span>Verdant Green: Agility & Vision</span>
-                  </div>
-                  <span className="text-[11px] font-bold text-emerald-900">Pure Spark</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-gradient-to-r from-emerald-200 via-emerald-400 to-[#059669] shadow-xs" />
-              </div>
+                const channels = [
+                  {
+                    code: 'S',
+                    name: 'Solar Gold: Focus & Execution',
+                    color: '#D97706',
+                    gradient: 'from-amber-200 via-amber-400 to-[#D97706]',
+                    textColor: 'text-amber-900',
+                    score: sScore,
+                  },
+                  {
+                    code: 'O',
+                    name: 'Oceanic Teal: Clarity & Systems Logic',
+                    color: '#0A6275',
+                    gradient: 'from-cyan-200 via-teal-400 to-[#0A6275]',
+                    textColor: 'text-teal-900',
+                    score: oScore,
+                  },
+                  {
+                    code: 'V',
+                    name: 'Verdant Emerald: Empathy & Ethical Anchor',
+                    color: '#059669',
+                    gradient: 'from-emerald-200 via-emerald-400 to-[#059669]',
+                    textColor: 'text-emerald-900',
+                    score: vScore,
+                  },
+                  {
+                    code: 'R',
+                    name: 'Royal Amethyst: Intuitive Synthesis & Vision',
+                    color: '#7C3AED',
+                    gradient: 'from-purple-200 via-purple-400 to-[#7C3AED]',
+                    textColor: 'text-purple-900',
+                    score: rScore,
+                  },
+                  {
+                    code: 'C',
+                    name: 'Cobalt Blue: Reliability & Resilience',
+                    color: '#1D4ED8',
+                    gradient: 'from-blue-200 via-blue-400 to-[#1D4ED8]',
+                    textColor: 'text-blue-900',
+                    score: cScore,
+                  },
+                ];
 
-              {/* Row 4: Royal Purple (Intuition & Synergy) */}
-              <div>
-                <div className="flex items-center justify-between text-xs font-semibold text-stone-800 mb-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-[#7C3AED]" />
-                    <span>Royal Purple: Intuitive Synthesis</span>
+                return channels.map((ch) => (
+                  <div key={ch.code}>
+                    <div className="flex items-center justify-between text-xs font-semibold text-stone-800 mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shadow-2xs"
+                          style={{ backgroundColor: ch.color }}
+                        />
+                        <span>{ch.name}</span>
+                      </div>
+                      <span className={`text-[11px] font-bold ${ch.textColor}`}>
+                        {getIntensityLabel(ch.score)}
+                      </span>
+                    </div>
+                    <div className="w-full bg-stone-100 rounded-full h-2 overflow-hidden shadow-inner">
+                      <div
+                        className={`h-2 rounded-full bg-gradient-to-r ${ch.gradient} transition-all duration-500 shadow-xs`}
+                        style={{ width: `${ch.score}%` }}
+                      />
+                    </div>
                   </div>
-                  <span className="text-[11px] font-bold text-purple-900">Vibrant Tone</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-gradient-to-r from-purple-200 via-purple-400 to-[#7C3AED] shadow-xs" />
-              </div>
+                ));
+              })()}
             </div>
           </div>
 

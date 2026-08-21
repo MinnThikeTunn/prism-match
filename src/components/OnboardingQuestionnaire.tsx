@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { MOCK_PROFILES } from '../data/mockData';
-import { deriveColorIdentityFromProfile, ColorIdentity } from '../lib/colorSystem';
+import { deriveColorIdentityFromProfile, saveUserCustomColorIdentity, ColorIdentity } from '../lib/colorSystem';
 import {
   RankedColorMatchCandidate,
   rankCandidatesByColorMatch,
@@ -325,6 +325,10 @@ export const OnboardingQuestionnaire: React.FC<Props> = ({
         globalSynergyScore: Math.round((execution + capability + resonance) / 3),
       },
     };
+
+    const colorIdentity = deriveColorIdentityFromProfile(updated);
+    saveUserCustomColorIdentity(updated.id, colorIdentity);
+    saveUserCustomColorIdentity('user-current-alex', colorIdentity);
 
     onComplete(updated, features);
     onClose();
@@ -979,8 +983,8 @@ function OnboardingSwipeCard({
       <div className="p-4 border-b border-stone-100 flex items-center gap-3.5 bg-stone-50/60 shrink-0">
         <div className="relative shrink-0">
           <img
-            src={c.avatar}
-            alt={c.name}
+            src={c.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+            alt={c.name || 'Candidate'}
             className="w-13 h-13 rounded-2xl object-cover ring-2 ring-white shadow-xs"
             referrerPolicy="no-referrer"
           />
@@ -991,7 +995,7 @@ function OnboardingSwipeCard({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h4 className="text-base font-bold text-stone-900 truncate">{c.name}</h4>
+            <h4 className="text-base font-bold text-stone-900 truncate">{c.name || 'Anonymous Peer'}</h4>
             <span
               className="px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 border"
               style={{
@@ -1003,13 +1007,13 @@ function OnboardingSwipeCard({
               {match.colorB.primaryName}
             </span>
           </div>
-          <p className="text-xs text-stone-600 truncate">{c.title}</p>
+          <p className="text-xs text-stone-600 truncate">{c.title || 'Prism Pioneer'}</p>
           <div className="flex items-center gap-3 text-[11px] text-stone-400 mt-0.5">
             <span className="inline-flex items-center gap-1">
-              <MapPin className="w-3 h-3 text-stone-400" /> {c.location}
+              <MapPin className="w-3 h-3 text-stone-400" /> {c.location || 'Global Node'}
             </span>
             <span className="inline-flex items-center gap-1">
-              <Clock className="w-3 h-3 text-stone-400" /> {c.availabilityHoursPerWeek}h/wk
+              <Clock className="w-3 h-3 text-stone-400" /> {c.availabilityHoursPerWeek ?? 20}h/wk
             </span>
           </div>
         </div>
@@ -1026,11 +1030,11 @@ function OnboardingSwipeCard({
           <div className="space-y-1 text-xs">
             <div className="flex items-center justify-between">
               <span className="text-stone-500 font-medium">Your Color</span>
-              <span className="font-bold text-stone-800">{userColor.primaryName} × {userColor.secondaryName}</span>
+              <span className="font-bold text-stone-800">{userColor.primaryName}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-stone-500 font-medium">{c.name.split(' ')[0]}'s Color</span>
-              <span className="font-bold text-stone-800">{match.colorB.primaryName} × {match.colorB.secondaryName}</span>
+              <span className="text-stone-500 font-medium">{(c.name || 'Peer').split(' ')[0]}'s Color</span>
+              <span className="font-bold text-stone-800">{match.colorB.primaryName}</span>
             </div>
           </div>
         </div>
@@ -1052,7 +1056,7 @@ function OnboardingSwipeCard({
         </div>
 
         {/* Key capabilities */}
-        {c.needsOffers.offers.length > 0 && (
+        {c.needsOffers?.offers?.length ? (
           <div>
             <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-stone-400 mb-1.5">
               Key Capabilities
@@ -1065,7 +1069,7 @@ function OnboardingSwipeCard({
               ))}
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </motion.article>
   );

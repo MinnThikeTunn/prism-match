@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { UserProfile, OCEANProfile, EngineTier, IntentSubMode } from '../types';
 import { getColorIdentity } from '../lib/colorSystem';
+import { generateIsoCertificate } from '../lib/standardizationCertificate';
 import { ProfileSummaryCard } from './ProfileSummaryCard';
 import { 
   User, 
@@ -41,6 +42,7 @@ interface ProfileViewProps {
   onSelectCandidateSynergy?: (candidate: UserProfile) => void;
   onNavigateToColors?: () => void;
   onOpenChromaticTest?: () => void;
+  onNavigateToVerification?: () => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
@@ -50,6 +52,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onSelectCandidateSynergy,
   onNavigateToColors,
   onOpenChromaticTest,
+  onNavigateToVerification,
 }) => {
   // Selected profile to inspect (defaults to currentUser, can inspect candidates)
   const [inspectedUserId, setInspectedUserId] = useState<string>(currentUser.id);
@@ -85,7 +88,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const [newNeedTag, setNewNeedTag] = useState('');
   const [newDomainTag, setNewDomainTag] = useState('');
 
-  const activeColor = getColorIdentity(activeProfile.id);
+  const activeColor = getColorIdentity(activeProfile.id, activeProfile);
 
   // Sync form data when switching viewed profile
   const handleSelectProfile = (userId: string) => {
@@ -1022,50 +1025,112 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
       )}
 
-      {/* Tab Content 5: Verification & Cryptographic Stamp */}
-      {activeTab === 'verification' && (
-        <div className="bg-white border border-stone-200 rounded-2xl p-6 sm:p-8 shadow-xs animate-in fade-in duration-200 space-y-6">
-          <div className="flex items-center gap-3 pb-4 border-b border-stone-100">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-stone-900">Cryptographic Identity Verification</h2>
-              <p className="text-xs text-stone-500">Immutable audit hash proving your profile calibration authenticity.</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <div className="p-4 rounded-xl bg-stone-50 border border-stone-100 space-y-1">
-              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
-                Prism Identification Hash
-              </span>
-              <p className="font-mono font-bold text-stone-800 text-xs">
-                {activeProfile.prismId || 'MW-9842-AX'}
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl bg-stone-50 border border-stone-100 space-y-1">
-              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
-                Last Authenticated Timestamp
-              </span>
-              <p className="font-mono font-bold text-stone-800 text-xs">
-                {new Date(activeProfile.verifiedAt).toUTCString()}
-              </p>
-            </div>
-
-            <div className="md:col-span-2 p-4 rounded-xl bg-stone-900 text-white font-mono text-[11px] space-y-2">
-              <div className="flex items-center justify-between text-stone-400 text-[10px]">
-                <span>SHA-256 SPECTRUM INTEGRITY HASH</span>
-                <span className="text-emerald-400 font-bold">✓ SIGNATURE VALID</span>
+      {/* Tab Content 5: Verification & ISO Standardization Certificate */}
+      {activeTab === 'verification' && (() => {
+        const cert = generateIsoCertificate(activeProfile);
+        const profileColor = getColorIdentity(activeProfile.id, activeProfile);
+        return (
+          <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-xs animate-in fade-in duration-200 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-stone-100">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shadow-2xs">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-bold text-stone-900">ISO Chromatic Standardization & Qualification</h2>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                      ISO/PRISM-9001:2026
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-500">Official accredited qualification certifying behavioral color archetype and spectral wavelength.</p>
+                </div>
               </div>
-              <p className="text-stone-300 break-all leading-relaxed">
-                e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855{activeProfile.id.replace(/[^a-z0-9]/g, '')}
-              </p>
+
+              {onNavigateToVerification && (
+                <button
+                  onClick={onNavigateToVerification}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#D97706] hover:bg-[#b45309] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 self-start sm:self-auto"
+                  id="profile-view-full-certificate-btn"
+                >
+                  <Award className="w-3.5 h-3.5" />
+                  <span>View Full Certificate</span>
+                  <ExternalLink className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+
+            {/* Certified Color Archetype Banner */}
+            <div 
+              className="p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-stone-900"
+              style={{
+                borderColor: `${profileColor.primaryColor}50`,
+                background: `linear-gradient(135deg, ${profileColor.primaryColor}15 0%, #FFFFFF 100%)`
+              }}
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+                  Certified Chromatic Classification
+                </span>
+                <div className="text-xl font-black" style={{ color: profileColor.primaryColor }}>
+                  {cert.certifiedArchetype} ({cert.certifiedColorName})
+                </div>
+                <p className="text-xs text-stone-600 max-w-xl">
+                  {cert.dominantDriveDescription}
+                </p>
+              </div>
+
+              <div className="text-left sm:text-right shrink-0">
+                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Qualification Grade</span>
+                <span className="text-xs font-bold font-mono text-stone-800 bg-white/90 px-3 py-1 rounded-xl border border-stone-200 inline-block mt-0.5">
+                  {cert.qualificationGrade.split('(')[0]}
+                </span>
+              </div>
+            </div>
+
+            {/* Telemetry & Cryptographic Data Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-1">
+                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                  Certificate Serial
+                </span>
+                <p className="font-mono font-bold text-stone-900 text-xs">
+                  {cert.certificateNumber}
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-1">
+                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                  OKLCH & Wavelength
+                </span>
+                <p className="font-mono font-bold text-stone-900 text-xs">
+                  {cert.oklchSpec} ({cert.wavelengthNm} nm)
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-1">
+                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                  Compliance Rating
+                </span>
+                <p className="font-mono font-bold text-emerald-700 text-xs flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{cert.overallComplianceScore}% (5/5 Clauses Passed)</span>
+                </p>
+              </div>
+
+              <div className="sm:col-span-3 p-4 rounded-2xl bg-stone-900 text-white font-mono text-[11px] space-y-2">
+                <div className="flex items-center justify-between text-stone-400 text-[10px]">
+                  <span>SHA-256 SPECTRUM INTEGRITY HASH</span>
+                  <span className="text-emerald-400 font-bold">✓ SIGNATURE VALID</span>
+                </div>
+                <p className="text-stone-300 break-all leading-relaxed bg-black/40 p-2.5 rounded-xl">
+                  {cert.cryptographicAuditHash}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 };

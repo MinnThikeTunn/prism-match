@@ -133,10 +133,10 @@ export function clearSwipes() {
 
 /** Tags used as preference signals for a candidate. */
 export function candidateTags(candidate: UserProfile): string[] {
-  return [
-    ...candidate.needsOffers.offers,
-    ...candidate.needsOffers.domains,
-  ].map((t) => t.toLowerCase());
+  if (!candidate) return [];
+  const offers = Array.isArray(candidate.needsOffers?.offers) ? candidate.needsOffers.offers : [];
+  const domains = Array.isArray(candidate.needsOffers?.domains) ? candidate.needsOffers.domains : [];
+  return [...offers, ...domains].map((t) => String(t).toLowerCase());
 }
 
 export interface LearnedSignal {
@@ -155,7 +155,7 @@ export function learnSignal(swipes: SwipeRecord[], context: DiscoveryContext): L
     const delta = s.action === 'like' ? 1 : -0.6;
     if (s.action === 'like') liked++;
     else passed++;
-    for (const tag of s.tags) weights[tag] = (weights[tag] || 0) + delta;
+    for (const tag of s.tags || []) weights[tag] = (weights[tag] || 0) + delta;
   }
   return { weights, liked, passed };
 }
@@ -189,36 +189,54 @@ function evidence(
   const reasons: string[] = [];
   const uncertainties: string[] = [];
 
-  const theirOffersYouNeed = requester.needsOffers.needs.filter((n) =>
-    candidate.needsOffers.offers.some(
+  const reqNeeds = Array.isArray(requester.needsOffers?.needs) ? requester.needsOffers.needs : [];
+  const reqOffers = Array.isArray(requester.needsOffers?.offers) ? requester.needsOffers.offers : [];
+  const reqDomains = Array.isArray(requester.needsOffers?.domains) ? requester.needsOffers.domains : [];
+
+  const candNeeds = Array.isArray(candidate.needsOffers?.needs) ? candidate.needsOffers.needs : [];
+  const candOffers = Array.isArray(candidate.needsOffers?.offers) ? candidate.needsOffers.offers : [];
+  const candDomains = Array.isArray(candidate.needsOffers?.domains) ? candidate.needsOffers.domains : [];
+
+  const theirOffersYouNeed = reqNeeds.filter((n) =>
+    candOffers.some(
       (o) => o.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(o.toLowerCase()),
     ),
   );
-  const yourOffersTheyNeed = candidate.needsOffers.needs.filter((n) =>
-    requester.needsOffers.offers.some(
+  const yourOffersTheyNeed = candNeeds.filter((n) =>
+    reqOffers.some(
       (o) => o.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(o.toLowerCase()),
     ),
   );
-  const sharedDomains = requester.needsOffers.domains.filter((d) =>
-    candidate.needsOffers.domains.includes(d),
+  const sharedDomains = reqDomains.filter((d) =>
+    candDomains.includes(d),
   );
-  const availGap = Math.abs(requester.availabilityHoursPerWeek - candidate.availabilityHoursPerWeek);
+  const availGap = Math.abs((requester.availabilityHoursPerWeek ?? 20) - (candidate.availabilityHoursPerWeek ?? 20));
+
+  const colorMatch = calculateColorMatchScore(requester, candidate);
+
+  if (colorMatch.score >= 85) {
+    reasons.push(`${colorMatch.harmonicTitle}: Natural ${colorMatch.resonanceTier.toLowerCase()} synergy (${colorMatch.score}%).`);
+  }
 
   if (theirOffersYouNeed.length) reasons.push(`They cover what you're missing: ${theirOffersYouNeed.slice(0, 2).join(', ')}.`);
   if (yourOffersTheyNeed.length) reasons.push(`You cover what they're missing: ${yourOffersTheyNeed.slice(0, 2).join(', ')}.`);
   if (sharedDomains.length) reasons.push(`You both work in ${sharedDomains.slice(0, 2).join(' and ')}.`);
   if (availGap <= 6) reasons.push('Your weekly availability lines up closely.');
-  if (context === 'STUDY' && Math.abs(requester.capabilityScore - candidate.capabilityScore) >= 10)
+  if (context === 'STUDY' && Math.abs((requester.capabilityScore ?? 50) - (candidate.capabilityScore ?? 50)) >= 10)
     reasons.push('Skill gap is complementary — useful for teaching and learning.');
-  if (context === 'TEAMS' && candidate.executionScore >= 80)
+  if (context === 'TEAMS' && (candidate.executionScore ?? 50) >= 80)
     reasons.push('High execution drive strengthens delivery on a team.');
-  if (context === 'FRIENDS' && Math.abs(requester.ocean.extraversion - candidate.ocean.extraversion) <= 15)
+  if (context === 'FRIENDS' && Math.abs((requester.ocean?.extraversion ?? 50) - (candidate.ocean?.extraversion ?? 50)) <= 15)
     reasons.push('Similar social rhythm makes casual contact easy.');
   if (!reasons.length) reasons.push('Broad profile overlap without a single standout factor.');
 
+  if (colorMatch.frictionRisk === 'High' || colorMatch.frictionRisk === 'Critical') {
+    uncertainties.push(`Cognitive Tension (${colorMatch.frictionRisk}): ${colorMatch.frictionSummary}`);
+  }
+
   if (availGap > 12) uncertainties.push('Weekly availability differs a lot — coordination may be harder.');
   if (!sharedDomains.length) uncertainties.push('No shared domain recorded yet.');
-  if (!candidate.constraints.connectionGoals?.length) uncertainties.push('Their connection goals are not filled in.');
+  if (!candidate.constraints?.connectionGoals?.length) uncertainties.push('Their connection goals are not filled in.');
   if (context === 'STUDY') uncertainties.push('We have limited information about their study style.');
 
   return { reasons, uncertainties: uncertainties.slice(0, 3) };
@@ -278,14 +296,15 @@ export function rankDiscovery(
 }
 
 export function confidenceLabel(c: number): string {
-  if (c >= 0.9) return 'High';
-  if (c >= 0.78) return 'Moderate';
+  if (c >= 0.88) return 'High';
+  if (c >= 0.7) return 'Moderate';
   return 'Limited';
 }
 
 export function evidenceLabel(score: number): string {
-  if (score >= 90) return 'Strong';
-  if (score >= 80) return 'Promising';
-  if (score >= 70) return 'Worth exploring';
-  return 'Early signal';
+  if (score >= 90) return 'Transcendent Fit';
+  if (score >= 80) return 'Strong Synergy';
+  if (score >= 65) return 'Complementary';
+  if (score >= 50) return 'Moderate Tension';
+  return 'High Friction';
 }

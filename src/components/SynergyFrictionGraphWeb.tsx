@@ -21,10 +21,10 @@ import {
 
 export interface Archetype {
   id: string;
+  code?: 'S' | 'O' | 'V' | 'R' | 'C';
   name: string;
   title: string;
   primaryColor: string;
-  secondaryColor: string;
   gradientClass: string;
   bgGradient: string;
   tagline: string;
@@ -163,9 +163,9 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
   const filteredLinks = useMemo(() => {
     return links.filter(link => {
       // Synergy score filter
-      if (synergyFilter === 'ultra' && link.synergyScore < 92) return false;
-      if (synergyFilter === 'high' && link.synergyScore < 88) return false;
-      if (synergyFilter === 'friction' && link.synergyScore >= 85) return false;
+      if (synergyFilter === 'ultra' && link.synergyScore < 90) return false;
+      if (synergyFilter === 'high' && link.synergyScore < 80) return false;
+      if (synergyFilter === 'friction' && link.synergyScore >= 75) return false;
 
       // Search query filter
       if (searchQuery.trim()) {
@@ -512,7 +512,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
               <div className="bg-stone-900/80 backdrop-blur-md border border-white/10 px-3.5 py-1.5 rounded-full pointer-events-auto flex items-center gap-2.5 text-[11px] text-stone-300 shadow-lg">
                 <span className="flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-[#D97706] animate-pulse" />
-                  <span className="font-bold text-white">6</span> Nodes
+                  <span className="font-bold text-white">{archetypes.length}</span> Nodes
                 </span>
                 <span className="text-stone-600">•</span>
                 <span className="flex items-center gap-1">
@@ -702,7 +702,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                           stroke={`url(#grad-${link.id})`}
                           strokeWidth={strokeWidth}
                           strokeOpacity={opacity}
-                          strokeDasharray={link.synergyScore < 80 ? '6 4' : 'none'}
+                          strokeDasharray={link.synergyScore < 60 ? '3 3' : link.synergyScore < 80 ? '6 4' : 'none'}
                           filter={isSelected || isHovered ? 'url(#glow-intense)' : undefined}
                           className="transition-all duration-200"
                           pointerEvents="none"
@@ -722,7 +722,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                               height="18"
                               rx="9"
                               fill="#18181B"
-                              stroke={link.colorA}
+                              stroke={link.synergyScore < 60 ? '#EF4444' : link.colorA}
                               strokeWidth="1.5"
                               filter="url(#glow)"
                             />
@@ -730,7 +730,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                               x="0"
                               y="3"
                               textAnchor="middle"
-                              fill="#FFFFFF"
+                              fill={link.synergyScore < 60 ? '#FCA5A5' : '#FFFFFF'}
                               fontSize="9"
                               fontWeight="bold"
                               fontFamily="monospace"
@@ -803,13 +803,13 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                           y="4"
                           textAnchor="middle"
                           fill="#FFFFFF"
-                          fontSize="12"
+                          fontSize="13"
                           fontWeight="900"
                           letterSpacing="0.5"
                           pointerEvents="none"
                           opacity={isDimmed ? 0.4 : 1}
                         >
-                          {node.name.replace('The ', '').split(' ').map(w => w[0]).join('')}
+                          {node.code || node.name.replace('The ', '').split(' ').map(w => w[0]).join('')}
                         </text>
 
                         {/* Node Label Below */}
@@ -914,7 +914,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                       {selectedLink.synergyScore}% Resonance
                     </span>
                     <span className="text-[11px] text-stone-300">
-                      {selectedLink.archetypeA} × {selectedLink.archetypeB}
+                      {selectedLink.archetypeA} & {selectedLink.archetypeB}
                     </span>
                   </div>
 
@@ -984,7 +984,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                 <div 
                   className="p-6 rounded-2xl text-white relative overflow-hidden flex flex-col justify-between min-h-[130px] shadow-sm"
                   style={{
-                    background: `linear-gradient(135deg, ${selectedNode.primaryColor}, ${selectedNode.secondaryColor})`
+                    background: `linear-gradient(135deg, ${selectedNode.primaryColor}, ${selectedNode.primaryColor}CC)`
                   }}
                 >
                   <div className="flex items-start justify-between">

@@ -121,14 +121,14 @@ export const CustomAiMatchModal: React.FC<CustomAiMatchModalProps> = ({
                 onClick={() => setPrompt('Find 2 Python backend devs and 1 UI/UX designer with Solar Gold execution drive')}
                 className="text-[11px] font-semibold bg-stone-100 text-stone-700 px-3 py-1 rounded-full hover:bg-stone-200 transition-colors"
               >
-                Preset: Hackathon (Gold & Teal)
+                Preset: Hackathon (Solar Gold & Oceanic Teal)
               </button>
               <button
                 type="button"
-                onClick={() => setPrompt('Match 1 Ethical AI Lead mentor with Royal Purple & Verdant Green spectrum')}
+                onClick={() => setPrompt('Match 1 Ethical AI Lead mentor with Royal Amethyst & Verdant Emerald spectrum')}
                 className="text-[11px] font-semibold bg-stone-100 text-stone-700 px-3 py-1 rounded-full hover:bg-stone-200 transition-colors"
               >
-                Preset: Mentorship (Purple & Green)
+                Preset: Mentorship (Amethyst & Emerald)
               </button>
             </div>
 
