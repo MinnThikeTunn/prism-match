@@ -1,8 +1,6 @@
 import React from 'react';
 import { 
-  Palette, 
-  Sparkles, 
-  ArrowRight 
+  Palette
 } from 'lucide-react';
 import { SynergyFrictionGraphWeb, HarmonicPair } from './SynergyFrictionGraphWeb';
 
@@ -396,19 +394,6 @@ export const ColorSystemView: React.FC<ColorSystemViewProps> = ({
             </span>
           </div>
 
-          {onOpenChromaticTest && (
-            <div className="pt-3">
-              <button
-                onClick={onOpenChromaticTest}
-                className="px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2"
-                id="colorsystem-take-assessment-btn"
-              >
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span>Take Mock Behavioral Test (Determine Your Color)</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
