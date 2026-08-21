@@ -18,7 +18,6 @@ import {
   X,
   Compass
 } from 'lucide-react';
-import { MobileSynergyBoard } from './MobileSynergyBoard';
 
 export interface Archetype {
   id: string;
@@ -98,7 +97,10 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
-    const update = () => setIsMobile(mq.matches);
+    const update = () => {
+      setIsMobile(mq.matches);
+      if (mq.matches) setIsPhysicsRunning(false);
+    };
     update();
     mq.addEventListener('change', update);
     return () => mq.removeEventListener('change', update);
@@ -144,10 +146,10 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
         y: centerY + radius * Math.sin(angle),
         vx: 0,
         vy: 0,
-        radius: 28
+        radius: isMobile ? 46 : 28
       };
     });
-  }, [archetypes]);
+  }, [archetypes, isMobile]);
 
   const [nodes, setNodes] = useState<GraphNode[]>(initialNodes);
 
@@ -539,9 +541,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
       </div>
 
       {/* Main Interactive View Area */}
-      {isMobile ? (
-        <MobileSynergyBoard archetypes={archetypes} pairs={filteredLinks} />
-      ) : viewMode === 'graph' ? (
+      {viewMode === 'graph' ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left / Center: Obsidian Force Graph Canvas */}
           <div className="lg:col-span-12 xl:col-span-7 bg-[#0E1117] border border-stone-800 rounded-[32px] shadow-lg relative overflow-hidden min-h-[560px] flex flex-col justify-between" ref={containerRef}>
@@ -550,7 +550,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
               {/* Left: Quick Legend */}
               <div className="bg-stone-900/80 backdrop-blur-md border border-white/10 px-3.5 py-1.5 rounded-full pointer-events-auto flex items-center gap-2.5 text-[11px] text-stone-300 shadow-lg">
                 <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-[#D97706] animate-pulse" />
+                  <span className={`w-2 h-2 rounded-full bg-[#D97706] ${isMobile ? '' : 'animate-pulse'}`} />
                   <span className="font-bold text-white">{archetypes.length}</span> Nodes
                 </span>
                 <span className="text-stone-600">•</span>
@@ -613,7 +613,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
             <svg
               ref={svgRef}
               viewBox="0 0 800 600"
-              className="w-full h-[560px] cursor-grab active:cursor-grabbing select-none"
+              className="w-full h-[520px] sm:h-[560px] cursor-grab active:cursor-grabbing select-none"
               style={{ touchAction: 'none' }}
               onPointerDown={handleCanvasMouseDown}
               onPointerMove={handleCanvasMouseMove}
@@ -809,7 +809,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                           fill={node.primaryColor}
                           fillOpacity={isDimmed ? 0.03 : isSelected ? 0.35 : isHovered ? 0.25 : 0.12}
                           filter={isSelected || isHovered ? 'url(#glow-intense)' : undefined}
-                          className="transition-all duration-300"
+                          className={isMobile ? undefined : 'transition-all duration-300'}
                         />
 
                         {/* Middle Chromatic Ring */}
@@ -828,7 +828,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                           fill={node.primaryColor}
                           opacity={isDimmed ? 0.35 : 1}
                           filter={isSelected ? 'url(#glow)' : undefined}
-                          className="transition-transform duration-200 group-hover:scale-105"
+                          className={isMobile ? undefined : 'transition-transform duration-200 group-hover:scale-105'}
                         />
 
                         {/* Inner Core Accent */}
@@ -844,7 +844,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                           y="4"
                           textAnchor="middle"
                           fill="#FFFFFF"
-                          fontSize="13"
+                          fontSize={isMobile ? 20 : 13}
                           fontWeight="900"
                           letterSpacing="0.5"
                           pointerEvents="none"
