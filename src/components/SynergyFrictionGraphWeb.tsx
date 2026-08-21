@@ -297,7 +297,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
   const handleNodeMouseDown = (nodeId: string, e: React.PointerEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    (e.currentTarget as Element).ownerSVGElement?.setPointerCapture?.(e.pointerId);
+    svgRef.current?.setPointerCapture?.(e.pointerId);
     setDraggedNodeId(nodeId);
   };
 
@@ -584,9 +584,11 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
               ref={svgRef}
               viewBox="0 0 800 600"
               className="w-full h-[560px] cursor-grab active:cursor-grabbing select-none"
-              onMouseDown={handleCanvasMouseDown}
-              onMouseMove={handleCanvasMouseMove}
-              onMouseUp={handleCanvasMouseUp}
+              style={{ touchAction: 'none' }}
+              onPointerDown={handleCanvasMouseDown}
+              onPointerMove={handleCanvasMouseMove}
+              onPointerUp={handleCanvasMouseUp}
+              onPointerCancel={handleCanvasMouseUp}
             >
               <defs>
                 {/* Subtle Radial Grid Pattern */}
@@ -766,7 +768,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                         key={node.id}
                         transform={`translate(${node.x}, ${node.y})`}
                         className="cursor-pointer group"
-                        onMouseDown={(e) => handleNodeMouseDown(node.id, e)}
+                        onPointerDown={(e) => handleNodeMouseDown(node.id, e)}
                         onClick={(e) => handleNodeClick(node, e)}
                         onMouseEnter={() => setHoveredNodeId(node.id)}
                         onMouseLeave={() => setHoveredNodeId(null)}
