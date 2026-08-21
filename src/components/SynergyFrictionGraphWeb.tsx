@@ -616,8 +616,8 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
             <svg
               ref={svgRef}
               viewBox="0 0 800 600"
-              className="w-full h-[520px] sm:h-[560px] cursor-grab active:cursor-grabbing select-none"
-              style={{ touchAction: 'none' }}
+              className={`w-full h-[520px] sm:h-[560px] select-none ${isMobile ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}`}
+              style={{ touchAction: isMobile ? 'pan-y' : 'none' }}
               onPointerDown={handleCanvasMouseDown}
               onPointerMove={handleCanvasMouseMove}
               onPointerUp={handleCanvasMouseUp}
