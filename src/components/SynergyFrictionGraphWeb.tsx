@@ -293,15 +293,24 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
     setSelectedLinkId(null);
   };
 
+  // Tap tracking (touch devices don't reliably fire click after pointer capture)
+  const tapRef = useRef<{ nodeId: string | null; x: number; y: number; moved: boolean } | null>(null);
+
   // Node Drag Handlers (pointer events = mouse + touch + pen)
   const handleNodeMouseDown = (nodeId: string, e: React.PointerEvent) => {
     e.stopPropagation();
     e.preventDefault();
     svgRef.current?.setPointerCapture?.(e.pointerId);
+    tapRef.current = { nodeId, x: e.clientX, y: e.clientY, moved: false };
     setDraggedNodeId(nodeId);
   };
 
   const handleCanvasMouseMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
+    if (tapRef.current && !tapRef.current.moved) {
+      const dx = e.clientX - tapRef.current.x;
+      const dy = e.clientY - tapRef.current.y;
+      if (Math.hypot(dx, dy) > 8) tapRef.current.moved = true;
+    }
     if (draggedNodeId) {
       if (!svgRef.current) return;
       e.preventDefault();
@@ -323,6 +332,12 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
     if (e && svgRef.current?.hasPointerCapture?.(e.pointerId)) {
       svgRef.current.releasePointerCapture(e.pointerId);
     }
+    const tap = tapRef.current;
+    tapRef.current = null;
+    if (tap && !tap.moved && tap.nodeId) {
+      setSelectedNodeId(tap.nodeId);
+      setSelectedLinkId(null);
+    }
     setDraggedNodeId(null);
     setIsPanning(false);
   }, []);
@@ -331,10 +346,12 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
     // Only pan if clicking on canvas background (not on a node or link)
     if (e.target === svgRef.current || (e.target as HTMLElement).tagName === 'rect') {
       svgRef.current?.setPointerCapture?.(e.pointerId);
+      tapRef.current = null;
       setIsPanning(true);
       setPanStart({ x: e.clientX, y: e.clientY });
     }
   };
+
 
 
   // Active selected entities
