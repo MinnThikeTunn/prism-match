@@ -293,21 +293,25 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
     setSelectedLinkId(null);
   };
 
-  // Node Drag Handlers
-  const handleNodeMouseDown = (nodeId: string, e: React.MouseEvent) => {
+  // Node Drag Handlers (pointer events = mouse + touch + pen)
+  const handleNodeMouseDown = (nodeId: string, e: React.PointerEvent) => {
     e.stopPropagation();
+    e.preventDefault();
+    svgRef.current?.setPointerCapture?.(e.pointerId);
     setDraggedNodeId(nodeId);
   };
 
-  const handleCanvasMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+  const handleCanvasMouseMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
     if (draggedNodeId) {
       if (!svgRef.current) return;
+      e.preventDefault();
       const rect = svgRef.current.getBoundingClientRect();
       const rawX = (e.clientX - rect.left - transform.x) / transform.scale;
       const rawY = (e.clientY - rect.top - transform.y) / transform.scale;
 
       setNodes(prev => prev.map(n => n.id === draggedNodeId ? { ...n, x: rawX, y: rawY, vx: 0, vy: 0 } : n));
     } else if (isPanning) {
+      e.preventDefault();
       const dx = e.clientX - panStart.x;
       const dy = e.clientY - panStart.y;
       setTransform(prev => ({ ...prev, x: prev.x + dx, y: prev.y + dy }));
@@ -315,18 +319,23 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
     }
   }, [draggedNodeId, isPanning, panStart, transform]);
 
-  const handleCanvasMouseUp = useCallback(() => {
+  const handleCanvasMouseUp = useCallback((e?: React.PointerEvent<SVGSVGElement>) => {
+    if (e && svgRef.current?.hasPointerCapture?.(e.pointerId)) {
+      svgRef.current.releasePointerCapture(e.pointerId);
+    }
     setDraggedNodeId(null);
     setIsPanning(false);
   }, []);
 
-  const handleCanvasMouseDown = (e: React.MouseEvent<SVGSVGElement>) => {
+  const handleCanvasMouseDown = (e: React.PointerEvent<SVGSVGElement>) => {
     // Only pan if clicking on canvas background (not on a node or link)
     if (e.target === svgRef.current || (e.target as HTMLElement).tagName === 'rect') {
+      svgRef.current?.setPointerCapture?.(e.pointerId);
       setIsPanning(true);
       setPanStart({ x: e.clientX, y: e.clientY });
     }
   };
+
 
   // Active selected entities
   const selectedNode = useMemo(() => {
@@ -575,9 +584,11 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
               ref={svgRef}
               viewBox="0 0 800 600"
               className="w-full h-[560px] cursor-grab active:cursor-grabbing select-none"
-              onMouseDown={handleCanvasMouseDown}
-              onMouseMove={handleCanvasMouseMove}
-              onMouseUp={handleCanvasMouseUp}
+              style={{ touchAction: 'none' }}
+              onPointerDown={handleCanvasMouseDown}
+              onPointerMove={handleCanvasMouseMove}
+              onPointerUp={handleCanvasMouseUp}
+              onPointerCancel={handleCanvasMouseUp}
             >
               <defs>
                 {/* Subtle Radial Grid Pattern */}
@@ -757,7 +768,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                         key={node.id}
                         transform={`translate(${node.x}, ${node.y})`}
                         className="cursor-pointer group"
-                        onMouseDown={(e) => handleNodeMouseDown(node.id, e)}
+                        onPointerDown={(e) => handleNodeMouseDown(node.id, e)}
                         onClick={(e) => handleNodeClick(node, e)}
                         onMouseEnter={() => setHoveredNodeId(node.id)}
                         onMouseLeave={() => setHoveredNodeId(null)}
