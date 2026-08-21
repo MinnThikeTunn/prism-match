@@ -601,7 +601,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
             <div className="absolute bottom-4 left-4 z-20 pointer-events-none">
               <div className="bg-stone-900/75 backdrop-blur-md border border-white/10 px-3.5 py-2 rounded-2xl text-[11px] text-stone-300 space-y-0.5 shadow-lg">
                 <p className="flex items-center gap-1.5 font-medium">
-                  <span className="text-amber-400 font-bold">●</span> Click node to inspect color archetype
+                  <span className="text-amber-400 font-bold">●</span> Tap a node to inspect its color archetype
                 </p>
                 <p className="flex items-center gap-1.5 font-medium">
                   <span className="text-purple-400 font-bold">—</span> Hover line for synergy %, click for the <strong>Why</strong>
@@ -854,13 +854,13 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                         </text>
 
                         {/* Node Label Below */}
-                        <g transform={`translate(0, ${node.radius + 18})`} pointerEvents="none">
+                        <g transform={`translate(0, ${node.radius + (isMobile ? 26 : 18)})`} pointerEvents="none">
                           <rect
-                            x={-(node.name.length * 3.4 + 10)}
-                            y="-9"
-                            width={node.name.length * 6.8 + 20}
-                            height="18"
-                            rx="9"
+                            x={-(node.name.length * (isMobile ? 4.8 : 3.4) + 12)}
+                            y={isMobile ? -13 : -9}
+                            width={node.name.length * (isMobile ? 9.6 : 6.8) + 24}
+                            height={isMobile ? 26 : 18}
+                            rx={isMobile ? 13 : 9}
                             fill="#18181B"
                             fillOpacity={isDimmed ? 0.3 : 0.88}
                             stroke={isSelected ? node.primaryColor : 'rgba(255,255,255,0.1)'}
@@ -871,7 +871,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
                             y="3"
                             textAnchor="middle"
                             fill={isSelected ? '#FFFFFF' : isDimmed ? '#71717A' : '#E4E4E7'}
-                            fontSize="10"
+                            fontSize={isMobile ? 14 : 10}
                             fontWeight={isSelected ? 'bold' : '600'}
                           >
                             {node.name}
