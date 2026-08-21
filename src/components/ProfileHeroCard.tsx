@@ -38,7 +38,7 @@ export const ProfileHeroCard: React.FC<ProfileHeroCardProps> = ({ profile, bioSl
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-5">
             <div className="relative">
               <div
-                className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl p-1.5 bg-white shadow-xl ring-4 transition-all"
+                className="w-28 h-28 rounded-3xl p-1.5 bg-white shadow-xl ring-4 transition-all"
                 style={{ ['--tw-ring-color' as string]: activeColor.primaryColor } as React.CSSProperties}
               >
                 <img
