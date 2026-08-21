@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../types';
 import { Search, ArrowRight, Palette, Users, Heart } from 'lucide-react';
-import { getColorIdentity, getPairwiseColorHarmonics } from '../lib/colorSystem';
-import { isConnected, getStoredConnections } from '../lib/discovery';
+import { getColorIdentity } from '../lib/colorSystem';
+import { getStoredConnections, getResonantPool, MIN_COLOR_MATCH_SCORE } from '../lib/discovery';
 
 interface NetworkModalProps {
   isOpen: boolean;
@@ -26,7 +26,14 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
 
   const connectedIds = new Set(getStoredConnections());
 
-  const filtered = candidates.filter((c) => {
+  // Same colour-filtered recommendation pool the home Network Resonance panel uses.
+  const resonant = getResonantPool(currentUser, candidates);
+  const scoreById = new Map(resonant.map((r) => [r.candidate.id, r.score]));
+  const recommended = resonant
+    .map((r) => r.candidate)
+    .concat(candidates.filter((c) => connectedIds.has(c.id) && !scoreById.has(c.id)));
+
+  const filtered = recommended.filter((c) => {
     const term = searchTerm.toLowerCase();
     const matchesSearch =
       c.name.toLowerCase().includes(term) ||
@@ -59,7 +66,7 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
               </h2>
             </div>
             <p className="text-xs text-stone-500 mt-0.5">
-              Explore all active candidates categorized by their pure chromatic spectral resonance.
+              Only candidates with at least {MIN_COLOR_MATCH_SCORE}% chromatic resonance with you are recommended.
             </p>
           </div>
           <button
@@ -109,8 +116,8 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
           ) : (
             filtered.map((candidate) => {
               const candColor = getColorIdentity(candidate.id);
-              const harmonic = getPairwiseColorHarmonics(currentUser.id, candidate.id);
               const isUserConnected = connectedIds.has(candidate.id);
+              const matchScore = scoreById.get(candidate.id);
 
               return (
                 <div
@@ -181,7 +188,7 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
                         {candColor.primaryName}
                       </span>
                       <div className="text-[10px] font-semibold text-stone-400 mt-0.5">
-                        {candColor.harmonicTitle}
+                        {matchScore !== undefined ? `${matchScore}% resonance` : candColor.harmonicTitle}
                       </div>
                     </div>
 
