@@ -311,6 +311,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
 
   // Node Drag Handlers (pointer events = mouse + touch + pen)
   const handleNodeMouseDown = (nodeId: string, e: React.PointerEvent) => {
+    if (isMobile) return; // Mobile: no drag, only tap selection
     e.stopPropagation();
     e.preventDefault();
     svgRef.current?.setPointerCapture?.(e.pointerId);
@@ -319,6 +320,7 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
   };
 
   const handleCanvasMouseMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
+    if (isMobile) return; // Mobile: graph stays completely still
     if (tapRef.current && !tapRef.current.moved) {
       const dx = e.clientX - tapRef.current.x;
       const dy = e.clientY - tapRef.current.y;
@@ -339,10 +341,10 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
       setTransform(prev => ({ ...prev, x: prev.x + dx, y: prev.y + dy }));
       setPanStart({ x: e.clientX, y: e.clientY });
     }
-  }, [draggedNodeId, isPanning, panStart, transform]);
+  }, [draggedNodeId, isPanning, panStart, transform, isMobile]);
 
   const handleCanvasMouseUp = useCallback((e?: React.PointerEvent<SVGSVGElement>) => {
-    if (e && svgRef.current?.hasPointerCapture?.(e.pointerId)) {
+    if (!isMobile && e && svgRef.current?.hasPointerCapture?.(e.pointerId)) {
       svgRef.current.releasePointerCapture(e.pointerId);
     }
     const tap = tapRef.current;
@@ -353,9 +355,10 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
     }
     setDraggedNodeId(null);
     setIsPanning(false);
-  }, []);
+  }, [isMobile]);
 
   const handleCanvasMouseDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (isMobile) return; // Mobile: no panning, graph is static
     // Only pan if clicking on canvas background (not on a node or link)
     if (e.target === svgRef.current || (e.target as HTMLElement).tagName === 'rect') {
       svgRef.current?.setPointerCapture?.(e.pointerId);
