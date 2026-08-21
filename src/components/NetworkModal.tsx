@@ -199,7 +199,7 @@ export const NetworkModal: React.FC<NetworkModalProps> = ({
                       }}
                       className="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 shadow-xs"
                     >
-                      <span>Inspect Dossier</span>
+                      <span>Connect</span>
                       <ArrowRight className="w-3 h-3" />
                     </button>
                   </div>
