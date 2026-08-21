@@ -10,16 +10,18 @@ interface RateLimitRecord {
 
 const rateLimitStore = new Map<string, RateLimitRecord>();
 
-// Cleanup stale keys every 5 minutes
-if (typeof setInterval !== 'undefined') {
-  setInterval(() => {
-    const now = Date.now();
-    for (const [key, record] of rateLimitStore.entries()) {
-      if (now > record.resetTime) {
-        rateLimitStore.delete(key);
-      }
+// Cleanup stale keys lazily (no global timers: disallowed in Worker global scope)
+const CLEANUP_INTERVAL_MS = 300000;
+let lastCleanup = 0;
+
+function cleanupStaleKeys(now: number) {
+  if (now - lastCleanup < CLEANUP_INTERVAL_MS) return;
+  lastCleanup = now;
+  for (const [key, record] of rateLimitStore.entries()) {
+    if (now > record.resetTime) {
+      rateLimitStore.delete(key);
     }
-  }, 300000);
+  }
 }
 
 export function checkRateLimit(
