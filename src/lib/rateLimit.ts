@@ -30,6 +30,7 @@ export function checkRateLimit(
   windowMs: number = 60000
 ): { allowed: boolean; remaining: number; resetInMs: number } {
   const now = Date.now();
+  cleanupStaleKeys(now);
   const existing = rateLimitStore.get(clientId);
 
   if (!existing || now > existing.resetTime) {
