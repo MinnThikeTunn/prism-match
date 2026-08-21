@@ -93,13 +93,17 @@ export const SynergyFrictionGraphWeb: React.FC<SynergyFrictionGraphWebProps> = (
   const [synergyFilter, setSynergyFilter] = useState<'all' | 'high' | 'ultra' | 'friction'>('all');
   const [isPhysicsRunning, setIsPhysicsRunning] = useState(true);
 
-  // Mobile = static, big touch UI (no physics, no canvas)
+  // Mobile = static, big touch UI (no physics, no pan, no zoom)
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
     const update = () => {
-      setIsMobile(mq.matches);
-      if (mq.matches) setIsPhysicsRunning(false);
+      const next = mq.matches;
+      setIsMobile(next);
+      if (next) {
+        setIsPhysicsRunning(false);
+        setTransform({ scale: 1, x: 0, y: 0 }); // lock view on mobile
+      }
     };
     update();
     mq.addEventListener('change', update);
